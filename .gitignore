@@ -1,0 +1,4 @@
+.DS_Store
+.vercel/
+.dev-server.pid
+npm-debug.log*
