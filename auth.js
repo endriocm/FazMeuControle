@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 const gate = document.getElementById('authGate');
@@ -53,7 +53,7 @@ function render() {
   }
   if (!state.user) {
     showGate();
-    renderAuth();
+    renderMesaAuth();
     return;
   }
   if (state.access?.active && state.panel !== 'account') {
@@ -87,6 +87,40 @@ function renderAuth(error = '') {
     <button class="auth-button outline" data-auth-action="google">Continuar com Google</button>
     ${error ? note(escapeHtml(error), 'error') : ''}
     ${note('Ao continuar, você concorda em usar o serviço com uma conta individual. O acesso completo é liberado por pagamento aprovado ou código de acesso.')}
+  `;
+}
+
+function mesaBrand() {
+  return `<div class="auth-brand"><div class="auth-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-9"/><path d="M16 6h5v5"/></svg></div><div><h1>Faz Meu Controle</h1><p>Acesso seguro ao seu planejamento financeiro</p></div></div>`;
+}
+
+function mesaStats() {
+  return `<div class="auth-mini-panel" aria-label="Recursos da plataforma"><div class="auth-mini-stat"><span>Dados</span><strong>Privados</strong><small>por usuário</small></div><div class="auth-mini-stat"><span>Acesso</span><strong>Seguro</strong><small>Firebase</small></div><div class="auth-mini-stat"><span>Backup</span><strong>Ativo</strong><small>na nuvem</small></div></div>`;
+}
+
+function googleMark() {
+  return `<span class="auth-google-mark" aria-hidden="true"><svg viewBox="0 0 18 18" focusable="false"><path fill="#4285F4" d="M17.64 9.2045c0-.638-.0573-1.2518-.1636-1.8409H9v3.4818h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2582h2.9082c1.7027-1.5673 2.6836-3.8745 2.6836-6.6155z"/><path fill="#34A853" d="M9 18c2.43 0 4.4673-.8055 5.9564-2.1791l-2.9082-2.2582c-.8055.54-1.8368.8591-3.0482.8591-2.3441 0-4.3282-1.5832-5.0364-3.7091H.9573v2.3327C2.4382 16.0909 5.4818 18 9 18z"/><path fill="#FBBC05" d="M3.9636 10.7127c-.18-.54-.2823-1.1168-.2823-1.7127s.1023-1.1727.2823-1.7127V4.9545H.9573C.3477 6.1691 0 7.5482 0 9s.3477 2.8309.9573 4.0455l3.0063-2.3328z"/><path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.3459l2.5809-2.5809C13.4636.8918 11.4264 0 9 0 5.4818 0 2.4382 2.0909.9573 4.9545l3.0063 2.3328C4.6718 5.1627 6.6559 3.5795 9 3.5795z"/></svg></span>`;
+}
+
+function renderMesaAuth(error = '') {
+  const signup = state.mode === 'signup';
+  card.className = 'auth-card';
+  card.innerHTML = `
+    ${mesaBrand()}
+    <div><p class="auth-kicker">${signup ? 'NOVO ACESSO' : 'ÁREA DO CLIENTE'}</p><h2>${signup ? 'Crie sua conta' : 'Acesso ao controle financeiro'}</h2><p class="auth-intro">${signup ? 'Cadastre-se para proteger e organizar seus próprios dados.' : 'Entre para abrir seu ambiente financeiro pessoal.'}</p></div>
+    ${mesaStats()}
+    <form class="auth-form" id="authForm" data-mode="${signup ? 'signup' : 'login'}">
+      ${signup ? '<div class="auth-field auth-field--icon"><label for="authName">Nome</label><input id="authName" name="name" autocomplete="name" required placeholder="Como quer ser chamado?"><span class="auth-field-icon" aria-hidden="true">◉</span></div>' : ''}
+      <div class="auth-field auth-field--icon"><label for="authEmail">E-mail</label><input id="authEmail" name="email" type="email" autocomplete="email" required placeholder="seuemail@exemplo.com"><span class="auth-field-icon" aria-hidden="true">✉</span></div>
+      <div class="auth-field auth-field--icon"><label for="authPassword">Senha</label><input id="authPassword" name="password" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" minlength="6" required placeholder="${signup ? 'Mínimo de 6 caracteres' : 'Sua senha'}"><span class="auth-field-icon" aria-hidden="true">◈</span></div>
+      <label class="auth-remember"><input id="authRemember" type="checkbox" checked><span>Manter meu acesso neste dispositivo</span></label>
+      <button class="auth-button" type="submit">${signup ? 'Criar conta' : 'Entrar'}</button>
+    </form>
+    <button class="auth-button outline" data-auth-action="${signup ? 'mode-login' : 'mode-signup'}">${signup ? 'Já tenho uma conta' : 'Criar conta'}</button>
+    <div class="auth-divider">ou</div>
+    <button class="auth-button outline" data-auth-action="google">${googleMark()} Entrar com Google</button>
+    ${error ? note(escapeHtml(error), 'error') : ''}
+    <p class="auth-kicker" style="color:rgba(220,244,255,.52)">AMBIENTE SEGURO · DADOS INDIVIDUAIS</p>
   `;
 }
 
@@ -190,7 +224,7 @@ async function signInGoogle() {
   try {
     await signInWithPopup(auth, new GoogleAuthProvider());
   } catch (error) {
-    renderAuth(error.message.includes('popup') ? 'A janela do Google foi bloqueada. Permita pop-ups e tente novamente.' : 'Não foi possível entrar com Google.');
+    renderMesaAuth(error.message.includes('popup') ? 'A janela do Google foi bloqueada. Permita pop-ups e tente novamente.' : 'Não foi possível entrar com Google.');
   }
 }
 
@@ -208,7 +242,7 @@ async function handleAuthForm(form) {
     }
   } catch (error) {
     const messages = { 'auth/email-already-in-use': 'Este e-mail já possui uma conta.', 'auth/invalid-credential': 'E-mail ou senha inválidos.', 'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.', 'auth/invalid-email': 'Informe um e-mail válido.' };
-    renderAuth(messages[error.code] || 'Não foi possível autenticar. Tente novamente.');
+    renderMesaAuth(messages[error.code] || 'Não foi possível autenticar. Tente novamente.');
   }
 }
 
@@ -252,8 +286,8 @@ document.addEventListener('click', async (event) => {
   const button = event.target.closest('[data-auth-action]');
   if (!button) return;
   const action = button.dataset.authAction;
-  if (action === 'mode-login') { state.mode = 'login'; renderAuth(); }
-  if (action === 'mode-signup') { state.mode = 'signup'; renderAuth(); }
+  if (action === 'mode-login') { state.mode = 'login'; renderMesaAuth(); }
+  if (action === 'mode-signup') { state.mode = 'signup'; renderMesaAuth(); }
   if (action === 'google') await signInGoogle();
   if (action === 'checkout') await beginCheckout();
   if (action === 'show-code') document.getElementById('redeemForm')?.removeAttribute('hidden');
