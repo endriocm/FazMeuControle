@@ -357,6 +357,7 @@
       .item-value{text-align:left}
     }
   </style>
+  <link rel="stylesheet" href="./auth.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -379,6 +380,7 @@
           <button class="btn ghost" id="exportBtn">⬇ Backup JSON</button>
           <button class="btn ghost" id="importBtn">⬆ Importar</button>
           <button class="btn ghost" id="clearFiltersBtn">🧹 Limpar filtros</button>
+          <button class="btn ghost" id="accountBtn" type="button">Entrar</button>
           <span class="saved-indicator"><span class="pulse-dot"></span><span id="savedText">salvo automaticamente</span></span>
           <input type="file" id="importFile" accept="application/json" hidden />
         </div>
@@ -391,6 +393,15 @@
 
     <main id="app"></main>
   </div>
+
+  <section class="auth-gate" id="authGate" aria-live="polite">
+    <div class="auth-card" id="authCard">
+      <div class="auth-logo">CF</div>
+      <p class="auth-kicker">CONTROLE FINANCEIRO</p>
+      <h2>Carregando acesso seguro...</h2>
+      <p>Preparando sua área financeira.</p>
+    </div>
+  </section>
 
   <div id="modal" class="modal hidden">
     <div class="modal-card">
@@ -1590,7 +1601,8 @@
   "invoicePayments": {},
   "updatedAt": ""
 };
-    const STORAGE_KEY = "controle_financeiro_marrom_premium_v1";
+    const STORAGE_KEY_BASE = "controle_financeiro_marrom_premium_v1";
+    let STORAGE_KEY = STORAGE_KEY_BASE;
     const MONTHS = ["JUL","AGO","SET","OUT","NOV","DEZ","JAN","FEV","MAR","ABR","MAI","JUN"];
     const MONTH_NUMBERS = [7,8,9,10,11,12,1,2,3,4,5,6];
     const TABS = [
@@ -1678,6 +1690,7 @@
       data.settings.year = state.year;
       data.updatedAt = new Date().toISOString();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      window.financeAuth?.syncData?.(data);
       const text = document.getElementById("savedText");
       if(text) text.textContent = "salvo automaticamente";
       if(showToast) toast("Dados salvos no navegador");
@@ -1689,6 +1702,25 @@
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => saveData(false), 350);
     }
+
+    window.financeSetStorageScope = (uid = "") => {
+      STORAGE_KEY = uid ? `${STORAGE_KEY_BASE}_${uid}` : STORAGE_KEY_BASE;
+      data = loadData();
+      state.month = Number(data.settings.currentMonth ?? 0);
+      state.year = Number(data.settings.year ?? 2026);
+      activeDrawerCardId = "";
+      render();
+    };
+
+    window.financeReplaceData = (remoteData) => {
+      if(!remoteData?.version || !remoteData?.cards || !remoteData?.entries || !remoteData?.expenses) return;
+      data = remoteData;
+      state.month = Number(data.settings.currentMonth ?? 0);
+      state.year = Number(data.settings.year ?? 2026);
+      activeDrawerCardId = "";
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      render();
+    };
 
     function toast(message){
       const el = document.getElementById("toast");
@@ -2992,5 +3024,6 @@
 
     render();
   </script>
+  <script type="module" src="./auth.js"></script>
 </body>
 </html>

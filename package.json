@@ -1,0 +1,10 @@
+{
+  "name": "faz-meu-controle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Controle financeiro com Firebase Authentication, Firestore e Mercado Pago na Vercel.",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "firebase-admin": "^13.0.1"
+  }
+}
