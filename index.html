@@ -1,95 +1,2996 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#3B2417">
-  <meta name="description" content="Controle financeiro pessoal com lançamentos, cartões e análises.">
-  <title>Fluxo | Controle financeiro</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle Financeiro Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root{--espresso:#3b2417;--coffee:#5a3825;--cocoa:#704323;--caramel:#b98252;--gold:#c99a5b;--cream:#f6efe7;--card:#fff8ef;--green:#3f7d58;--green-soft:#dcefe3;--red:#a94a3a;--yellow:#f4d89d;--ink:#2b1b12;--muted:#8a735f;--line:#ead8c5;--shadow:0 14px 35px rgba(59,36,23,.1);--soft-shadow:0 10px 24px rgba(59,36,23,.08);--radius:18px}
-    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(circle at 12% 0%,rgba(201,154,91,.18),transparent 34%),radial-gradient(circle at 94% 20%,rgba(185,130,82,.14),transparent 32%),linear-gradient(180deg,#fbf5ec 0%,var(--cream) 42%,#f4eadf 100%)}
-    button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}.app-shell{max-width:1440px;margin:auto;padding:0 18px 42px}.topbar{position:sticky;z-index:20;top:0;margin:0 -18px 16px;padding:14px 18px;background:linear-gradient(135deg,var(--espresso),var(--coffee) 58%,var(--caramel) 128%);box-shadow:0 10px 26px rgba(59,36,23,.18);color:var(--cream)}.topbar-inner{max-width:1440px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:14px}.brand{display:flex;align-items:center;gap:10px}.brand-mark{width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--caramel));font-weight:900;color:white;box-shadow:inset 0 1px rgba(255,255,255,.35)}.brand h1{font-size:1.12rem;letter-spacing:-.04em;margin:0}.brand p{margin:3px 0 0;font-size:.75rem;color:#ead8c5}.toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.field-mini{display:flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid rgba(255,248,239,.18);border-radius:999px;background:rgba(255,248,239,.11)}.field-mini label{font-size:.7rem;color:#ead8c5}.field-mini select{height:28px;min-width:100px;border:0;border-radius:999px;padding:0 8px;background:var(--card);color:var(--espresso);font-weight:700;outline:0}.btn{height:34px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:var(--card);color:var(--espresso);font-size:.77rem;font-weight:800;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.08);transition:.18s}.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.13)}.btn.primary{color:#fff;background:linear-gradient(135deg,var(--gold),var(--caramel))}.btn.ghost{color:#fff;background:rgba(255,248,239,.13);border:1px solid rgba(255,248,239,.25);box-shadow:none}.btn.dark{color:#fff;background:var(--espresso)}.btn.green{color:#fff;background:var(--green)}.btn.red{color:#fff;background:var(--red)}.btn.soft{background:#f3e3d1;color:var(--coffee);box-shadow:none}.btn.small{height:29px;padding:0 9px;font-size:.69rem}.summary-grid{display:grid;grid-template-columns:repeat(6,minmax(136px,1fr));gap:10px;margin:16px 0 12px}.kpi-card{position:relative;overflow:hidden;min-height:99px;padding:13px 12px;background:rgba(255,248,239,.86);border:1px solid rgba(112,67,35,.12);border-radius:16px;box-shadow:var(--soft-shadow)}.kpi-card:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--gold),rgba(185,130,82,.28))}.kpi-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.055em;color:var(--muted);font-weight:800}.kpi-value{margin-top:9px;font-size:1rem;font-weight:900;letter-spacing:-.04em;white-space:nowrap}.kpi-hint{margin-top:6px;font-size:.68rem;color:#9b826e}.positive{color:var(--green)}.negative{color:var(--red)}.warning{color:#916210}.neutral{color:var(--coffee)}.tabs{display:flex;gap:8px;overflow:auto;padding:4px 2px 12px;margin:0 0 6px;scrollbar-width:thin}.tab-btn{flex:0 0 auto;padding:10px 14px;border:1px solid rgba(112,67,35,.12);border-radius:999px;background:rgba(255,248,239,.72);color:var(--coffee);font-size:.82rem;font-weight:800;transition:.18s}.tab-btn.active{color:#fff;background:linear-gradient(135deg,var(--espresso),var(--cocoa));box-shadow:0 10px 22px rgba(59,36,23,.16)}.page{animation:fade .2s ease}@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}.section-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.panel{overflow:hidden;background:rgba(255,248,239,.84);border:1px solid rgba(112,67,35,.12);border-radius:var(--radius);box-shadow:var(--shadow)}.panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.36),rgba(255,248,239,.38))}.panel-title{margin:0;font-size:.94rem;letter-spacing:-.02em;color:var(--espresso)}.panel-subtitle{margin:3px 0 0;font-size:.72rem;color:var(--muted)}.panel-body{padding:14px}.stack{display:grid;gap:9px}.item-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px;border:1px solid rgba(112,67,35,.13);border-radius:14px;background:#fffdf9}.item-main{display:flex;align-items:center;min-width:0;gap:10px}.icon-round{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:11px;background:#f3e3d1;color:var(--coffee);font-weight:900}.item-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.83rem;font-weight:850}.item-meta{margin-top:3px;color:var(--muted);font-size:.7rem}.item-value{text-align:right;font-size:.83rem;font-weight:900;white-space:nowrap}.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:.65rem;font-weight:850}.pill.green{background:var(--green-soft);color:#25603c}.pill.yellow{background:#fff0c9;color:#8f6316}.pill.red{background:#f8dcd7;color:#963e31}.empty{padding:28px 14px;text-align:center;color:var(--muted);font-size:.8rem}.alert{padding:11px 12px;border:1px solid #edc8bf;border-radius:13px;background:#fff3ee;color:#8c4136;font-size:.76rem;line-height:1.45}.balance-hero{position:relative;overflow:hidden;padding:18px;border:1px solid rgba(112,67,35,.12);border-radius:var(--radius);color:white;background:linear-gradient(135deg,var(--espresso),var(--coffee) 60%,var(--cocoa));box-shadow:var(--shadow)}.balance-hero:after{content:"";position:absolute;width:190px;height:190px;right:-70px;top:-90px;border:35px solid rgba(201,154,91,.17);border-radius:50%}.balance-label{position:relative;z-index:1;color:#ead8c5;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em}.balance-value{position:relative;z-index:1;margin:8px 0 3px;font-size:1.9rem;font-weight:900;letter-spacing:-.06em}.balance-copy{position:relative;z-index:1;margin:0;color:#ead8c5;font-size:.76rem}.trend{display:flex;align-items:end;gap:7px;height:144px;margin-top:15px;padding:0 2px}.trend-col{flex:1;min-width:0;display:flex;align-items:center;flex-direction:column;justify-content:end;gap:5px}.trend-bar{width:100%;max-width:35px;min-height:8px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--gold),var(--caramel));transition:.25s}.trend-col span{font-size:.61rem;color:var(--muted)}.category-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin:12px 0}.category-row:first-child{margin-top:0}.category-head{display:flex;justify-content:space-between;gap:8px;font-size:.76rem;font-weight:750}.bar-track{grid-column:1/-1;height:8px;overflow:hidden;border-radius:999px;background:#ead8c5}.bar-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--gold),var(--caramel))}.card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.credit-card{position:relative;overflow:hidden;min-height:154px;padding:15px;border-radius:18px;color:#fff;background:linear-gradient(135deg,var(--espresso),var(--cocoa));box-shadow:0 10px 22px rgba(59,36,23,.18)}.credit-card:nth-child(2n){background:linear-gradient(135deg,#435f61,#264243)}.credit-card:after{content:"";position:absolute;width:160px;height:160px;right:-72px;bottom:-92px;border:24px solid rgba(255,255,255,.1);border-radius:50%}.credit-top,.credit-bottom{position:relative;z-index:1;display:flex;justify-content:space-between;gap:10px}.credit-name{font-size:.85rem;font-weight:850}.credit-limit{color:#f0ddc7;font-size:.7rem}.credit-number{position:relative;z-index:1;margin:30px 0 12px;letter-spacing:.14em;font-size:.75rem;color:#f7eadb}.credit-bottom{font-size:.69rem;color:#f0ddc7}.usage{position:relative;z-index:1;margin-top:7px;height:6px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.18)}.usage i{display:block;height:100%;border-radius:inherit;background:var(--gold)}.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse;font-size:.78rem}.data-table th{padding:11px;text-align:left;color:var(--muted);font-size:.65rem;text-transform:uppercase;letter-spacing:.045em;background:#f8ede1;white-space:nowrap}.data-table td{padding:12px 11px;border-top:1px solid var(--line);white-space:nowrap}.data-table td:first-child{font-weight:800;color:var(--espresso)}.actions{display:flex;justify-content:flex-end;gap:5px}.icon-btn{width:29px;height:29px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:#fffaf4;color:var(--coffee);font-size:.8rem}.icon-btn.danger{color:var(--red)}.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}.filter-bar input,.filter-bar select,.field input,.field select,.field textarea{height:36px;padding:0 10px;outline:0;border:1px solid var(--line);border-radius:10px;background:#fffdf9;color:var(--ink);font-size:.78rem}.filter-bar input{min-width:190px;flex:1}.field textarea{height:82px;padding:10px;resize:vertical}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{color:var(--coffee);font-size:.7rem;font-weight:850}.field small{color:var(--muted);font-size:.66rem}.category-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}.category-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid rgba(112,67,35,.13);border-radius:15px;background:#fffdf9}.cat-left{display:flex;align-items:center;gap:9px}.cat-dot{width:13px;height:13px;border-radius:50%;box-shadow:0 0 0 4px rgba(112,67,35,.08)}.cat-name{font-size:.79rem;font-weight:850}.cat-kind{margin-top:2px;color:var(--muted);font-size:.68rem}.settings-list{display:grid;gap:12px}.setting{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#fffdf9}.setting strong{font-size:.79rem}.setting p{margin:3px 0 0;color:var(--muted);font-size:.7rem;line-height:1.4}.setting input{width:145px}.modal-shell{position:fixed;z-index:100;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(43,27,18,.52);backdrop-filter:blur(3px)}.modal-shell.open{display:flex}.modal{width:min(620px,100%);max-height:calc(100vh - 32px);overflow:auto;border-radius:20px;background:var(--card);box-shadow:0 24px 70px rgba(30,15,8,.32)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--line)}.modal-head h2{margin:0;color:var(--espresso);font-size:1rem}.close-btn{width:30px;height:30px;border-radius:9px;background:#f2e1d0;color:var(--coffee);font-size:1.25rem}.modal-body{padding:16px}.modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.toast{position:fixed;z-index:120;bottom:18px;left:50%;transform:translate(-50%,20px);padding:10px 13px;border-radius:999px;background:var(--espresso);color:#fff8ef;font-size:.75rem;font-weight:750;opacity:0;pointer-events:none;transition:.22s;box-shadow:var(--soft-shadow)}.toast.show{opacity:1;transform:translate(-50%,0)}.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;background:currentColor}.helper{margin:0;color:var(--muted);font-size:.72rem;line-height:1.5}
-    @media(max-width:1180px){.summary-grid{grid-template-columns:repeat(3,1fr)}.section-grid,.grid-2{grid-template-columns:1fr}}@media(max-width:720px){.app-shell{padding:0 12px 30px}.topbar{margin:0 -12px 12px}.topbar-inner{align-items:flex-start;flex-direction:column}.toolbar{justify-content:flex-start}.summary-grid{grid-template-columns:repeat(2,1fr)}.kpi-value{font-size:.88rem}.card-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hide-mobile{display:none}.filter-bar input{min-width:100%}.data-table{font-size:.72rem}}
+    :root{
+      --espresso:#3B2417;
+      --coffee:#5A3825;
+      --cocoa:#704323;
+      --caramel:#B98252;
+      --gold:#C99A5B;
+      --cream:#F6EFE7;
+      --card:#FFF8EF;
+      --green:#3F7D58;
+      --green-soft:#DCEFE3;
+      --red:#A94A3A;
+      --yellow:#F4D89D;
+      --ink:#2B1B12;
+      --muted:#8A735F;
+      --line:#ead8c5;
+      --shadow:0 14px 35px rgba(59,36,23,.10);
+      --soft-shadow:0 10px 24px rgba(59,36,23,.08);
+      --radius:18px;
+      --radius-sm:12px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(201,154,91,.18), transparent 34%),
+        radial-gradient(circle at 94% 20%, rgba(185,130,82,.14), transparent 32%),
+        linear-gradient(180deg, #fbf5ec 0%, var(--cream) 42%, #f4eadf 100%);
+      min-height:100vh;
+    }
+
+    button,input,select,textarea{font-family:inherit}
+    button{cursor:pointer;border:0}
+    .app-shell{max-width:1440px;margin:0 auto;padding:0 18px 42px}
+    .topbar{
+      position:sticky;top:0;z-index:50;
+      margin:0 -18px 16px;
+      padding:14px 18px;
+      background:linear-gradient(135deg, var(--espresso) 0%, var(--coffee) 58%, var(--caramel) 128%);
+      color:var(--cream);
+      box-shadow:0 10px 26px rgba(59,36,23,.18);
+      backdrop-filter:blur(12px);
+    }
+    .topbar-inner{
+      max-width:1440px;margin:0 auto;
+      display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+    }
+    .brand h1{font-size:1.15rem;line-height:1;margin:0 0 4px;font-weight:800;letter-spacing:-.03em}
+    .brand p{margin:0;color:#ead8c5;font-size:.82rem}
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .field-mini{
+      display:flex;align-items:center;gap:6px;
+      background:rgba(255,248,239,.11);border:1px solid rgba(255,248,239,.18);
+      border-radius:999px;padding:6px 8px;color:#f7eadb;
+    }
+    .field-mini label{font-size:.72rem;color:#ead8c5}
+    .field-mini select,.field-mini input{
+      height:28px;border:0;border-radius:999px;
+      background:#fff8ef;color:var(--espresso);
+      padding:0 10px;font-weight:700;outline:none;min-width:82px;
+    }
+    .field-mini input{width:86px}
+    .btn{
+      height:34px;border-radius:999px;padding:0 12px;
+      background:var(--card);color:var(--espresso);
+      font-weight:700;font-size:.78rem;
+      display:inline-flex;align-items:center;gap:6px;
+      box-shadow:0 4px 14px rgba(0,0,0,.08);
+      transition:.18s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.13)}
+    .btn.primary{background:linear-gradient(135deg, var(--gold), var(--caramel));color:#fff}
+    .btn.dark{background:var(--espresso);color:#fff}
+    .btn.ghost{background:rgba(255,248,239,.13);color:#fff;border:1px solid rgba(255,248,239,.25);box-shadow:none}
+    .btn.soft{background:#f3e3d1;color:var(--coffee);box-shadow:none}
+    .btn.green{background:var(--green);color:#fff}
+    .btn.red{background:var(--red);color:#fff}
+    .btn.small{height:28px;padding:0 9px;font-size:.72rem}
+    .saved-indicator{
+      font-size:.72rem;color:#f1dfc8;display:inline-flex;align-items:center;gap:6px;
+      min-width:135px;justify-content:flex-end;
+    }
+    .pulse-dot{width:7px;height:7px;border-radius:999px;background:#a7e0b8;box-shadow:0 0 0 4px rgba(167,224,184,.16)}
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(11,minmax(118px,1fr));
+      gap:10px;
+      margin:16px 0 12px;
+    }
+    .kpi-card{
+      position:relative;overflow:hidden;
+      background:rgba(255,248,239,.86);
+      border:1px solid rgba(112,67,35,.12);
+      border-radius:16px;
+      box-shadow:var(--soft-shadow);
+      padding:12px 12px 11px;
+      min-height:86px;
+    }
+    .kpi-card:before{
+      content:"";position:absolute;inset:0 0 auto;height:3px;
+      background:linear-gradient(90deg,var(--gold),rgba(185,130,82,.28));
+    }
+    .kpi-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.055em;color:var(--muted);font-weight:800}
+    .kpi-value{font-size:1rem;font-weight:850;letter-spacing:-.04em;margin-top:8px;white-space:nowrap}
+    .kpi-hint{font-size:.68rem;color:#9b826e;margin-top:6px}
+    .positive{color:var(--green)!important}
+    .negative{color:var(--red)!important}
+    .neutral{color:var(--coffee)!important}
+    .warning{color:#916210!important}
+
+    .tabs{
+      display:flex;gap:8px;overflow:auto;padding:4px 2px 12px;margin:0 0 6px;
+      scrollbar-width:thin;
+    }
+    .tab-btn{
+      border-radius:999px;
+      padding:10px 14px;
+      background:rgba(255,248,239,.72);
+      color:var(--coffee);
+      font-size:.84rem;
+      font-weight:800;
+      border:1px solid rgba(112,67,35,.12);
+      transition:.18s ease;
+      white-space:nowrap;
+    }
+    .tab-btn.active{
+      color:#fff;
+      background:linear-gradient(135deg,var(--espresso),var(--cocoa));
+      box-shadow:0 10px 22px rgba(59,36,23,.16);
+    }
+
+    .page{animation:fadeUp .22s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .section-grid{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start;
+    }
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .panel{
+      background:rgba(255,248,239,.84);
+      border:1px solid rgba(112,67,35,.12);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel-header{
+      padding:13px 14px;
+      display:flex;justify-content:space-between;gap:12px;align-items:center;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.36), rgba(255,248,239,.38));
+    }
+    .panel-title{margin:0;font-size:.95rem;color:var(--espresso);letter-spacing:-.02em}
+    .panel-subtitle{margin:3px 0 0;color:var(--muted);font-size:.73rem}
+    .panel-body{padding:14px}
+    .compact-list{display:grid;gap:8px}
+    .item-card{
+      background:#fffdf9;border:1px solid rgba(112,67,35,.13);
+      border-radius:14px;padding:10px 10px;
+      display:grid;grid-template-columns:1fr auto;gap:10px;
+      align-items:center;transition:.16s ease;
+    }
+    .item-card:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(59,36,23,.08)}
+    .item-card.dragging{opacity:.55;transform:scale(.99)}
+    .item-main{min-width:0}
+    .item-title{font-weight:800;font-size:.86rem;color:var(--espresso);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;align-items:center}
+    .tag{
+      display:inline-flex;align-items:center;gap:4px;
+      padding:3px 7px;border-radius:999px;
+      background:#f1e1cf;color:var(--coffee);
+      font-size:.68rem;font-weight:800;
+    }
+    .tag.green{background:var(--green-soft);color:var(--green)}
+    .tag.yellow{background:var(--yellow);color:#7d5524}
+    .tag.red{background:#f2d5cd;color:var(--red)}
+    .tag.dark{background:#ead8c5;color:var(--espresso)}
+    .item-value{text-align:right;font-weight:850;color:var(--coffee);font-size:.92rem;white-space:nowrap}
+    .item-actions{display:flex;gap:5px;justify-content:flex-end;margin-top:7px;flex-wrap:wrap}
+
+    .columns{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
+    }
+    .drop-col{
+      min-height:230px;background:rgba(255,253,249,.58);
+      border:1px dashed rgba(112,67,35,.22);
+      border-radius:18px;padding:10px;
+    }
+    .drop-col.over{background:#fff7e6;border-color:var(--caramel)}
+    .drop-title{
+      display:flex;justify-content:space-between;align-items:center;
+      margin:0 0 10px;font-size:.86rem;color:var(--espresso);
+    }
+    .drop-total{font-weight:900;color:var(--coffee)}
+    .filterbar{
+      display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+      margin-bottom:12px;padding:10px;
+      background:rgba(255,248,239,.68);
+      border:1px solid rgba(112,67,35,.12);
+      border-radius:16px;
+    }
+    .input,.select,.textarea{
+      width:100%;
+      border:1px solid rgba(112,67,35,.16);
+      background:#fffdf9;
+      border-radius:12px;
+      padding:10px 11px;
+      color:var(--espresso);
+      outline:none;
+      transition:.15s ease;
+      font-size:.84rem;
+    }
+    .input:focus,.select:focus,.textarea:focus{border-color:var(--caramel);box-shadow:0 0 0 3px rgba(185,130,82,.14)}
+    .textarea{min-height:82px;resize:vertical}
+    .filterbar .input{max-width:260px}
+    .filterbar .select{width:auto;min-width:150px}
+
+    .card-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;
+    }
+    .credit-card{
+      overflow:hidden;border-radius:20px;background:var(--card);
+      border:1px solid rgba(112,67,35,.14);
+      box-shadow:var(--shadow);
+    }
+    .credit-head{
+      color:#fff;padding:14px 14px 13px;
+      display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
+    }
+    .credit-name{font-weight:900;font-size:1.02rem;letter-spacing:-.03em}
+    .credit-dates{font-size:.7rem;opacity:.9;margin-top:5px;line-height:1.45}
+    .credit-body{padding:13px 14px 14px}
+    .metric-row{display:flex;justify-content:space-between;gap:10px;font-size:.78rem;margin:6px 0;color:var(--muted)}
+    .metric-row strong{color:var(--espresso)}
+    .progress{
+      height:9px;border-radius:999px;background:#ead8c5;overflow:hidden;margin:10px 0 8px;
+    }
+    .progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--caramel));border-radius:inherit;transition:.35s ease}
+    .progress.warn span{background:#d19042}
+    .progress.danger span{background:var(--red)}
+    .alert-line{font-size:.7rem;font-weight:800;color:var(--red);margin-top:4px}
+
+    .chart-grid{
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
+    }
+    .chart-card{
+      background:rgba(255,248,239,.88);
+      border:1px solid rgba(112,67,35,.12);
+      border-radius:18px;box-shadow:var(--soft-shadow);
+      padding:14px;min-height:292px;
+    }
+    .chart-card h3{font-size:.9rem;margin:0 0 10px;color:var(--espresso)}
+    .chart-card canvas{max-height:235px}
+
+    .category-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+    .category-card{
+      background:#fffdf9;border:1px solid rgba(112,67,35,.13);
+      border-radius:15px;padding:11px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .cat-left{display:flex;align-items:center;gap:9px;min-width:0}
+    .cat-dot{width:14px;height:14px;border-radius:999px;box-shadow:0 0 0 4px rgba(112,67,35,.08)}
+    .cat-name{font-weight:850;font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cat-type{font-size:.68rem;color:var(--muted);margin-top:3px}
+
+    .modal,.drawer-backdrop{
+      position:fixed;inset:0;z-index:100;background:rgba(43,27,18,.42);
+      display:flex;align-items:center;justify-content:center;padding:18px;
+      backdrop-filter:blur(6px);
+    }
+    .modal.hidden,.drawer-backdrop.hidden{display:none}
+    .modal-card{
+      width:min(760px,100%);
+      max-height:88vh;overflow:auto;
+      background:#fff8ef;border:1px solid rgba(255,255,255,.45);
+      border-radius:24px;box-shadow:0 26px 80px rgba(43,27,18,.32);
+    }
+    .modal-header,.drawer-header{
+      padding:16px 18px;border-bottom:1px solid var(--line);
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      background:linear-gradient(180deg,#fffaf2,#f8eadb);
+    }
+    .modal-title,.drawer-title{margin:0;font-size:1rem;color:var(--espresso);font-weight:900}
+    .close-btn{width:32px;height:32px;border-radius:50%;background:#eedbc8;color:var(--espresso);font-weight:900}
+    .modal-body{padding:16px 18px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .form-field label{display:block;margin:0 0 6px;font-weight:800;font-size:.73rem;color:var(--coffee)}
+    .form-field.full{grid-column:1/-1}
+    .modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--line);background:#fff4e6}
+
+    .drawer-backdrop{justify-content:flex-end;padding:0}
+    .drawer{
+      width:min(560px,100%);height:100vh;background:#fff8ef;
+      box-shadow:-24px 0 70px rgba(43,27,18,.26);
+      display:flex;flex-direction:column;
+      animation:slideDrawer .22s ease both;
+    }
+    @keyframes slideDrawer{from{transform:translateX(24px);opacity:.2}to{transform:translateX(0);opacity:1}}
+    .drawer-body{padding:15px;overflow:auto;display:grid;gap:12px}
+    .mini-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .mini-stat{background:#fffdf9;border:1px solid rgba(112,67,35,.12);border-radius:14px;padding:10px}
+    .mini-stat small{display:block;color:var(--muted);font-weight:800;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em}
+    .mini-stat strong{display:block;margin-top:6px;font-size:.95rem;color:var(--espresso)}
+
+    .toast{
+      position:fixed;right:18px;bottom:18px;z-index:200;
+      background:linear-gradient(135deg,var(--espresso),var(--coffee));
+      color:#fff8ef;border-radius:16px;padding:12px 14px;
+      box-shadow:0 18px 35px rgba(43,27,18,.28);
+      opacity:0;transform:translateY(12px);pointer-events:none;
+      transition:.22s ease;font-weight:800;font-size:.82rem;
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    .empty{
+      border:1px dashed rgba(112,67,35,.22);
+      border-radius:14px;padding:18px;text-align:center;color:var(--muted);font-size:.82rem;background:rgba(255,255,255,.38)
+    }
+    .config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .danger-zone{border-color:rgba(169,74,58,.24);background:#fff2ee}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:.7rem;background:#ead8c5;color:var(--coffee);border-radius:6px;padding:2px 5px}
+
+    @media (max-width:1180px){
+      .summary-grid{grid-template-columns:repeat(4,1fr)}
+      .section-grid,.grid-2{grid-template-columns:1fr}
+      .chart-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:760px){
+      .app-shell{padding:0 12px 32px}
+      .topbar{margin:0 -12px 12px}
+      .topbar-inner{grid-template-columns:1fr}
+      .toolbar{justify-content:flex-start}
+      .summary-grid{grid-template-columns:repeat(2,1fr)}
+      .columns{grid-template-columns:1fr}
+      .form-grid,.config-grid{grid-template-columns:1fr}
+      .field-mini{width:100%;justify-content:space-between}
+      .btn{height:36px}
+      .filterbar .input,.filterbar .select{max-width:none;width:100%}
+    }
+    @media (max-width:460px){
+      .summary-grid{grid-template-columns:1fr}
+      .item-card{grid-template-columns:1fr}
+      .item-value{text-align:left}
+    }
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="topbar-inner"><div class="brand"><div class="brand-mark">F</div><div><h1>Fluxo Financeiro</h1><p>Planeje, acompanhe e decida com clareza.</p></div></div><div class="toolbar"><div class="field-mini"><label for="monthSelect">Período</label><select id="monthSelect" aria-label="Período"></select></div><button class="btn ghost" data-action="export">⇩ Backup</button><button class="btn ghost" data-action="import">⇧ Importar</button><button class="btn primary" data-action="open-transaction" data-kind="expense">＋ Lançamento</button><input id="importFile" type="file" accept="application/json" hidden></div></div></header>
-  <main class="app-shell"><section class="summary-grid" id="summaryCards" aria-label="Resumo financeiro"></section><nav class="tabs" id="tabs" aria-label="Seções"></nav><div id="app"></div></main>
-  <div class="modal-shell" id="modalShell" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Novo lançamento</h2><button class="close-btn" data-action="close-modal" aria-label="Fechar">×</button></div><div class="modal-body" id="modalBody"></div></div></div><div id="toast" class="toast" role="status"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <h1>Controle Financeiro</h1>
+          <p>Planejamento mensal, cartões e saldo final</p>
+        </div>
+        <div class="toolbar">
+          <div class="field-mini">
+            <label for="monthSelect">Mês</label>
+            <select id="monthSelect"></select>
+          </div>
+          <div class="field-mini">
+            <label for="yearInput">Ano</label>
+            <input id="yearInput" type="number" min="2000" max="2100" />
+          </div>
+          <button class="btn primary" id="saveBtn">💾 Salvar</button>
+          <button class="btn ghost" id="exportBtn">⬇ Backup JSON</button>
+          <button class="btn ghost" id="importBtn">⬆ Importar</button>
+          <button class="btn ghost" id="clearFiltersBtn">🧹 Limpar filtros</button>
+          <span class="saved-indicator"><span class="pulse-dot"></span><span id="savedText">salvo automaticamente</span></span>
+          <input type="file" id="importFile" accept="application/json" hidden />
+        </div>
+      </div>
+    </header>
+
+    <section id="summaryCards" class="summary-grid"></section>
+
+    <nav id="tabs" class="tabs"></nav>
+
+    <main id="app"></main>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Editar</h2>
+        <button class="close-btn" data-action="close-modal">×</button>
+      </div>
+      <form id="modalForm">
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn soft" data-action="close-modal">Cancelar</button>
+          <button type="submit" class="btn primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="drawerBackdrop" class="drawer-backdrop hidden">
+    <aside class="drawer">
+      <div class="drawer-header">
+        <h2 class="drawer-title" id="drawerTitle">Cartão</h2>
+        <button class="close-btn" data-action="close-drawer">×</button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+    </aside>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
   <script>
-  (() => {
-    'use strict';
-    const KEY = 'fluxo-financeiro.vercel.v1';
-    const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    const tabs = [['dashboard','Visão geral'],['entries','Entradas'],['expenses','Saídas'],['cards','Cartões'],['analysis','Análises'],['categories','Categorias'],['settings','Configurações']];
-    const today = new Date();
-    const currentKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
-    const sample = {settings:{initialBalance:4800,month:currentKey},categories:[
-      {id:'salario',name:'Salário',type:'entry',color:'#3f7d58'},{id:'freelas',name:'Freelances',type:'entry',color:'#6fa77d'},
-      {id:'moradia',name:'Moradia',type:'expense',color:'#704323'},{id:'alimentacao',name:'Alimentação',type:'expense',color:'#b98252'},
-      {id:'transporte',name:'Transporte',type:'expense',color:'#c99a5b'},{id:'lazer',name:'Lazer',type:'expense',color:'#a94a3a'},
-      {id:'saude',name:'Saúde',type:'expense',color:'#8c6544'},{id:'cartao',name:'Cartão de crédito',type:'expense',color:'#5a3825'}
-    ],transactions:[
-      {id:'t1',type:'entry',description:'Salário',category:'salario',value:8500,date:`${currentKey}-05`,status:'received',method:'Transferência',recurring:true},
-      {id:'t2',type:'entry',description:'Projeto adicional',category:'freelas',value:1450,date:`${currentKey}-15`,status:'pending',method:'PIX',recurring:false},
-      {id:'t3',type:'expense',description:'Aluguel',category:'moradia',value:2200,date:`${currentKey}-08`,status:'paid',method:'Transferência',recurring:true},
-      {id:'t4',type:'expense',description:'Mercado do mês',category:'alimentacao',value:860,date:`${currentKey}-10`,status:'paid',method:'Cartão',recurring:false},
-      {id:'t5',type:'expense',description:'Plano de saúde',category:'saude',value:580,date:`${currentKey}-14`,status:'pending',method:'Débito',recurring:true},
-      {id:'t6',type:'expense',description:'Assinaturas',category:'lazer',value:109.9,date:`${currentKey}-20`,status:'pending',method:'Cartão',recurring:true}
-    ],cards:[
-      {id:'c1',name:'Nubank',limit:6000,dueDay:12,color:'#704323'},{id:'c2',name:'Visa Platinum',limit:12000,dueDay:22,color:'#435f61'}
-    ],purchases:[
-      {id:'p1',cardId:'c1',description:'Mercado do mês',value:860,date:`${currentKey}-10`,installments:1},
-      {id:'p2',cardId:'c1',description:'Curso online',value:249.9,date:`${currentKey}-12`,installments:1},
-      {id:'p3',cardId:'c2',description:'Passagens',value:1840,date:`${currentKey}-17`,installments:4}
-    ]};
-    let data = load(); let state = {tab:'dashboard',filter:'',type:'all'};
-    const $ = (s, el=document) => el.querySelector(s); const esc = (v='') => String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    function load(){try{const v=JSON.parse(localStorage.getItem(KEY));return v&&v.transactions&&v.categories?v:structuredClone(sample)}catch{return structuredClone(sample)}}
-    function save(){localStorage.setItem(KEY,JSON.stringify(data));}
-    function money(v){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0)}
-    function selectedMonth(){return data.settings.month||currentKey}
-    function monthLabel(key=selectedMonth()){const [year,m]=key.split('-');return `${months[Number(m)-1]} de ${year}`}
-    function category(id){return data.categories.find(c=>c.id===id)||{name:'Sem categoria',color:'#8a735f'}}
-    function txMonth(t){return String(t.date||'').slice(0,7)}
-    function isInMonth(t,key=selectedMonth()){return txMonth(t)===key || (t.recurring && txMonth(t)<=key)}
-    function transactions(type){return data.transactions.filter(t=>isInMonth(t)&&(!type||t.type===type))}
-    function totals(){const all=transactions();const entries=all.filter(t=>t.type==='entry');const expenses=all.filter(t=>t.type==='expense');const sum=a=>a.reduce((n,t)=>n+Number(t.value||0),0);const received=sum(entries.filter(t=>t.status==='received'));const paid=sum(expenses.filter(t=>t.status==='paid'));const plannedEntries=sum(entries);const plannedExpenses=sum(expenses);const base=Number(data.settings.initialBalance||0);return {base,plannedEntries,plannedExpenses,received,paid,pendingIn:plannedEntries-received,pendingOut:plannedExpenses-paid,balance:base+received-paid,forecast:base+plannedEntries-plannedExpenses}}
-    function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
-    function status(t){if(t.status==='paid'||t.status==='received')return '<span class="pill green">● Realizado</span>';return '<span class="pill yellow">● Pendente</span>'}
-    function render(){renderHeader();renderSummary();renderTabs();const app=$('#app');const pages={dashboard:dashboard,entries:()=>listPage('entry'),expenses:()=>listPage('expense'),cards:cards,analysis:analysis,categories:categories,settings:settings};app.innerHTML=pages[state.tab]();}
-    function renderHeader(){const select=$('#monthSelect');const base=selectedMonth().slice(0,4);let options='';for(let year=Number(base)-1;year<=Number(base)+1;year++){months.forEach((m,i)=>{const key=`${year}-${String(i+1).padStart(2,'0')}`;options+=`<option value="${key}" ${key===selectedMonth()?'selected':''}>${m.slice(0,3)} ${year}</option>`})}select.innerHTML=options}
-    function renderSummary(){const t=totals();const items=[['Saldo disponível',t.balance,t.balance>=0?'positive':'negative','realizado até agora'],['Entradas previstas',t.plannedEntries,'positive','recebidas e a receber'],['Saídas previstas',t.plannedExpenses,'negative','pagas e a pagar'],['A receber',t.pendingIn,'warning','lançamentos pendentes'],['A pagar',t.pendingOut,'warning','compromissos abertos'],['Saldo projetado',t.forecast,t.forecast>=0?'positive':'negative','fim do período']];$('#summaryCards').innerHTML=items.map(([label,value,tone,hint])=>`<article class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value ${tone}">${money(value)}</div><div class="kpi-hint">${hint}</div></article>`).join('')}
-    function renderTabs(){$('#tabs').innerHTML=tabs.map(([id,label])=>`<button class="tab-btn ${id===state.tab?'active':''}" data-action="tab" data-tab="${id}">${label}</button>`).join('')}
-    function upcoming(type){return transactions(type).filter(t=>t.status==='pending').sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5)}
-    function listItems(items,empty='Nenhum lançamento para este período.'){if(!items.length)return `<div class="empty">${empty}</div>`;return `<div class="stack">${items.map(t=>`<article class="item-card"><div class="item-main"><div class="icon-round" style="background:${category(t.category).color}22;color:${category(t.category).color}">${t.type==='entry'?'↗':'↘'}</div><div><div class="item-title">${esc(t.description)}</div><div class="item-meta">${esc(category(t.category).name)} · ${dateText(t.date)}</div></div></div><div><div class="item-value ${t.type==='entry'?'positive':'negative'}">${t.type==='entry'?'+':'−'} ${money(t.value)}</div><div class="item-meta" style="text-align:right">${t.status==='pending'?'Pendente':'Realizado'}</div></div></article>`).join('')}</div>`}
-    function dateText(value){if(!value)return 'Sem data';const [y,m,d]=value.split('-');return `${d}/${m}/${y}`}
-    function dashboard(){const t=totals();const expenseCategories=aggregate('expense').slice(0,5);const max=Math.max(...expenseCategories.map(x=>x.value),1);const balanceClass=t.balance>=0?'positive':'negative';return `<section class="page"><div class="section-grid"><div class="stack"><article class="balance-hero"><div class="balance-label">Saldo realizado em ${monthLabel()}</div><div class="balance-value">${money(t.balance)}</div><p class="balance-copy">Você projetou ${money(t.forecast)} para o fim do período.</p></article><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Fluxo dos últimos 6 meses</h2><p class="panel-subtitle">Evolução estimada do seu saldo</p></div></div><div class="panel-body"><div class="trend">${trendBars()}</div></div></article><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Próximas saídas</h2><p class="panel-subtitle">Organizadas pela data de vencimento</p></div><button class="btn soft small" data-action="tab" data-tab="expenses">Ver todas</button></div><div class="panel-body">${listItems(upcoming('expense'),'Nenhuma saída pendente.')}</div></article></div><div class="stack"><article class="panel"><div class="panel-header"><div><h2 class="panel-title">A receber</h2><p class="panel-subtitle">Entradas ainda não confirmadas</p></div><button class="btn soft small" data-action="tab" data-tab="entries">Ver todas</button></div><div class="panel-body">${listItems(upcoming('entry'),'Nenhuma entrada pendente.')}</div></article><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Saídas por categoria</h2><p class="panel-subtitle">Onde está o peso do mês</p></div></div><div class="panel-body">${expenseCategories.length?expenseCategories.map(x=>`<div class="category-row"><div class="category-head"><span>${esc(x.name)}</span><strong>${money(x.value)}</strong></div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(5,x.value/max*100)}%;background:linear-gradient(90deg,${x.color},var(--caramel))"></div></div></div>`).join(''):'<div class="empty">Sem saídas neste período.</div>'}</div></article><article class="alert"><strong>Leitura do período:</strong> ${t.forecast>=0?'o planejamento fecha positivo.':'as despesas projetadas superam as entradas.'} Revise lançamentos pendentes antes do fechamento.</article></div></div></section>`}
-    function trendBars(){const selected=new Date(`${selectedMonth()}-01T12:00:00`);const vals=[];for(let i=5;i>=0;i--){const d=new Date(selected.getFullYear(),selected.getMonth()-i,1);const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;const set=data.transactions.filter(t=>txMonth(t)===key);const v=Number(data.settings.initialBalance||0)+set.filter(t=>t.type==='entry').reduce((s,t)=>s+Number(t.value),0)-set.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.value),0);vals.push({name:months[d.getMonth()].slice(0,3),value:Math.max(0,v)})}const max=Math.max(...vals.map(x=>x.value),1);return vals.map(x=>`<div class="trend-col"><div class="trend-bar" title="${money(x.value)}" style="height:${Math.max(10,x.value/max*120)}px"></div><span>${x.name}</span></div>`).join('')}
-    function listPage(type){const label=type==='entry'?'Entradas':'Saídas';const records=transactions(type).filter(t=>`${t.description} ${category(t.category).name}`.toLowerCase().includes(state.filter.toLowerCase())).sort((a,b)=>a.date.localeCompare(b.date));return `<section class="page"><article class="panel"><div class="panel-header"><div><h2 class="panel-title">${label} de ${monthLabel()}</h2><p class="panel-subtitle">Controle seus lançamentos e marque o que já foi realizado.</p></div><button class="btn ${type==='entry'?'green':'primary'}" data-action="open-transaction" data-kind="${type}">＋ Nova ${type==='entry'?'entrada':'saída'}</button></div><div class="panel-body"><div class="filter-bar"><input data-filter="records" value="${esc(state.filter)}" placeholder="Buscar por descrição ou categoria"><select data-filter-status><option value="all">Todos os status</option><option value="pending">Pendentes</option><option value="done">Realizados</option></select></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Descrição</th><th class="hide-mobile">Categoria</th><th>Data</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody>${records.length?records.map(t=>`<tr><td>${esc(t.description)}${t.recurring?' <span class="pill yellow">recorrente</span>':''}</td><td class="hide-mobile">${esc(category(t.category).name)}</td><td>${dateText(t.date)}</td><td class="${type==='entry'?'positive':'negative'}">${type==='entry'?'+':'−'} ${money(t.value)}</td><td>${status(t)}</td><td><div class="actions"><button class="icon-btn" title="Editar" data-action="edit-transaction" data-id="${t.id}">✎</button><button class="icon-btn" title="Marcar" data-action="toggle-status" data-id="${t.id}">✓</button><button class="icon-btn danger" title="Excluir" data-action="delete-transaction" data-id="${t.id}">×</button></div></td></tr>`).join(''):'<tr><td colspan="6"><div class="empty">Nenhum lançamento encontrado.</div></td></tr>'}</tbody></table></div></div></article></section>`}
-    function cardSpend(cardId){return data.purchases.filter(p=>p.cardId===cardId&&isInMonth(p)).reduce((s,p)=>s+Number(p.value),0)}
-    function cards(){return `<section class="page"><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Cartões de crédito</h2><p class="panel-subtitle">Limite utilizado e compras do período.</p></div><button class="btn primary" data-action="open-card">＋ Novo cartão</button></div><div class="panel-body"><div class="card-grid">${data.cards.map(c=>{const spent=cardSpend(c.id),percent=Math.min(100,spent/Number(c.limit)*100);return `<article class="credit-card" style="background:linear-gradient(135deg,${c.color},var(--cocoa))"><div class="credit-top"><span class="credit-name">${esc(c.name)}</span><span class="credit-limit">Limite ${money(c.limit)}</span></div><div class="credit-number">•••• &nbsp;•••• &nbsp;•••• &nbsp;${c.id.slice(-4).padStart(4,'0')}</div><div class="credit-bottom"><span>Fatura atual: <strong>${money(spent)}</strong></span><span>Vence dia ${c.dueDay}</span></div><div class="usage"><i style="width:${percent}%"></i></div></article>`}).join('')}</div><div style="height:14px"></div><div class="panel-header" style="padding:0 0 11px;background:none"><div><h2 class="panel-title">Compras no cartão</h2><p class="panel-subtitle">Lançamentos que compõem as faturas.</p></div><button class="btn soft small" data-action="open-purchase">＋ Compra</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Compra</th><th>Cartão</th><th>Data</th><th>Valor</th><th></th></tr></thead><tbody>${data.purchases.filter(isInMonth).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>`<tr><td>${esc(p.description)}${p.installments>1?' <span class="pill yellow">${p.installments}x</span>':''}</td><td>${esc((data.cards.find(c=>c.id===p.cardId)||{}).name||'—')}</td><td>${dateText(p.date)}</td><td class="negative">− ${money(p.value)}</td><td><div class="actions"><button class="icon-btn danger" data-action="delete-purchase" data-id="${p.id}">×</button></div></td></tr>`).join('')||'<tr><td colspan="5"><div class="empty">Nenhuma compra neste período.</div></td></tr>'}</tbody></table></div></div></article></section>`}
-    function aggregate(type){const map={};transactions(type).forEach(t=>{const c=category(t.category);if(!map[c.name])map[c.name]={name:c.name,color:c.color,value:0};map[c.name].value+=Number(t.value)});return Object.values(map).sort((a,b)=>b.value-a.value)}
-    function analysis(){const inc=aggregate('entry'),out=aggregate('expense'),max=Math.max(...inc.concat(out).map(x=>x.value),1);return `<section class="page"><div class="grid-2"><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Entradas por origem</h2><p class="panel-subtitle">Composição das receitas previstas</p></div></div><div class="panel-body">${bars(inc,max,'#3f7d58')}</div></article><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Saídas por categoria</h2><p class="panel-subtitle">Composição das despesas previstas</p></div></div><div class="panel-body">${bars(out,max,'#b98252')}</div></article></div><div style="height:14px"></div><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Resumo de planejamento</h2><p class="panel-subtitle">Leitura objetiva para o período selecionado.</p></div></div><div class="panel-body"><div class="grid-2"><div><p class="helper">Taxa de comprometimento da renda</p><div class="kpi-value ${totals().plannedEntries? 'neutral':'warning'}">${totals().plannedEntries?Math.round(totals().plannedExpenses/totals().plannedEntries*100):0}%</div><p class="helper">das entradas previstas estão destinadas a saídas.</p></div><div><p class="helper">Reserva projetada</p><div class="kpi-value ${totals().forecast>=0?'positive':'negative'}">${money(totals().forecast)}</div><p class="helper">saldo estimado após todos os lançamentos do período.</p></div></div></div></article></section>`}
-    function bars(items,max,fallback){return items.length?items.map(x=>`<div class="category-row"><div class="category-head"><span><i class="status-dot" style="color:${x.color||fallback}"></i>${esc(x.name)}</span><strong>${money(x.value)}</strong></div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(5,x.value/max*100)}%;background:linear-gradient(90deg,${x.color||fallback},var(--gold))"></div></div></div>`).join(''):'<div class="empty">Ainda não há dados para analisar.</div>'}
-    function categories(){return `<section class="page"><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Categorias</h2><p class="panel-subtitle">Classificações usadas nos seus lançamentos.</p></div><button class="btn primary" data-action="open-category">＋ Categoria</button></div><div class="panel-body"><div class="category-list">${data.categories.map(c=>`<article class="category-card"><div class="cat-left"><span class="cat-dot" style="background:${c.color}"></span><div><div class="cat-name">${esc(c.name)}</div><div class="cat-kind">${c.type==='entry'?'Entrada':'Saída'}</div></div></div><button class="icon-btn danger" data-action="delete-category" data-id="${c.id}" title="Excluir">×</button></article>`).join('')}</div></div></article></section>`}
-    function settings(){return `<section class="page"><div class="grid-2"><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Configurações financeiras</h2><p class="panel-subtitle">Ajustes usados nos seus cálculos.</p></div></div><div class="panel-body"><div class="settings-list"><div class="setting"><div><strong>Saldo inicial</strong><p>Base para o cálculo do saldo disponível e projetado.</p></div><input id="initialBalance" type="number" min="0" step="0.01" value="${data.settings.initialBalance}"></div><div class="setting"><div><strong>Armazenamento local</strong><p>Os dados ficam neste navegador. Faça backup com frequência.</p></div><span class="pill green">Ativo</span></div></div></div></article><article class="panel"><div class="panel-header"><div><h2 class="panel-title">Dados</h2><p class="panel-subtitle">Exporte, importe ou recomece o controle.</p></div></div><div class="panel-body"><div class="stack"><button class="btn dark" data-action="export">⇩ Exportar backup JSON</button><button class="btn soft" data-action="import">⇧ Importar backup JSON</button><button class="btn red" data-action="reset">Restaurar dados de exemplo</button><p class="helper">A restauração apaga os dados salvos neste navegador e volta ao conjunto de demonstração.</p></div></div></article></div></section>`}
-    function openModal(title, body){$('#modalTitle').textContent=title;$('#modalBody').innerHTML=body;$('#modalShell').classList.add('open');$('#modalShell').setAttribute('aria-hidden','false');setTimeout(()=>$('#modalBody input, #modalBody select')?.focus(),0)}
-    function closeModal(){$('#modalShell').classList.remove('open');$('#modalShell').setAttribute('aria-hidden','true')}
-    function categoryOptions(type,selected=''){return data.categories.filter(c=>c.type===type).map(c=>`<option value="${c.id}" ${c.id===selected?'selected':''}>${esc(c.name)}</option>`).join('')}
-    function transactionForm(kind,tx={}){const title=tx.id?'Editar lançamento':kind==='entry'?'Nova entrada':'Nova saída';openModal(title,`<form id="transactionForm" data-id="${tx.id||''}" data-kind="${kind}"><div class="form-grid"><div class="field full"><label>Descrição</label><input required name="description" value="${esc(tx.description||'')}" placeholder="Ex.: Aluguel"></div><div class="field"><label>Valor</label><input required name="value" type="number" min="0.01" step="0.01" value="${tx.value||''}" placeholder="0,00"></div><div class="field"><label>Data</label><input required name="date" type="date" value="${tx.date||`${selectedMonth()}-01`}"></div><div class="field"><label>Categoria</label><select required name="category">${categoryOptions(kind,tx.category)}</select></div><div class="field"><label>Forma de pagamento</label><select name="method">${['PIX','Transferência','Débito','Boleto','Cartão','Dinheiro'].map(x=>`<option ${x===(tx.method||'PIX')?'selected':''}>${x}</option>`).join('')}</select></div><div class="field"><label>Status</label><select name="status"><option value="pending" ${tx.status!=='paid'&&tx.status!=='received'?'selected':''}>Pendente</option><option value="${kind==='entry'?'received':'paid'}" ${tx.status==='paid'||tx.status==='received'?'selected':''}>Realizado</option></select></div><div class="field"><label>Recorrência</label><select name="recurring"><option value="false" ${!tx.recurring?'selected':''}>Única</option><option value="true" ${tx.recurring?'selected':''}>Mensal</option></select></div></div><div class="modal-foot"><button type="button" class="btn soft" data-action="close-modal">Cancelar</button><button class="btn ${kind==='entry'?'green':'primary'}" type="submit">Salvar lançamento</button></div></form>`)}
-    function cardForm(){openModal('Novo cartão',`<form id="cardForm"><div class="form-grid"><div class="field full"><label>Nome do cartão</label><input required name="name" placeholder="Ex.: Mastercard Black"></div><div class="field"><label>Limite</label><input required name="limit" type="number" min="1" step="0.01" placeholder="0,00"></div><div class="field"><label>Dia de vencimento</label><input required name="dueDay" type="number" min="1" max="31" placeholder="10"></div><div class="field full"><label>Cor</label><input name="color" type="color" value="#704323"></div></div><div class="modal-foot"><button type="button" class="btn soft" data-action="close-modal">Cancelar</button><button class="btn primary">Salvar cartão</button></div></form>`)}
-    function purchaseForm(){if(!data.cards.length){toast('Cadastre um cartão primeiro.');return}openModal('Nova compra',`<form id="purchaseForm"><div class="form-grid"><div class="field full"><label>Descrição</label><input required name="description" placeholder="Ex.: Restaurante"></div><div class="field"><label>Cartão</label><select name="cardId">${data.cards.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div class="field"><label>Valor total</label><input required name="value" type="number" min=".01" step=".01"></div><div class="field"><label>Data</label><input required name="date" type="date" value="${selectedMonth()}-01"></div><div class="field"><label>Parcelas</label><input required name="installments" type="number" min="1" value="1"></div></div><div class="modal-foot"><button type="button" class="btn soft" data-action="close-modal">Cancelar</button><button class="btn primary">Salvar compra</button></div></form>`)}
-    function categoryForm(){openModal('Nova categoria',`<form id="categoryForm"><div class="form-grid"><div class="field full"><label>Nome</label><input required name="name" placeholder="Ex.: Educação"></div><div class="field"><label>Tipo</label><select name="type"><option value="expense">Saída</option><option value="entry">Entrada</option></select></div><div class="field"><label>Cor</label><input name="color" type="color" value="#b98252"></div></div><div class="modal-foot"><button type="button" class="btn soft" data-action="close-modal">Cancelar</button><button class="btn primary">Salvar categoria</button></div></form>`)}
-    function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`fluxo-financeiro-${selectedMonth()}.json`;link.click();URL.revokeObjectURL(link.href);toast('Backup exportado.')}
-    function importData(file){const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);if(!parsed.transactions||!parsed.categories||!parsed.settings)throw new Error();data=parsed;save();render();toast('Backup importado com sucesso.')}catch{toast('Este arquivo não é um backup válido.')}};reader.readAsText(file)}
-    document.addEventListener('click',e=>{const a=e.target.closest('[data-action]');if(!a)return;const action=a.dataset.action;if(action==='tab'){state.tab=a.dataset.tab;state.filter='';render()}if(action==='close-modal')closeModal();if(action==='open-transaction')transactionForm(a.dataset.kind);if(action==='edit-transaction'){const tx=data.transactions.find(x=>x.id===a.dataset.id);if(tx)transactionForm(tx.type,tx)}if(action==='toggle-status'){const tx=data.transactions.find(x=>x.id===a.dataset.id);if(tx){tx.status=tx.status==='pending'?(tx.type==='entry'?'received':'paid'):'pending';save();render();toast('Status atualizado.')}}if(action==='delete-transaction'){if(confirm('Excluir este lançamento?')){data.transactions=data.transactions.filter(x=>x.id!==a.dataset.id);save();render();toast('Lançamento excluído.')}}if(action==='open-card')cardForm();if(action==='open-purchase')purchaseForm();if(action==='delete-purchase'){data.purchases=data.purchases.filter(x=>x.id!==a.dataset.id);save();render();toast('Compra excluída.')}if(action==='open-category')categoryForm();if(action==='delete-category'){const id=a.dataset.id;if(data.transactions.some(t=>t.category===id)){toast('Esta categoria possui lançamentos e não pode ser excluída.');return}data.categories=data.categories.filter(c=>c.id!==id);save();render();toast('Categoria excluída.')}if(action==='export')exportData();if(action==='import')$('#importFile').click();if(action==='reset'){if(confirm('Restaurar os dados de demonstração?')){data=structuredClone(sample);save();render();toast('Dados restaurados.')}}});
-    document.addEventListener('input',e=>{if(e.target.matches('[data-filter="records"]')){state.filter=e.target.value;const p=e.target.closest('.page');if(p){const active=$('.tab-btn.active')?.textContent;render()}}});
-    document.addEventListener('change',e=>{if(e.target.id==='monthSelect'){data.settings.month=e.target.value;save();render()}if(e.target.id==='initialBalance'){data.settings.initialBalance=Number(e.target.value||0);save();render()}if(e.target.id==='importFile'&&e.target.files[0])importData(e.target.files[0])});
-    document.addEventListener('submit',e=>{e.preventDefault();const form=e.target;const values=Object.fromEntries(new FormData(form));if(form.id==='transactionForm'){const id=form.dataset.id;const tx={id:id||`t_${Date.now()}`,type:form.dataset.kind,description:values.description.trim(),value:Number(values.value),date:values.date,category:values.category,method:values.method,status:values.status,recurring:values.recurring==='true'};if(id)data.transactions=data.transactions.map(x=>x.id===id?tx:x);else data.transactions.push(tx);save();closeModal();render();toast('Lançamento salvo.')}if(form.id==='cardForm'){data.cards.push({id:`c_${Date.now()}`,name:values.name.trim(),limit:Number(values.limit),dueDay:Number(values.dueDay),color:values.color});save();closeModal();render();toast('Cartão salvo.')}if(form.id==='purchaseForm'){data.purchases.push({id:`p_${Date.now()}`,cardId:values.cardId,description:values.description.trim(),value:Number(values.value),date:values.date,installments:Number(values.installments)});save();closeModal();render();toast('Compra salva.')}if(form.id==='categoryForm'){data.categories.push({id:`cat_${Date.now()}`,name:values.name.trim(),type:values.type,color:values.color});save();closeModal();render();toast('Categoria salva.')}});
-    $('#modalShell').addEventListener('click',e=>{if(e.target.id==='modalShell')closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});render();
-  })();
+    /* =========================================================
+      Controle Financeiro Premium
+      - HTML/CSS/JS puro
+      - Persistência localStorage
+      - Chart.js via CDN
+      - Dados iniciais inspirados na planilha anexada
+    ========================================================= */
+
+    const INITIAL_DATA = {
+  "version": "1.0.0",
+  "settings": {
+    "startMonth": 0,
+    "currentMonth": 0,
+    "year": 2026,
+    "currency": "BRL",
+    "initialBalance": 0,
+    "theme": "marrom elegante"
+  },
+  "categories": [
+    {
+      "id": "cat_sal_rio",
+      "name": "Salário",
+      "type": "entrada",
+      "color": "#3F7D58"
+    },
+    {
+      "id": "cat_renda_extra",
+      "name": "Renda extra",
+      "type": "entrada",
+      "color": "#6A9F7B"
+    },
+    {
+      "id": "cat_vari_veis",
+      "name": "Variáveis",
+      "type": "entrada",
+      "color": "#8BAF6A"
+    },
+    {
+      "id": "cat_saldo_m_s_anterior",
+      "name": "Saldo mês anterior",
+      "type": "entrada",
+      "color": "#B98252"
+    },
+    {
+      "id": "cat_reembolso",
+      "name": "Reembolso",
+      "type": "entrada",
+      "color": "#7AA99A"
+    },
+    {
+      "id": "cat_outros",
+      "name": "Outros",
+      "type": "ambos",
+      "color": "#C99A5B"
+    },
+    {
+      "id": "cat_boleto",
+      "name": "Boleto",
+      "type": "saida",
+      "color": "#704323"
+    },
+    {
+      "id": "cat_cart_o_de_cr_dito",
+      "name": "Cartão de Crédito",
+      "type": "saida",
+      "color": "#5A3825"
+    },
+    {
+      "id": "cat_alimenta_o",
+      "name": "Alimentação",
+      "type": "saida",
+      "color": "#B98252"
+    },
+    {
+      "id": "cat_transporte",
+      "name": "Transporte",
+      "type": "saida",
+      "color": "#A7794F"
+    },
+    {
+      "id": "cat_beleza",
+      "name": "Beleza",
+      "type": "saida",
+      "color": "#C99A5B"
+    },
+    {
+      "id": "cat_sa_de",
+      "name": "Saúde",
+      "type": "saida",
+      "color": "#8F6043"
+    },
+    {
+      "id": "cat_vestu_rio",
+      "name": "Vestuário",
+      "type": "saida",
+      "color": "#A94A3A"
+    },
+    {
+      "id": "cat_assinaturas",
+      "name": "Assinaturas",
+      "type": "saida",
+      "color": "#7C5A3D"
+    },
+    {
+      "id": "cat_renegocia_o",
+      "name": "Renegociação",
+      "type": "saida",
+      "color": "#9B6F45"
+    },
+    {
+      "id": "cat_moradia",
+      "name": "Moradia",
+      "type": "saida",
+      "color": "#3B2417"
+    },
+    {
+      "id": "cat_internet",
+      "name": "Internet",
+      "type": "saida",
+      "color": "#87664D"
+    },
+    {
+      "id": "cat_luz",
+      "name": "Luz",
+      "type": "saida",
+      "color": "#D1A86D"
+    },
+    {
+      "id": "cat_educa_o",
+      "name": "Educação",
+      "type": "saida",
+      "color": "#8B735B"
+    },
+    {
+      "id": "cat_igreja_doa_es",
+      "name": "Igreja/Doações",
+      "type": "saida",
+      "color": "#A58A6A"
+    },
+    {
+      "id": "cat_lazer",
+      "name": "Lazer",
+      "type": "saida",
+      "color": "#B89166"
+    }
+  ],
+  "cards": [
+    {
+      "id": "card_magalu",
+      "name": "Magalu",
+      "color": "#315A7D",
+      "limit": 1000,
+      "dueDay": 7,
+      "closingDay": 1,
+      "bestDay": 2
+    },
+    {
+      "id": "card_mae",
+      "name": "Mastercard Mãe",
+      "color": "#B98252",
+      "limit": 2000,
+      "dueDay": 18,
+      "closingDay": 12,
+      "bestDay": 13
+    },
+    {
+      "id": "card_nubank",
+      "name": "Nubank",
+      "color": "#6F35B8",
+      "limit": 11200,
+      "dueDay": 22,
+      "closingDay": 15,
+      "bestDay": 16
+    },
+    {
+      "id": "card_renner",
+      "name": "Renner",
+      "color": "#A94A3A",
+      "limit": 4800,
+      "dueDay": 10,
+      "closingDay": 5,
+      "bestDay": 6
+    },
+    {
+      "id": "card_xp",
+      "name": "XP",
+      "color": "#232323",
+      "limit": 11200,
+      "dueDay": 22,
+      "closingDay": 7,
+      "bestDay": 8
+    }
+  ],
+  "entries": [
+    {
+      "id": "ent_1",
+      "description": "Saldo mês anterior",
+      "category": "Saldo",
+      "value": 0,
+      "plannedDate": "2026-07-01",
+      "receivedDate": "",
+      "status": "pending",
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável."
+    },
+    {
+      "id": "ent_2",
+      "description": "Faz Capital",
+      "category": "Salário",
+      "value": 2500.0,
+      "plannedDate": "2026-07-15",
+      "receivedDate": "",
+      "status": "pending",
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável."
+    },
+    {
+      "id": "ent_3",
+      "description": "Consórcio",
+      "category": "Variáveis",
+      "value": 1080.0,
+      "plannedDate": "2026-07-15",
+      "receivedDate": "",
+      "status": "pending",
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável."
+    },
+    {
+      "id": "ent_4",
+      "description": "Semana 1",
+      "category": "Renda extra",
+      "value": 200.0,
+      "plannedDate": "2026-07-04",
+      "receivedDate": "",
+      "status": "pending",
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável."
+    },
+    {
+      "id": "ent_5",
+      "description": "Semana 2",
+      "category": "Renda extra",
+      "value": 200.0,
+      "plannedDate": "2026-07-11",
+      "receivedDate": "",
+      "status": "pending",
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável."
+    },
+    {
+      "id": "ent_6",
+      "description": "Semana 3",
+      "category": "Renda extra",
+      "value": 200.0,
+      "plannedDate": "2026-07-18",
+      "receivedDate": "",
+      "status": "pending",
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável."
+    },
+    {
+      "id": "ent_7",
+      "description": "Semana 4",
+      "category": "Renda extra",
+      "value": 200.0,
+      "plannedDate": "2026-07-25",
+      "receivedDate": "",
+      "status": "pending",
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável."
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp_1",
+      "description": "Aluguel",
+      "category": "Boleto",
+      "value": 3140.47,
+      "dueDate": "2026-07-05",
+      "paymentDate": "",
+      "status": "pending",
+      "paymentMethod": "boleto",
+      "cardId": "",
+      "installments": 1,
+      "currentInstallment": 1,
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável.",
+      "source": "manual"
+    },
+    {
+      "id": "exp_2",
+      "description": "Endrio",
+      "category": "Renegociação",
+      "value": 176.0,
+      "dueDate": "2026-07-17",
+      "paymentDate": "",
+      "status": "pending",
+      "paymentMethod": "outros",
+      "cardId": "",
+      "installments": 1,
+      "currentInstallment": 1,
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável.",
+      "source": "manual"
+    },
+    {
+      "id": "exp_3",
+      "description": "Internet (casa)",
+      "category": "Boleto",
+      "value": 100.0,
+      "dueDate": "2026-07-27",
+      "paymentDate": "",
+      "status": "pending",
+      "paymentMethod": "boleto",
+      "cardId": "",
+      "installments": 1,
+      "currentInstallment": 1,
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável.",
+      "source": "manual"
+    },
+    {
+      "id": "exp_4",
+      "description": "Internet (celular)",
+      "category": "Boleto",
+      "value": 60.0,
+      "dueDate": "2026-07-27",
+      "paymentDate": "",
+      "status": "pending",
+      "paymentMethod": "boleto",
+      "cardId": "",
+      "installments": 1,
+      "currentInstallment": 1,
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável.",
+      "source": "manual"
+    },
+    {
+      "id": "exp_5",
+      "description": "Luz (CEEE)",
+      "category": "Boleto",
+      "value": 114.47,
+      "dueDate": "2026-07-28",
+      "paymentDate": "",
+      "status": "pending",
+      "paymentMethod": "boleto",
+      "cardId": "",
+      "installments": 1,
+      "currentInstallment": 1,
+      "recurrence": "única",
+      "notes": "Importado da planilha original como exemplo editável.",
+      "source": "manual"
+    }
+  ],
+  "cardPurchases": [
+    {
+      "id": "pur_1",
+      "cardId": "card_magalu",
+      "date": "2026-07-01",
+      "description": "Oboticario",
+      "category": "Beleza",
+      "totalValue": 9.97,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 9.97,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 9 de 10",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-07"
+    },
+    {
+      "id": "pur_2",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Oboticario",
+      "category": "Beleza",
+      "totalValue": 11.6,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 11.6,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 3 de 12",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_3",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 14.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 14.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_4",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Netflix",
+      "category": "Assinaturas",
+      "totalValue": 20.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 20.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_5",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 14.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 14.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_6",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 129.8,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 129.8,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_7",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 14.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 14.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_8",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 66.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 66.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_9",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 65.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 65.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_10",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 14.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 14.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_11",
+      "cardId": "card_mae",
+      "date": "2026-07-01",
+      "description": "Apple",
+      "category": "Assinaturas",
+      "totalValue": 14.9,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 14.9,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_12",
+      "cardId": "card_nubank",
+      "date": "2026-07-01",
+      "description": "Vivo",
+      "category": "Renegociação",
+      "totalValue": 96.21,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 96.21,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 1 de 2",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_13",
+      "cardId": "card_nubank",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Renegociação",
+      "totalValue": 107.35,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 107.35,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 1 de 5",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_14",
+      "cardId": "card_nubank",
+      "date": "2026-07-01",
+      "description": "Oboticário",
+      "category": "Beleza",
+      "totalValue": 36.07,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 36.07,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 6 de 6",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_15",
+      "cardId": "card_nubank",
+      "date": "2026-07-01",
+      "description": "Renegociação",
+      "category": "Renegociação",
+      "totalValue": 667.69,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 667.69,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 4 de 12",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_16",
+      "cardId": "card_nubank",
+      "date": "2026-07-01",
+      "description": "Pix no crédito",
+      "category": "Renegociação",
+      "totalValue": 41.61,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 41.61,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 2 de 2",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_17",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 43.18,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 43.18,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 2 de 5",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-05"
+    },
+    {
+      "id": "pur_18",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 31.96,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 31.96,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 4 de 6",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-07"
+    },
+    {
+      "id": "pur_19",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 51.68,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 51.68,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 3 de 7",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-10"
+    },
+    {
+      "id": "pur_20",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 49.36,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 49.36,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 5 de 7",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-10"
+    },
+    {
+      "id": "pur_21",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 75.16,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 75.16,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 2 de 7",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-11"
+    },
+    {
+      "id": "pur_22",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 66.44,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 66.44,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 1 de 7",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-13"
+    },
+    {
+      "id": "pur_23",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 40.03,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 40.03,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 7 de 7",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-14"
+    },
+    {
+      "id": "pur_24",
+      "cardId": "card_renner",
+      "date": "2026-07-01",
+      "description": "Renner",
+      "category": "Vestuário",
+      "totalValue": 47.97,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 47.97,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 3 de 3",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-18"
+    },
+    {
+      "id": "pur_25",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Jeronimo",
+      "category": "Alimentação",
+      "totalValue": 15.0,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 15.0,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_26",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber ida",
+      "category": "Transporte",
+      "totalValue": 215.0,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 215.0,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_27",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Mercado",
+      "category": "Alimentação",
+      "totalValue": 37.18,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 37.18,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_28",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Conveniência",
+      "category": "Alimentação",
+      "totalValue": 3.0,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 3.0,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_29",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 11.94,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 11.94,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_30",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Unhas",
+      "category": "Beleza",
+      "totalValue": 175.0,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 175.0,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_31",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 10.95,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 10.95,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_32",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Panvel",
+      "category": "Beleza",
+      "totalValue": 28.98,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 28.98,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_33",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 11.96,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 11.96,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_34",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Conveniência",
+      "category": "Alimentação",
+      "totalValue": 6.0,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 6.0,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_35",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 11.95,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 11.95,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_36",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 7.05,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 7.05,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_37",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Oboticário",
+      "category": "Beleza",
+      "totalValue": 17.49,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 17.49,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 1 de 10",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_38",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Mercado",
+      "category": "Alimentação",
+      "totalValue": 16.93,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 16.93,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_39",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 11.93,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 11.93,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_40",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 14.98,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 14.98,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_41",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 12.93,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 12.93,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_42",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 14.98,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 14.98,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_43",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Uber",
+      "category": "Transporte",
+      "totalValue": 11.46,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 11.46,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_44",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Conveniência",
+      "category": "Alimentação",
+      "totalValue": 2.5,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 2.5,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Importado da planilha original como exemplo editável.",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    },
+    {
+      "id": "pur_45",
+      "cardId": "card_xp",
+      "date": "2026-07-01",
+      "description": "Raia",
+      "category": "Saúde",
+      "totalValue": 49.2,
+      "type": "à vista",
+      "installments": 1,
+      "currentInstallment": 1,
+      "installmentValue": 49.2,
+      "recurrence": "única",
+      "status": "open",
+      "paidInstallments": [],
+      "notes": "Parcela exibida na planilha: 2 de 2",
+      "importedInvoiceMonth": "2026-07",
+      "invoiceDueDate": "2026-07-22"
+    }
+  ],
+  "invoicePayments": {},
+  "updatedAt": ""
+};
+    const STORAGE_KEY = "controle_financeiro_marrom_premium_v1";
+    const MONTHS = ["JUL","AGO","SET","OUT","NOV","DEZ","JAN","FEV","MAR","ABR","MAI","JUN"];
+    const MONTH_NUMBERS = [7,8,9,10,11,12,1,2,3,4,5,6];
+    const TABS = [
+      ["dashboard","Dashboard"],
+      ["entradas","Entradas"],
+      ["saidas","Saídas"],
+      ["cartoes","Cartões"],
+      ["analises","Análises"],
+      ["categorias","Categorias"],
+      ["config","Configurações"]
+    ];
+    const RECURRENCES = ["única","semanal","quinzenal","mensal","bimestral","trimestral","semestral","anual"];
+    const PAYMENT_METHODS = ["boleto","pix","débito","cartão de crédito","transferência","outros"];
+    const chartPalette = ["#704323","#B98252","#C99A5B","#3F7D58","#A94A3A","#8C6544","#D7B786","#5A3825","#A7794F","#7AA078"];
+
+    let data = loadData();
+    let saveTimer = null;
+    let charts = {};
+    let activeDrawerCardId = "";
+    let state = {
+      tab:"dashboard",
+      month: Number(data.settings.currentMonth ?? 0),
+      year: Number(data.settings.year ?? 2026),
+      filters:{ search:"", category:"all", status:"all", date:"", method:"all", card:"all", sort:"date" },
+      analysis:{ chartType:"doughnut", category:"all", card:"all" }
+    };
+
+    function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+    function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
+    function number(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+    function round(v){ return Math.round((number(v) + Number.EPSILON) * 100) / 100; }
+    function toBRL(v){
+      return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(number(v));
+    }
+    function isoToday(){ return new Date().toISOString().slice(0,10); }
+    function getMonthKey(monthIndex = state.month, planningYear = state.year){
+      const m = MONTH_NUMBERS[monthIndex];
+      const y = planningYear + (m <= 6 ? 1 : 0);
+      return `${y}-${String(m).padStart(2,"0")}`;
+    }
+    function dateFromDay(day, monthIndex = state.month, planningYear = state.year){
+      const key = getMonthKey(monthIndex, planningYear);
+      const [y,m] = key.split("-").map(Number);
+      const last = new Date(y, m, 0).getDate();
+      const d = Math.min(Math.max(Number(day) || 1, 1), last);
+      return `${key}-${String(d).padStart(2,"0")}`;
+    }
+    function keyFromDate(date){ return date ? date.slice(0,7) : ""; }
+    function parseDate(date){ return new Date(`${date}T00:00:00`); }
+    function addMonths(dateStr, months){
+      const d = parseDate(dateStr);
+      const day = d.getDate();
+      d.setMonth(d.getMonth() + months);
+      if (d.getDate() !== day) d.setDate(0);
+      return d.toISOString().slice(0,10);
+    }
+    function monthDiff(startDate, targetKey){
+      const [ty,tm] = targetKey.split("-").map(Number);
+      const s = parseDate(startDate);
+      return (ty - s.getFullYear()) * 12 + (tm - (s.getMonth()+1));
+    }
+    function monthRange(key){
+      const [y,m] = key.split("-").map(Number);
+      return {
+        start: new Date(y, m-1, 1),
+        end: new Date(y, m, 0)
+      };
+    }
+
+    function loadData(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return clone(INITIAL_DATA);
+        const parsed = JSON.parse(raw);
+        if(!parsed.version || !parsed.cards || !parsed.entries) return clone(INITIAL_DATA);
+        return parsed;
+      }catch(e){
+        console.warn("Falha ao carregar localStorage:", e);
+        return clone(INITIAL_DATA);
+      }
+    }
+
+    function saveData(showToast = false){
+      data.settings.currentMonth = state.month;
+      data.settings.year = state.year;
+      data.updatedAt = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const text = document.getElementById("savedText");
+      if(text) text.textContent = "salvo automaticamente";
+      if(showToast) toast("Dados salvos no navegador");
+    }
+
+    function autosave(){
+      const text = document.getElementById("savedText");
+      if(text) text.textContent = "salvando...";
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveData(false), 350);
+    }
+
+    function toast(message){
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.remove("show"), 2400);
+    }
+
+    function categoryOptions(type, selected=""){
+      const available = data.categories.filter(c => c.type === type || c.type === "ambos");
+      return available.map(c => `<option value="${escapeHtml(c.name)}" ${c.name===selected ? "selected":""}>${escapeHtml(c.name)}</option>`).join("");
+    }
+    function cardOptions(selected=""){
+      return `<option value="">Nenhum</option>` + data.cards.map(c => `<option value="${c.id}" ${c.id===selected ? "selected":""}>${escapeHtml(c.name)}</option>`).join("");
+    }
+    function escapeHtml(str){
+      return String(str ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    }
+    function getCategoryColor(name){
+      return data.categories.find(c => c.name === name)?.color || "#B98252";
+    }
+
+    function recurrenceCount(item, dateField, monthIndex = state.month){
+      const start = item[dateField];
+      if(!start) return 0;
+      const targetKey = getMonthKey(monthIndex);
+      const rec = item.recurrence || "única";
+      const diff = monthDiff(start, targetKey);
+      if(diff < 0) return 0;
+      if(rec === "única") return keyFromDate(start) === targetKey ? 1 : 0;
+      if(rec === "mensal") return 1;
+      if(rec === "bimestral") return diff % 2 === 0 ? 1 : 0;
+      if(rec === "trimestral") return diff % 3 === 0 ? 1 : 0;
+      if(rec === "semestral") return diff % 6 === 0 ? 1 : 0;
+      if(rec === "anual") return diff % 12 === 0 ? 1 : 0;
+      if(rec === "semanal" || rec === "quinzenal"){
+        const step = rec === "semanal" ? 7 : 15;
+        const {start:ms, end:me} = monthRange(targetKey);
+        let d = parseDate(start);
+        let count = 0;
+        while(d <= me){
+          if(d >= ms) count++;
+          d.setDate(d.getDate()+step);
+          if(count > 6) break;
+        }
+        return count;
+      }
+      return keyFromDate(start) === targetKey ? 1 : 0;
+    }
+
+    function getEntriesForMonth(monthIndex = state.month){
+      return data.entries
+        .map(e => {
+          const count = recurrenceCount(e, "plannedDate", monthIndex);
+          if(!count) return null;
+          return {...e, displayValue: round(number(e.value) * count), occurrences: count};
+        })
+        .filter(Boolean);
+    }
+
+    function getManualExpensesForMonth(monthIndex = state.month){
+      return data.expenses
+        .map(e => {
+          const count = recurrenceCount(e, "dueDate", monthIndex);
+          if(!count) return null;
+          return {...e, displayValue: round(number(e.value) * count), occurrences: count, virtual:false};
+        })
+        .filter(Boolean);
+    }
+
+    function getPurchaseInstallments(purchase){
+      if(purchase.importedInvoiceMonth){
+        const n = Number(purchase.currentInstallment || 1);
+        const key = purchase.importedInvoiceMonth;
+        const installmentKey = `${purchase.id}_${key}_${n}`;
+        const status = purchase.status === "paid" || (purchase.paidInstallments || []).includes(installmentKey) ? "paid" : "open";
+        return [{
+          key,
+          installmentKey,
+          number:n,
+          total:Number(purchase.installments || 1),
+          value: round(purchase.installmentValue || purchase.totalValue),
+          dueDate: purchase.invoiceDueDate || `${key}-01`,
+          status
+        }];
+      }
+
+      const installments = Math.max(1, Number(purchase.installments || 1));
+      const base = round(number(purchase.totalValue) / installments);
+      const result = [];
+      for(let i=0;i<installments;i++){
+        const date = addMonths(purchase.date, i);
+        const key = keyFromDate(date);
+        let value = base;
+        if(i === installments - 1){
+          value = round(number(purchase.totalValue) - base * (installments - 1));
+        }
+        const installmentKey = `${purchase.id}_${key}_${i+1}`;
+        const status = purchase.status === "paid" || (purchase.paidInstallments || []).includes(installmentKey) ? "paid" : "open";
+        result.push({key, installmentKey, number:i+1, total:installments, value, dueDate:date, status});
+      }
+      return result;
+    }
+
+    function getCardStats(card, monthIndex = state.month){
+      const currentKey = getMonthKey(monthIndex);
+      let used = 0, invoice = 0, future = 0, paidInMonth = 0;
+      data.cardPurchases.filter(p => p.cardId === card.id).forEach(p => {
+        getPurchaseInstallments(p).forEach(inst => {
+          if(inst.status !== "paid") used += inst.value;
+          if(inst.key === currentKey){
+            invoice += inst.value;
+            if(inst.status === "paid") paidInMonth += inst.value;
+          }
+          if(inst.key > currentKey && inst.status !== "paid") future += inst.value;
+        });
+      });
+      const limit = Math.max(0, number(card.limit));
+      return {
+        used: round(used),
+        available: round(limit - used),
+        invoice: round(invoice),
+        future: round(future),
+        paidInMonth: round(paidInMonth),
+        percent: limit ? Math.min(999, round((used / limit) * 100)) : 0
+      };
+    }
+
+    function getVirtualInvoicesForMonth(monthIndex = state.month){
+      const key = getMonthKey(monthIndex);
+      return data.cards.map(card => {
+        const stats = getCardStats(card, monthIndex);
+        if(stats.invoice <= 0) return null;
+        const payKey = `${key}_${card.id}`;
+        const payment = data.invoicePayments[payKey] || {};
+        const status = payment.status || "pending";
+        return {
+          id:`invoice_${card.id}_${key}`,
+          virtual:true,
+          source:"cardInvoice",
+          cardId:card.id,
+          description:`Fatura ${card.name}`,
+          category:"Cartão de Crédito",
+          value:stats.invoice,
+          displayValue:stats.invoice,
+          dueDate:dateFromDay(card.dueDay || 1, monthIndex),
+          paymentDate:payment.paymentDate || "",
+          status,
+          paymentMethod:"cartão de crédito",
+          installments:1,
+          currentInstallment:1,
+          recurrence:"única",
+          notes:"Fatura gerada automaticamente pelos lançamentos do cartão."
+        };
+      }).filter(Boolean);
+    }
+
+    function getExpensesForMonth(monthIndex = state.month, includeVirtual = true){
+      const manual = getManualExpensesForMonth(monthIndex);
+      return includeVirtual ? manual.concat(getVirtualInvoicesForMonth(monthIndex)) : manual;
+    }
+
+    function calcTotals(monthIndex = state.month, memo = {}){
+      if(memo[monthIndex]) return memo[monthIndex];
+      const previous = monthIndex === 0 ? number(data.settings.initialBalance) : calcTotals(monthIndex - 1, memo).saldoFinal;
+      const entries = getEntriesForMonth(monthIndex);
+      const expenses = getExpensesForMonth(monthIndex);
+      const entradasPrevistas = round(entries.reduce((s,e)=> s + number(e.displayValue ?? e.value), 0));
+      const entradasRecebidas = round(entries.filter(e=>e.status === "received").reduce((s,e)=> s + number(e.displayValue ?? e.value), 0));
+      const entradasPendentes = round(entradasPrevistas - entradasRecebidas);
+      const saidasPrevistas = round(expenses.reduce((s,e)=> s + number(e.displayValue ?? e.value), 0));
+      const saidasPagas = round(expenses.filter(e=>e.status === "paid").reduce((s,e)=> s + number(e.displayValue ?? e.value), 0));
+      const saidasPendentes = round(saidasPrevistas - saidasPagas);
+      const faturas = round(getVirtualInvoicesForMonth(monthIndex).reduce((s,e)=>s+number(e.value),0));
+      const saldoPrevisto = round(previous + entradasPrevistas - saidasPrevistas);
+      const saldoRealizado = round(previous + entradasRecebidas - saidasPagas);
+      const saldoFinal = saldoRealizado;
+      memo[monthIndex] = {
+        previous, entradasPrevistas, entradasRecebidas, entradasPendentes,
+        saidasPrevistas, saidasPagas, saidasPendentes, faturas,
+        saldoPrevisto, saldoRealizado, saldoFinal
+      };
+      return memo[monthIndex];
+    }
+
+    function render(){
+      syncHeaderControls();
+      renderSummary();
+      renderTabs();
+      const app = document.getElementById("app");
+      if(state.tab === "dashboard") app.innerHTML = renderDashboard();
+      if(state.tab === "entradas") app.innerHTML = renderEntriesPage();
+      if(state.tab === "saidas") app.innerHTML = renderExpensesPage();
+      if(state.tab === "cartoes") app.innerHTML = renderCardsPage();
+      if(state.tab === "analises") app.innerHTML = renderAnalyticsPage();
+      if(state.tab === "categorias") app.innerHTML = renderCategoriesPage();
+      if(state.tab === "config") app.innerHTML = renderConfigPage();
+      attachDragAndDrop();
+      renderCharts();
+    }
+
+    function syncHeaderControls(){
+      const monthSelect = document.getElementById("monthSelect");
+      monthSelect.innerHTML = MONTHS.map((m,i)=>`<option value="${i}" ${i===state.month?"selected":""}>${m}</option>`).join("");
+      document.getElementById("yearInput").value = state.year;
+    }
+
+    function renderSummary(){
+      const t = calcTotals(state.month);
+      const items = [
+        ["Saldo mês anterior", t.previous, "neutral", "levado do mês anterior"],
+        ["Entradas previstas", t.entradasPrevistas, "positive", "total planejado"],
+        ["Entradas recebidas", t.entradasRecebidas, "positive", "realizado"],
+        ["Entradas pendentes", t.entradasPendentes, "warning", "a receber"],
+        ["Saídas previstas", t.saidasPrevistas, "negative", "total planejado"],
+        ["Saídas pagas", t.saidasPagas, "negative", "realizado"],
+        ["Saídas pendentes", t.saidasPendentes, "warning", "a pagar"],
+        ["Faturas do mês", t.faturas, "neutral", "cartões"],
+        ["Saldo previsto", t.saldoPrevisto, t.saldoPrevisto >= 0 ? "positive":"negative", "previsto"],
+        ["Saldo realizado", t.saldoRealizado, t.saldoRealizado >= 0 ? "positive":"negative", "recebido - pago"],
+        ["Saldo final", t.saldoFinal, t.saldoFinal >= 0 ? "positive":"negative", "vai para o próximo mês"]
+      ];
+      document.getElementById("summaryCards").innerHTML = items.map(([label,value,tone,hint]) => `
+        <article class="kpi-card">
+          <div class="kpi-label">${label}</div>
+          <div class="kpi-value ${tone}" data-currency="${value}">${toBRL(value)}</div>
+          <div class="kpi-hint">${hint}</div>
+        </article>
+      `).join("");
+      animateKpis();
+    }
+
+    function animateKpis(){
+      document.querySelectorAll("[data-currency]").forEach(el => {
+        const target = Number(el.dataset.currency || 0);
+        const start = 0;
+        const duration = 420;
+        const t0 = performance.now();
+        function tick(now){
+          const p = Math.min(1, (now - t0) / duration);
+          const eased = 1 - Math.pow(1-p, 3);
+          el.textContent = toBRL(start + (target - start) * eased);
+          if(p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    function renderTabs(){
+      document.getElementById("tabs").innerHTML = TABS.map(([id,label]) =>
+        `<button class="tab-btn ${state.tab===id?"active":""}" data-action="tab" data-tab="${id}">${label}</button>`
+      ).join("");
+    }
+
+    function renderDashboard(){
+      const entries = getEntriesForMonth().filter(e => e.status === "pending").slice(0,5);
+      const expenses = getExpensesForMonth().filter(e => e.status === "pending").sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,6);
+      const cards = data.cards.slice(0,5);
+      return `
+        <section class="page">
+          <div class="section-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2 class="panel-title">Visão rápida de ${MONTHS[state.month]}/${getMonthKey().slice(0,4)}</h2>
+                  <p class="panel-subtitle">Pendências, recebimentos e faturas em uma leitura compacta.</p>
+                </div>
+                <button class="btn primary small" data-action="add-expense">+ Saída</button>
+              </div>
+              <div class="panel-body grid-2">
+                <div>
+                  <h3 class="drop-title">Entradas pendentes <span class="drop-total positive">${toBRL(entries.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
+                  <div class="compact-list">${entries.length ? entries.map(renderEntryCard).join("") : `<div class="empty">Nenhuma entrada pendente.</div>`}</div>
+                </div>
+                <div>
+                  <h3 class="drop-title">Saídas pendentes <span class="drop-total negative">${toBRL(expenses.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
+                  <div class="compact-list">${expenses.length ? expenses.map(renderExpenseCard).join("") : `<div class="empty">Nenhuma saída pendente.</div>`}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2 class="panel-title">Cartões do mês</h2>
+                  <p class="panel-subtitle">Fatura atual, limite usado e alerta de uso.</p>
+                </div>
+                <button class="btn soft small" data-action="add-card">+ Cartão</button>
+              </div>
+              <div class="panel-body compact-list">
+                ${cards.map(renderMiniCard).join("")}
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-grid" style="margin-top:14px">
+            <div class="chart-card">
+              <h3>Despesas por categoria</h3>
+              <canvas id="dashExpenseChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>Entradas x Saídas</h3>
+              <canvas id="dashFlowChart"></canvas>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function filterBar(type){
+      const catType = type === "entry" ? "entrada" : "saida";
+      return `
+        <div class="filterbar">
+          <input class="input" data-filter="search" value="${escapeHtml(state.filters.search)}" placeholder="Buscar descrição..." />
+          <select class="select" data-filter="category">
+            <option value="all">Todas as categorias</option>
+            ${data.categories.filter(c => c.type === catType || c.type === "ambos").map(c => `<option value="${escapeHtml(c.name)}" ${state.filters.category===c.name?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}
+          </select>
+          <select class="select" data-filter="status">
+            <option value="all">Todos os status</option>
+            ${type === "entry"
+              ? `<option value="pending" ${state.filters.status==="pending"?"selected":""}>Pendente</option><option value="received" ${state.filters.status==="received"?"selected":""}>Recebido</option>`
+              : `<option value="pending" ${state.filters.status==="pending"?"selected":""}>Pendente</option><option value="paid" ${state.filters.status==="paid"?"selected":""}>Pago</option>`
+            }
+          </select>
+          ${type === "expense" ? `
+            <select class="select" data-filter="method">
+              <option value="all">Todas as formas</option>
+              ${PAYMENT_METHODS.map(m => `<option value="${m}" ${state.filters.method===m?"selected":""}>${m}</option>`).join("")}
+            </select>
+          ` : ""}
+          <input class="input" type="date" data-filter="date" value="${escapeHtml(state.filters.date)}" />
+          <select class="select" data-filter="sort">
+            <option value="date" ${state.filters.sort==="date"?"selected":""}>Ordenar por data</option>
+            <option value="value" ${state.filters.sort==="value"?"selected":""}>Ordenar por valor</option>
+            <option value="category" ${state.filters.sort==="category"?"selected":""}>Ordenar por categoria</option>
+          </select>
+        </div>
+      `;
+    }
+
+    function applyCommonFilters(items, type){
+      const search = state.filters.search.trim().toLowerCase();
+      let result = items.filter(item => {
+        const date = type === "entry" ? item.plannedDate : item.dueDate;
+        const okSearch = !search || item.description.toLowerCase().includes(search);
+        const okCategory = state.filters.category === "all" || item.category === state.filters.category;
+        const okStatus = state.filters.status === "all" || item.status === state.filters.status;
+        const okDate = !state.filters.date || date === state.filters.date;
+        const okMethod = type !== "expense" || state.filters.method === "all" || item.paymentMethod === state.filters.method;
+        return okSearch && okCategory && okStatus && okDate && okMethod;
+      });
+      result.sort((a,b) => {
+        if(state.filters.sort === "value") return number(b.displayValue ?? b.value) - number(a.displayValue ?? a.value);
+        if(state.filters.sort === "category") return String(a.category).localeCompare(String(b.category));
+        const da = type === "entry" ? a.plannedDate : a.dueDate;
+        const db = type === "entry" ? b.plannedDate : b.dueDate;
+        return String(da).localeCompare(String(db));
+      });
+      return result;
+    }
+
+    function renderEntriesPage(){
+      const items = applyCommonFilters(getEntriesForMonth(), "entry");
+      const pending = items.filter(e=>e.status==="pending");
+      const received = items.filter(e=>e.status==="received");
+      return `
+        <section class="page">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Entradas</h2>
+                <p class="panel-subtitle">Mova para recebido pelo botão ou arrastando para a coluna da direita.</p>
+              </div>
+              <button class="btn green" data-action="add-entry">+ Nova entrada</button>
+            </div>
+            <div class="panel-body">
+              ${filterBar("entry")}
+              <div class="columns">
+                <div class="drop-col" data-drop-type="entry" data-status="pending">
+                  <h3 class="drop-title">Pendentes <span class="drop-total warning">${toBRL(pending.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
+                  <div class="compact-list">${pending.length ? pending.map(renderEntryCard).join("") : `<div class="empty">Sem entradas pendentes.</div>`}</div>
+                </div>
+                <div class="drop-col" data-drop-type="entry" data-status="received">
+                  <h3 class="drop-title">Recebidas <span class="drop-total positive">${toBRL(received.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
+                  <div class="compact-list">${received.length ? received.map(renderEntryCard).join("") : `<div class="empty">Arraste entradas recebidas para cá.</div>`}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderExpensesPage(){
+      const items = applyCommonFilters(getExpensesForMonth(), "expense");
+      const pending = items.filter(e=>e.status==="pending");
+      const paid = items.filter(e=>e.status==="paid");
+      return `
+        <section class="page">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Saídas</h2>
+                <p class="panel-subtitle">Inclui despesas manuais e faturas geradas automaticamente pelos cartões.</p>
+              </div>
+              <button class="btn primary" data-action="add-expense">+ Nova saída</button>
+            </div>
+            <div class="panel-body">
+              ${filterBar("expense")}
+              <div class="columns">
+                <div class="drop-col" data-drop-type="expense" data-status="pending">
+                  <h3 class="drop-title">Pendentes <span class="drop-total warning">${toBRL(pending.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
+                  <div class="compact-list">${pending.length ? pending.map(renderExpenseCard).join("") : `<div class="empty">Sem saídas pendentes.</div>`}</div>
+                </div>
+                <div class="drop-col" data-drop-type="expense" data-status="paid">
+                  <h3 class="drop-title">Pagas <span class="drop-total positive">${toBRL(paid.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
+                  <div class="compact-list">${paid.length ? paid.map(renderExpenseCard).join("") : `<div class="empty">Arraste saídas pagas para cá.</div>`}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderEntryCard(item){
+      const date = item.status === "received" && item.receivedDate ? item.receivedDate : item.plannedDate;
+      return `
+        <article class="item-card" draggable="true" data-drag-type="entry" data-id="${item.id}">
+          <div class="item-main">
+            <div class="item-title">${escapeHtml(item.description)}</div>
+            <div class="item-meta">
+              <span class="tag green">● ${escapeHtml(item.category)}</span>
+              <span class="tag ${item.status==="received"?"green":"yellow"}">${item.status==="received"?"Recebido":"Pendente"}</span>
+              <span class="tag dark">📅 ${formatDate(date)}</span>
+              ${item.occurrences > 1 ? `<span class="tag">×${item.occurrences}</span>` : ""}
+            </div>
+          </div>
+          <div>
+            <div class="item-value positive">${toBRL(item.displayValue ?? item.value)}</div>
+            <div class="item-actions">
+              ${item.status==="pending" ? `<button class="btn green small" data-action="mark-entry" data-id="${item.id}" data-status="received">Recebido</button>` : `<button class="btn soft small" data-action="mark-entry" data-id="${item.id}" data-status="pending">Pendente</button>`}
+              <button class="btn soft small" data-action="edit-entry" data-id="${item.id}">Editar</button>
+              <button class="btn soft small" data-action="duplicate-entry" data-id="${item.id}">Duplicar</button>
+              <button class="btn red small" data-action="delete-entry" data-id="${item.id}">Excluir</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderExpenseCard(item){
+      const cardName = item.cardId ? data.cards.find(c=>c.id===item.cardId)?.name : "";
+      return `
+        <article class="item-card" draggable="true" data-drag-type="expense" data-id="${item.id}">
+          <div class="item-main">
+            <div class="item-title">${escapeHtml(item.description)}</div>
+            <div class="item-meta">
+              <span class="tag" style="background:${hexToSoft(getCategoryColor(item.category))};color:${getCategoryColor(item.category)}">● ${escapeHtml(item.category)}</span>
+              <span class="tag ${item.status==="paid"?"green":"yellow"}">${item.status==="paid"?"Pago":"Pendente"}</span>
+              <span class="tag dark">📅 ${formatDate(item.dueDate)}</span>
+              <span class="tag">${escapeHtml(item.paymentMethod || "outros")}</span>
+              ${cardName ? `<span class="tag">💳 ${escapeHtml(cardName)}</span>` : ""}
+              ${item.virtual ? `<span class="tag dark">automático</span>` : ""}
+            </div>
+          </div>
+          <div>
+            <div class="item-value ${item.status==="paid"?"neutral":"negative"}">${toBRL(item.displayValue ?? item.value)}</div>
+            <div class="item-actions">
+              ${item.status==="pending" ? `<button class="btn green small" data-action="mark-expense" data-id="${item.id}" data-status="paid">Pago</button>` : `<button class="btn soft small" data-action="mark-expense" data-id="${item.id}" data-status="pending">Pendente</button>`}
+              ${item.virtual ? `<button class="btn soft small" data-action="open-card" data-id="${item.cardId}">Cartão</button>` : `<button class="btn soft small" data-action="edit-expense" data-id="${item.id}">Editar</button><button class="btn soft small" data-action="duplicate-expense" data-id="${item.id}">Duplicar</button><button class="btn red small" data-action="delete-expense" data-id="${item.id}">Excluir</button>`}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function hexToSoft(hex){
+      return hex ? `${hex}22` : "#ead8c5";
+    }
+    function formatDate(date){
+      if(!date) return "sem data";
+      const [y,m,d] = date.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function renderMiniCard(card){
+      const s = getCardStats(card);
+      const tone = s.percent >= 95 ? "danger" : s.percent >= 80 ? "warn" : "";
+      return `
+        <div class="item-card">
+          <div class="item-main">
+            <div class="item-title">💳 ${escapeHtml(card.name)}</div>
+            <div class="item-meta">
+              <span class="tag dark">Fatura ${toBRL(s.invoice)}</span>
+              <span class="tag ${s.percent>=80?"red":"green"}">${s.percent.toFixed(0)}% usado</span>
+            </div>
+            <div class="progress ${tone}"><span style="width:${Math.min(100,s.percent)}%"></span></div>
+          </div>
+          <div>
+            <div class="item-value">${toBRL(s.available)}</div>
+            <div class="item-actions">
+              <button class="btn soft small" data-action="open-card" data-id="${card.id}">Abrir</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCardsPage(){
+      return `
+        <section class="page">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Cartões de crédito</h2>
+                <p class="panel-subtitle">Limite, fechamento, melhor dia de compra, fatura atual e parcelas futuras.</p>
+              </div>
+              <button class="btn primary" data-action="add-card">+ Novo cartão</button>
+            </div>
+            <div class="panel-body">
+              <div class="card-grid">
+                ${data.cards.map(renderCreditCard).join("")}
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderCreditCard(card){
+      const s = getCardStats(card);
+      const tone = s.percent >= 95 ? "danger" : s.percent >= 80 ? "warn" : "";
+      return `
+        <article class="credit-card">
+          <div class="credit-head" style="background:linear-gradient(135deg,${card.color},#3B2417)">
+            <div>
+              <div class="credit-name">${escapeHtml(card.name)}</div>
+              <div class="credit-dates">Venc. dia ${card.dueDay || "-"} • Fecha dia ${card.closingDay || "-"}<br>Melhor compra: dia ${calcBestDay(card)}</div>
+            </div>
+            <div style="font-size:1.35rem">💳</div>
+          </div>
+          <div class="credit-body">
+            <div class="metric-row"><span>Limite total</span><strong>${toBRL(card.limit)}</strong></div>
+            <div class="metric-row"><span>Limite utilizado</span><strong>${toBRL(s.used)}</strong></div>
+            <div class="metric-row"><span>Disponível</span><strong class="${s.available<0?"negative":"positive"}">${toBRL(s.available)}</strong></div>
+            <div class="progress ${tone}"><span style="width:${Math.min(100,s.percent)}%"></span></div>
+            <div class="metric-row"><span>Fatura atual</span><strong>${toBRL(s.invoice)}</strong></div>
+            <div class="metric-row"><span>Parcelas futuras</span><strong>${toBRL(s.future)}</strong></div>
+            <div class="metric-row"><span>Uso do limite</span><strong>${s.percent.toFixed(1)}%</strong></div>
+            ${s.percent >= 95 ? `<div class="alert-line">⚠ Uso acima de 95% do limite.</div>` : s.percent >= 80 ? `<div class="alert-line">Atenção: uso acima de 80%.</div>` : ""}
+            <div class="item-actions" style="margin-top:12px">
+              <button class="btn dark small" data-action="open-card" data-id="${card.id}">Abrir lançamentos</button>
+              <button class="btn soft small" data-action="edit-card" data-id="${card.id}">Editar</button>
+              <button class="btn red small" data-action="delete-card" data-id="${card.id}">Excluir</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function calcBestDay(card){
+      return card.bestDay || (((Number(card.closingDay)||1) % 31) + 1);
+    }
+
+    function renderAnalyticsPage(){
+      return `
+        <section class="page">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Análises</h2>
+                <p class="panel-subtitle">Gráficos atualizados automaticamente conforme os lançamentos mudam.</p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="filterbar">
+                <select class="select" data-analysis="chartType">
+                  <option value="doughnut" ${state.analysis.chartType==="doughnut"?"selected":""}>Pizza / Doughnut</option>
+                  <option value="bar" ${state.analysis.chartType==="bar"?"selected":""}>Colunas</option>
+                  <option value="line" ${state.analysis.chartType==="line"?"selected":""}>Linha</option>
+                </select>
+                <select class="select" data-analysis="category">
+                  <option value="all">Todas as categorias</option>
+                  ${data.categories.map(c=>`<option value="${escapeHtml(c.name)}" ${state.analysis.category===c.name?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}
+                </select>
+                <select class="select" data-analysis="card">
+                  <option value="all">Todos os cartões</option>
+                  ${data.cards.map(c=>`<option value="${c.id}" ${state.analysis.card===c.id?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}
+                </select>
+              </div>
+              <div class="chart-grid">
+                <div class="chart-card"><h3>1. Despesas por categoria</h3><canvas id="expenseCategoryChart"></canvas></div>
+                <div class="chart-card"><h3>2. Entradas x Saídas</h3><canvas id="flowChart"></canvas></div>
+                <div class="chart-card"><h3>3. Evolução do saldo mês a mês</h3><canvas id="balanceChart"></canvas></div>
+                <div class="chart-card"><h3>4. Limite utilizado x disponível</h3><canvas id="cardLimitChart"></canvas></div>
+                <div class="chart-card"><h3>5. Status das saídas</h3><canvas id="expenseStatusChart"></canvas></div>
+                <div class="chart-card"><h3>6. Recebimentos</h3><canvas id="entryStatusChart"></canvas></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderCategoriesPage(){
+      return `
+        <section class="page">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Categorias</h2>
+                <p class="panel-subtitle">Categorias alimentam filtros, tags e gráficos.</p>
+              </div>
+              <button class="btn primary" data-action="add-category">+ Nova categoria</button>
+            </div>
+            <div class="panel-body">
+              <div class="category-list">
+                ${data.categories.map(c => `
+                  <article class="category-card">
+                    <div class="cat-left">
+                      <span class="cat-dot" style="background:${c.color}"></span>
+                      <div>
+                        <div class="cat-name">${escapeHtml(c.name)}</div>
+                        <div class="cat-type">${c.type}</div>
+                      </div>
+                    </div>
+                    <div class="item-actions">
+                      <button class="btn soft small" data-action="edit-category" data-id="${c.id}">Editar</button>
+                      <button class="btn red small" data-action="delete-category" data-id="${c.id}">Excluir</button>
+                    </div>
+                  </article>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderConfigPage(){
+      return `
+        <section class="page">
+          <div class="config-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2 class="panel-title">Configurações gerais</h2>
+                  <p class="panel-subtitle">Ajustes do ciclo de planejamento e saldo inicial.</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="form-grid">
+                  <div class="form-field">
+                    <label>Mês inicial do planejamento</label>
+                    <select class="select" id="cfgStartMonth">${MONTHS.map((m,i)=>`<option value="${i}" ${Number(data.settings.startMonth)===i?"selected":""}>${m}</option>`).join("")}</select>
+                  </div>
+                  <div class="form-field">
+                    <label>Ano base</label>
+                    <input class="input" id="cfgYear" type="number" value="${state.year}" />
+                  </div>
+                  <div class="form-field">
+                    <label>Moeda padrão</label>
+                    <input class="input" value="Real brasileiro (BRL)" disabled />
+                  </div>
+                  <div class="form-field">
+                    <label>Saldo inicial</label>
+                    <input class="input" id="cfgInitialBalance" type="number" step="0.01" value="${number(data.settings.initialBalance)}" />
+                  </div>
+                  <div class="form-field full">
+                    <label>Tema visual</label>
+                    <input class="input" value="Marrom elegante premium" disabled />
+                  </div>
+                </div>
+                <div class="item-actions" style="margin-top:14px;justify-content:flex-start">
+                  <button class="btn primary" data-action="save-config">Salvar configurações</button>
+                </div>
+              </div>
+            </div>
+            <div class="panel danger-zone">
+              <div class="panel-header">
+                <div>
+                  <h2 class="panel-title">Backup e dados</h2>
+                  <p class="panel-subtitle">Exporte, importe, limpe ou restaure os exemplos iniciais.</p>
+                </div>
+              </div>
+              <div class="panel-body compact-list">
+                <button class="btn dark" data-action="export">⬇ Exportar backup JSON</button>
+                <button class="btn soft" data-action="import">⬆ Importar backup JSON</button>
+                <button class="btn soft" data-action="restore-examples">↺ Restaurar exemplos iniciais</button>
+                <button class="btn red" data-action="clear-data">Excluir todos os dados</button>
+                <div class="empty" style="text-align:left">
+                  Os dados ficam salvos apenas neste navegador via <span class="kbd">localStorage</span>. Para trocar de computador, use o backup JSON.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function openModal(title, bodyHtml, onSubmit){
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalBody").innerHTML = bodyHtml;
+      const modal = document.getElementById("modal");
+      const form = document.getElementById("modalForm");
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        onSubmit(fd, form);
+      };
+      modal.classList.remove("hidden");
+    }
+    function closeModal(){ document.getElementById("modal").classList.add("hidden"); }
+    function closeDrawer(){ document.getElementById("drawerBackdrop").classList.add("hidden"); activeDrawerCardId = ""; }
+
+    function entryForm(item = {}){
+      const selectedCategory = item.category || "Salário";
+      return `
+        <div class="form-grid">
+          <div class="form-field full"><label>Descrição</label><input class="input" name="description" required value="${escapeHtml(item.description || "")}" /></div>
+          <div class="form-field"><label>Categoria</label><select class="select" name="category">${categoryOptions("entrada", selectedCategory)}</select></div>
+          <div class="form-field"><label>Valor</label><input class="input" name="value" type="number" step="0.01" required value="${number(item.value)}" /></div>
+          <div class="form-field"><label>Data prevista</label><input class="input" name="plannedDate" type="date" required value="${item.plannedDate || dateFromDay(1)}" /></div>
+          <div class="form-field"><label>Data recebida</label><input class="input" name="receivedDate" type="date" value="${item.receivedDate || ""}" /></div>
+          <div class="form-field"><label>Status</label><select class="select" name="status"><option value="pending" ${item.status!=="received"?"selected":""}>Pendente</option><option value="received" ${item.status==="received"?"selected":""}>Recebido</option></select></div>
+          <div class="form-field"><label>Recorrência</label><select class="select" name="recurrence">${RECURRENCES.map(r=>`<option value="${r}" ${item.recurrence===r?"selected":""}>${r}</option>`).join("")}</select></div>
+          <div class="form-field full"><label>Observações</label><textarea class="textarea" name="notes">${escapeHtml(item.notes || "")}</textarea></div>
+        </div>
+      `;
+    }
+
+    function expenseForm(item = {}){
+      const selectedCategory = item.category || "Boleto";
+      return `
+        <div class="form-grid">
+          <div class="form-field full"><label>Descrição</label><input class="input" name="description" required value="${escapeHtml(item.description || "")}" /></div>
+          <div class="form-field"><label>Categoria</label><select class="select" name="category">${categoryOptions("saida", selectedCategory)}</select></div>
+          <div class="form-field"><label>Valor</label><input class="input" name="value" type="number" step="0.01" required value="${number(item.value)}" /></div>
+          <div class="form-field"><label>Vencimento</label><input class="input" name="dueDate" type="date" required value="${item.dueDate || dateFromDay(1)}" /></div>
+          <div class="form-field"><label>Data de pagamento</label><input class="input" name="paymentDate" type="date" value="${item.paymentDate || ""}" /></div>
+          <div class="form-field"><label>Status</label><select class="select" name="status"><option value="pending" ${item.status!=="paid"?"selected":""}>Pendente</option><option value="paid" ${item.status==="paid"?"selected":""}>Pago</option></select></div>
+          <div class="form-field"><label>Forma de pagamento</label><select class="select" name="paymentMethod">${PAYMENT_METHODS.map(m=>`<option value="${m}" ${item.paymentMethod===m?"selected":""}>${m}</option>`).join("")}</select></div>
+          <div class="form-field"><label>Cartão vinculado</label><select class="select" name="cardId">${cardOptions(item.cardId || "")}</select></div>
+          <div class="form-field"><label>Parcelas</label><input class="input" name="installments" type="number" min="1" value="${number(item.installments || 1)}" /></div>
+          <div class="form-field"><label>Parcela atual</label><input class="input" name="currentInstallment" type="number" min="1" value="${number(item.currentInstallment || 1)}" /></div>
+          <div class="form-field"><label>Recorrência</label><select class="select" name="recurrence">${RECURRENCES.map(r=>`<option value="${r}" ${item.recurrence===r?"selected":""}>${r}</option>`).join("")}</select></div>
+          <div class="form-field full"><label>Observações</label><textarea class="textarea" name="notes">${escapeHtml(item.notes || "")}</textarea></div>
+        </div>
+      `;
+    }
+
+    function openEntryModal(id = ""){
+      const item = id ? data.entries.find(e=>e.id===id) : null;
+      openModal(item ? "Editar entrada" : "Nova entrada", entryForm(item || {}), (fd) => {
+        const payload = {
+          description: fd.get("description"),
+          category: fd.get("category"),
+          value: round(fd.get("value")),
+          plannedDate: fd.get("plannedDate"),
+          receivedDate: fd.get("receivedDate"),
+          status: fd.get("status"),
+          recurrence: fd.get("recurrence"),
+          notes: fd.get("notes")
+        };
+        if(payload.status === "received" && !payload.receivedDate) payload.receivedDate = isoToday();
+        if(item) Object.assign(item, payload);
+        else data.entries.push({id:uid("ent"), ...payload});
+        closeModal(); autosave(); render(); toast(item ? "Entrada atualizada" : "Entrada adicionada");
+      });
+    }
+
+    function openExpenseModal(id = ""){
+      const item = id ? data.expenses.find(e=>e.id===id) : null;
+      openModal(item ? "Editar saída" : "Nova saída", expenseForm(item || {}), (fd) => {
+        const payload = {
+          description: fd.get("description"),
+          category: fd.get("category"),
+          value: round(fd.get("value")),
+          dueDate: fd.get("dueDate"),
+          paymentDate: fd.get("paymentDate"),
+          status: fd.get("status"),
+          paymentMethod: fd.get("paymentMethod"),
+          cardId: fd.get("cardId"),
+          installments: Math.max(1, Number(fd.get("installments") || 1)),
+          currentInstallment: Math.max(1, Number(fd.get("currentInstallment") || 1)),
+          recurrence: fd.get("recurrence"),
+          notes: fd.get("notes"),
+          source:"manual"
+        };
+        if(payload.status === "paid" && !payload.paymentDate) payload.paymentDate = isoToday();
+        if(item) Object.assign(item, payload);
+        else data.expenses.push({id:uid("exp"), ...payload});
+        closeModal(); autosave(); render(); toast(item ? "Saída atualizada" : "Saída adicionada");
+      });
+    }
+
+    function cardForm(card = {}){
+      return `
+        <div class="form-grid">
+          <div class="form-field full"><label>Nome do cartão</label><input class="input" name="name" required value="${escapeHtml(card.name || "")}" /></div>
+          <div class="form-field"><label>Cor do cartão</label><input class="input" name="color" type="color" value="${card.color || "#B98252"}" /></div>
+          <div class="form-field"><label>Limite total</label><input class="input" name="limit" type="number" step="0.01" value="${number(card.limit)}" /></div>
+          <div class="form-field"><label>Vencimento</label><input class="input" name="dueDay" type="number" min="1" max="31" value="${card.dueDay || 1}" /></div>
+          <div class="form-field"><label>Fechamento</label><input class="input" name="closingDay" type="number" min="1" max="31" value="${card.closingDay || 1}" /></div>
+          <div class="form-field"><label>Melhor dia de compra</label><input class="input" name="bestDay" type="number" min="1" max="31" value="${card.bestDay || calcBestDay(card)}" /></div>
+        </div>
+      `;
+    }
+
+    function openCardModal(id = ""){
+      const card = id ? data.cards.find(c=>c.id===id) : null;
+      openModal(card ? "Editar cartão" : "Novo cartão", cardForm(card || {}), (fd) => {
+        const payload = {
+          name: fd.get("name"),
+          color: fd.get("color"),
+          limit: round(fd.get("limit")),
+          dueDay: Number(fd.get("dueDay") || 1),
+          closingDay: Number(fd.get("closingDay") || 1),
+          bestDay: Number(fd.get("bestDay") || 0) || ((Number(fd.get("closingDay") || 1) % 31) + 1)
+        };
+        if(card) Object.assign(card, payload);
+        else data.cards.push({id:uid("card"), ...payload});
+        closeModal(); autosave(); render(); toast(card ? "Cartão atualizado" : "Cartão criado");
+      });
+    }
+
+    function purchaseForm(cardId, purchase = {}){
+      const card = data.cards.find(c=>c.id===cardId);
+      const type = purchase.type || "à vista";
+      return `
+        <div class="form-grid">
+          <div class="form-field full"><label>Cartão</label><input class="input" value="${escapeHtml(card?.name || "")}" disabled /></div>
+          <div class="form-field"><label>Data da compra</label><input class="input" name="date" type="date" required value="${purchase.date || dateFromDay(1)}" /></div>
+          <div class="form-field"><label>Descrição</label><input class="input" name="description" required value="${escapeHtml(purchase.description || "")}" /></div>
+          <div class="form-field"><label>Categoria</label><select class="select" name="category">${categoryOptions("saida", purchase.category || "Alimentação")}</select></div>
+          <div class="form-field"><label>Valor total</label><input class="input" name="totalValue" type="number" step="0.01" required value="${number(purchase.totalValue)}" /></div>
+          <div class="form-field"><label>Tipo</label><select class="select" name="type"><option value="à vista" ${type==="à vista"?"selected":""}>À vista</option><option value="parcelado" ${type==="parcelado"?"selected":""}>Parcelado</option></select></div>
+          <div class="form-field"><label>Número de parcelas</label><input class="input" name="installments" type="number" min="1" value="${number(purchase.installments || 1)}" /></div>
+          <div class="form-field"><label>Parcela atual</label><input class="input" name="currentInstallment" type="number" min="1" value="${number(purchase.currentInstallment || 1)}" /></div>
+          <div class="form-field"><label>Recorrência</label><select class="select" name="recurrence">${RECURRENCES.map(r=>`<option value="${r}" ${purchase.recurrence===r?"selected":""}>${r}</option>`).join("")}</select></div>
+          <div class="form-field"><label>Status</label><select class="select" name="status"><option value="open" ${purchase.status!=="paid"?"selected":""}>Em aberto</option><option value="paid" ${purchase.status==="paid"?"selected":""}>Pago</option></select></div>
+          <div class="form-field full"><label>Observações</label><textarea class="textarea" name="notes">${escapeHtml(purchase.notes || "")}</textarea></div>
+        </div>
+      `;
+    }
+
+    function openPurchaseModal(cardId, purchaseId = ""){
+      const purchase = purchaseId ? data.cardPurchases.find(p=>p.id===purchaseId) : null;
+      openModal(purchase ? "Editar compra do cartão" : "Nova compra no cartão", purchaseForm(cardId, purchase || {}), (fd) => {
+        const total = round(fd.get("totalValue"));
+        const type = fd.get("type");
+        const installments = type === "parcelado" ? Math.max(1, Number(fd.get("installments") || 1)) : 1;
+        const payload = {
+          cardId,
+          date: fd.get("date"),
+          description: fd.get("description"),
+          category: fd.get("category"),
+          totalValue: total,
+          type,
+          installments,
+          currentInstallment: Math.max(1, Number(fd.get("currentInstallment") || 1)),
+          installmentValue: round(total / installments),
+          recurrence: fd.get("recurrence"),
+          status: fd.get("status"),
+          paidInstallments: purchase?.paidInstallments || [],
+          notes: fd.get("notes")
+        };
+        if(purchase){
+          delete purchase.importedInvoiceMonth;
+          delete purchase.invoiceDueDate;
+          Object.assign(purchase, payload);
+        } else {
+          data.cardPurchases.push({id:uid("pur"), ...payload});
+        }
+        closeModal(); autosave(); render();
+        if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true);
+        toast(purchase ? "Compra atualizada" : "Compra adicionada ao cartão");
+      });
+    }
+
+    function openCategoryModal(id = ""){
+      const cat = id ? data.categories.find(c=>c.id===id) : null;
+      openModal(cat ? "Editar categoria" : "Nova categoria", `
+        <div class="form-grid">
+          <div class="form-field full"><label>Nome</label><input class="input" name="name" required value="${escapeHtml(cat?.name || "")}" /></div>
+          <div class="form-field"><label>Tipo</label><select class="select" name="type">
+            <option value="entrada" ${cat?.type==="entrada"?"selected":""}>Entrada</option>
+            <option value="saida" ${cat?.type==="saida"?"selected":""}>Saída</option>
+            <option value="ambos" ${cat?.type==="ambos"?"selected":""}>Ambos</option>
+          </select></div>
+          <div class="form-field"><label>Cor</label><input class="input" name="color" type="color" value="${cat?.color || "#B98252"}" /></div>
+        </div>
+      `, (fd) => {
+        const payload = {name:fd.get("name"), type:fd.get("type"), color:fd.get("color")};
+        if(cat) Object.assign(cat, payload);
+        else data.categories.push({id:uid("cat"), ...payload});
+        closeModal(); autosave(); render(); toast(cat ? "Categoria atualizada" : "Categoria criada");
+      });
+    }
+
+    function openCardDrawer(cardId, silent = false){
+      const card = data.cards.find(c=>c.id===cardId);
+      if(!card) return;
+      activeDrawerCardId = cardId;
+      const stats = getCardStats(card);
+      const rows = [];
+      const selectedKey = getMonthKey();
+      data.cardPurchases.filter(p => p.cardId === cardId).forEach(p => {
+        getPurchaseInstallments(p).filter(inst => inst.key === selectedKey).forEach(inst => rows.push({purchase:p, inst}));
+      });
+      const filteredRows = rows.filter(({purchase,inst}) => {
+        const search = state.filters.search.trim().toLowerCase();
+        const okSearch = !search || purchase.description.toLowerCase().includes(search);
+        const okCategory = state.filters.category === "all" || purchase.category === state.filters.category;
+        const okStatus = state.filters.status === "all" || (state.filters.status === "paid" ? inst.status === "paid" : inst.status !== "paid");
+        return okSearch && okCategory && okStatus;
+      });
+
+      document.getElementById("drawerTitle").textContent = `Lançamentos • ${card.name}`;
+      document.getElementById("drawerBody").innerHTML = `
+        <div class="mini-stat-grid">
+          <div class="mini-stat"><small>Limite utilizado</small><strong>${toBRL(stats.used)}</strong></div>
+          <div class="mini-stat"><small>Disponível</small><strong class="${stats.available<0?"negative":"positive"}">${toBRL(stats.available)}</strong></div>
+          <div class="mini-stat"><small>Fatura atual</small><strong>${toBRL(stats.invoice)}</strong></div>
+          <div class="mini-stat"><small>Futuras</small><strong>${toBRL(stats.future)}</strong></div>
+        </div>
+        <div class="progress ${stats.percent>=95?"danger":stats.percent>=80?"warn":""}"><span style="width:${Math.min(100,stats.percent)}%"></span></div>
+        <button class="btn primary" data-action="add-purchase" data-id="${card.id}">+ Adicionar compra</button>
+        <div class="filterbar" style="margin:0">
+          <input class="input" data-filter="search" value="${escapeHtml(state.filters.search)}" placeholder="Buscar compra..." />
+          <select class="select" data-filter="category">
+            <option value="all">Categorias</option>
+            ${data.categories.filter(c => c.type === "saida" || c.type === "ambos").map(c=>`<option value="${escapeHtml(c.name)}" ${state.filters.category===c.name?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}
+          </select>
+          <select class="select" data-filter="status">
+            <option value="all">Status</option>
+            <option value="pending" ${state.filters.status==="pending"?"selected":""}>Em aberto</option>
+            <option value="paid" ${state.filters.status==="paid"?"selected":""}>Pago</option>
+          </select>
+        </div>
+        <div class="compact-list">
+          ${filteredRows.length ? filteredRows.map(({purchase,inst}) => `
+            <article class="item-card">
+              <div class="item-main">
+                <div class="item-title">${escapeHtml(purchase.description)}</div>
+                <div class="item-meta">
+                  <span class="tag">${escapeHtml(purchase.category)}</span>
+                  <span class="tag dark">${inst.number}/${inst.total}</span>
+                  <span class="tag ${inst.status==="paid"?"green":"yellow"}">${inst.status==="paid"?"Pago":"Em aberto"}</span>
+                  <span class="tag">📅 ${formatDate(inst.dueDate)}</span>
+                </div>
+              </div>
+              <div>
+                <div class="item-value">${toBRL(inst.value)}</div>
+                <div class="item-actions">
+                  ${inst.status==="paid" ? "" : `<button class="btn green small" data-action="mark-installment-paid" data-id="${purchase.id}" data-inst="${inst.installmentKey}">Pagar parcela</button>`}
+                  <button class="btn soft small" data-action="mark-purchase-paid" data-id="${purchase.id}">Compra paga</button>
+                  <button class="btn soft small" data-action="edit-purchase" data-id="${purchase.id}" data-card="${card.id}">Editar</button>
+                  <button class="btn soft small" data-action="duplicate-purchase" data-id="${purchase.id}">Duplicar</button>
+                  <button class="btn red small" data-action="delete-purchase" data-id="${purchase.id}">Excluir</button>
+                </div>
+              </div>
+            </article>
+          `).join("") : `<div class="empty">Nenhum lançamento deste cartão no mês selecionado.</div>`}
+        </div>
+      `;
+      document.getElementById("drawerBackdrop").classList.remove("hidden");
+      if(!silent) toast(`Cartão ${card.name} aberto`);
+    }
+
+    function markEntry(id, status){
+      const item = data.entries.find(e=>e.id===id);
+      if(!item) return;
+      item.status = status;
+      item.receivedDate = status === "received" ? (item.receivedDate || isoToday()) : "";
+      autosave(); render();
+      toast(status === "received" ? "Entrada marcada como recebida" : "Entrada voltou para pendente");
+    }
+
+    function markExpense(id, status){
+      if(id.startsWith("invoice_")){
+        const parts = id.split("_");
+        const cardId = parts.slice(1,-1).join("_");
+        const key = parts[parts.length-1];
+        const payKey = `${key}_${cardId}`;
+        data.invoicePayments[payKey] = {status, paymentDate: status === "paid" ? isoToday() : ""};
+        autosave(); render();
+        toast(status === "paid" ? "Fatura marcada como paga" : "Fatura voltou para pendente");
+        return;
+      }
+      const item = data.expenses.find(e=>e.id===id);
+      if(!item) return;
+      item.status = status;
+      item.paymentDate = status === "paid" ? (item.paymentDate || isoToday()) : "";
+      autosave(); render();
+      toast(status === "paid" ? "Saída marcada como paga" : "Saída voltou para pendente");
+    }
+
+    function duplicateById(list, id, prefix){
+      const item = list.find(x=>x.id===id);
+      if(!item) return;
+      const copy = clone(item);
+      copy.id = uid(prefix);
+      copy.description = `${copy.description} (cópia)`;
+      list.push(copy);
+      autosave(); render(); toast("Item duplicado");
+    }
+
+    function deleteById(list, id, label){
+      if(!confirm(`Excluir ${label}?`)) return;
+      const idx = list.findIndex(x=>x.id===id);
+      if(idx >= 0) list.splice(idx,1);
+      autosave(); render(); toast("Item excluído");
+    }
+
+    function attachDragAndDrop(){
+      document.querySelectorAll("[draggable='true']").forEach(el => {
+        el.addEventListener("dragstart", e => {
+          el.classList.add("dragging");
+          e.dataTransfer.setData("text/plain", JSON.stringify({id:el.dataset.id, type:el.dataset.dragType}));
+        });
+        el.addEventListener("dragend", () => el.classList.remove("dragging"));
+      });
+      document.querySelectorAll("[data-drop-type]").forEach(zone => {
+        zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
+        zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+        zone.addEventListener("drop", e => {
+          e.preventDefault();
+          zone.classList.remove("over");
+          try{
+            const payload = JSON.parse(e.dataTransfer.getData("text/plain"));
+            if(payload.type !== zone.dataset.dropType) return;
+            if(payload.type === "entry") markEntry(payload.id, zone.dataset.status);
+            if(payload.type === "expense") markExpense(payload.id, zone.dataset.status);
+          }catch(err){}
+        });
+      });
+    }
+
+    function renderCharts(){
+      Object.values(charts).forEach(c => c && c.destroy && c.destroy());
+      charts = {};
+      if(typeof Chart === "undefined") return;
+
+      if(document.getElementById("dashExpenseChart")){
+        charts.dashExpenseChart = makeExpenseCategoryChart("dashExpenseChart", "doughnut");
+      }
+      if(document.getElementById("dashFlowChart")){
+        charts.dashFlowChart = makeFlowChart("dashFlowChart");
+      }
+      if(document.getElementById("expenseCategoryChart")){
+        charts.expenseCategoryChart = makeExpenseCategoryChart("expenseCategoryChart", state.analysis.chartType);
+        charts.flowChart = makeFlowChart("flowChart");
+        charts.balanceChart = makeBalanceChart("balanceChart");
+        charts.cardLimitChart = makeCardLimitChart("cardLimitChart");
+        charts.expenseStatusChart = makeExpenseStatusChart("expenseStatusChart");
+        charts.entryStatusChart = makeEntryStatusChart("entryStatusChart");
+      }
+    }
+
+    function chartBaseOptions(){
+      return {
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{ position:"bottom", labels:{ boxWidth:10, color:"#5A3825", font:{family:"Inter", size:11, weight:"600"} } } },
+        scales:{ x:{ ticks:{ color:"#8A735F" }, grid:{ color:"rgba(112,67,35,.08)" } }, y:{ ticks:{ color:"#8A735F" }, grid:{ color:"rgba(112,67,35,.08)" } } }
+      };
+    }
+
+    function makeExpenseCategoryChart(canvasId, type){
+      let expenses = getExpensesForMonth();
+      if(state.analysis.category !== "all") expenses = expenses.filter(e=>e.category === state.analysis.category);
+      const totals = {};
+      expenses.forEach(e => totals[e.category] = round((totals[e.category] || 0) + number(e.displayValue ?? e.value)));
+      const labels = Object.keys(totals);
+      const values = Object.values(totals);
+      const chartType = type === "line" ? "line" : type;
+      return new Chart(document.getElementById(canvasId), {
+        type: chartType,
+        data:{ labels, datasets:[{ label:"Despesas", data:values, backgroundColor:chartPalette, borderColor:chartPalette, tension:.35, fill:false }] },
+        options: chartType === "doughnut" ? {...chartBaseOptions(), scales:{}} : chartBaseOptions()
+      });
+    }
+
+    function makeFlowChart(canvasId){
+      const labels = MONTHS;
+      const entradas = labels.map((_,i)=>calcTotals(i).entradasPrevistas);
+      const saidas = labels.map((_,i)=>calcTotals(i).saidasPrevistas);
+      return new Chart(document.getElementById(canvasId), {
+        type:"bar",
+        data:{ labels, datasets:[
+          {label:"Entradas", data:entradas, backgroundColor:"#3F7D58"},
+          {label:"Saídas", data:saidas, backgroundColor:"#B98252"}
+        ]},
+        options:chartBaseOptions()
+      });
+    }
+
+    function makeBalanceChart(canvasId){
+      const labels = MONTHS;
+      const saldo = labels.map((_,i)=>calcTotals(i).saldoFinal);
+      return new Chart(document.getElementById(canvasId), {
+        type:"line",
+        data:{ labels, datasets:[{label:"Saldo final", data:saldo, borderColor:"#3B2417", backgroundColor:"rgba(59,36,23,.12)", tension:.35, fill:true}] },
+        options:chartBaseOptions()
+      });
+    }
+
+    function makeCardLimitChart(canvasId){
+      let cards = data.cards;
+      if(state.analysis.card !== "all") cards = cards.filter(c=>c.id === state.analysis.card);
+      return new Chart(document.getElementById(canvasId), {
+        type:"bar",
+        data:{ labels:cards.map(c=>c.name), datasets:[
+          {label:"Utilizado", data:cards.map(c=>getCardStats(c).used), backgroundColor:"#704323"},
+          {label:"Disponível", data:cards.map(c=>Math.max(0,getCardStats(c).available)), backgroundColor:"#D7B786"}
+        ]},
+        options:chartBaseOptions()
+      });
+    }
+
+    function makeExpenseStatusChart(canvasId){
+      const t = calcTotals();
+      return new Chart(document.getElementById(canvasId), {
+        type:"doughnut",
+        data:{labels:["Pago","Pendente"], datasets:[{data:[t.saidasPagas,t.saidasPendentes], backgroundColor:["#3F7D58","#F4D89D"]}]},
+        options:{...chartBaseOptions(), scales:{}}
+      });
+    }
+
+    function makeEntryStatusChart(canvasId){
+      const t = calcTotals();
+      return new Chart(document.getElementById(canvasId), {
+        type:"doughnut",
+        data:{labels:["Recebido","Pendente"], datasets:[{data:[t.entradasRecebidas,t.entradasPendentes], backgroundColor:["#3F7D58","#F4D89D"]}]},
+        options:{...chartBaseOptions(), scales:{}}
+      });
+    }
+
+    function exportData(){
+      const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `backup-controle-financeiro-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("Backup exportado");
+    }
+
+    function importData(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const imported = JSON.parse(reader.result);
+          if(!imported.cards || !imported.entries || !imported.expenses) throw new Error("Formato inválido");
+          data = imported;
+          state.month = Number(data.settings?.currentMonth ?? 0);
+          state.year = Number(data.settings?.year ?? state.year);
+          saveData(true); render();
+          toast("Backup importado com sucesso");
+        }catch(e){
+          alert("Não consegui importar este arquivo JSON.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-action]");
+      if(!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.id || "";
+
+      if(action === "tab"){ state.tab = btn.dataset.tab; render(); return; }
+      if(action === "close-modal"){ closeModal(); return; }
+      if(action === "close-drawer"){ closeDrawer(); return; }
+
+      if(action === "add-entry") openEntryModal();
+      if(action === "edit-entry") openEntryModal(id);
+      if(action === "duplicate-entry") duplicateById(data.entries, id, "ent");
+      if(action === "delete-entry") deleteById(data.entries, id, "entrada");
+      if(action === "mark-entry") markEntry(id, btn.dataset.status);
+
+      if(action === "add-expense") openExpenseModal();
+      if(action === "edit-expense") openExpenseModal(id);
+      if(action === "duplicate-expense") duplicateById(data.expenses, id, "exp");
+      if(action === "delete-expense") deleteById(data.expenses, id, "saída");
+      if(action === "mark-expense") markExpense(id, btn.dataset.status);
+
+      if(action === "add-card") openCardModal();
+      if(action === "edit-card") openCardModal(id);
+      if(action === "open-card") openCardDrawer(id);
+      if(action === "delete-card"){
+        if(confirm("Excluir este cartão e seus lançamentos?")){
+          data.cards = data.cards.filter(c=>c.id!==id);
+          data.cardPurchases = data.cardPurchases.filter(p=>p.cardId!==id);
+          autosave(); render(); toast("Cartão excluído");
+        }
+      }
+
+      if(action === "add-purchase") openPurchaseModal(id);
+      if(action === "edit-purchase") openPurchaseModal(btn.dataset.card || activeDrawerCardId, id);
+      if(action === "duplicate-purchase"){
+        duplicateById(data.cardPurchases, id, "pur");
+        if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true);
+      }
+      if(action === "delete-purchase"){
+        if(confirm("Excluir esta compra?")){
+          data.cardPurchases = data.cardPurchases.filter(p=>p.id!==id);
+          autosave(); render(); if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true); toast("Compra excluída");
+        }
+      }
+      if(action === "mark-installment-paid"){
+        const p = data.cardPurchases.find(x=>x.id===id);
+        if(p){
+          p.paidInstallments = p.paidInstallments || [];
+          if(!p.paidInstallments.includes(btn.dataset.inst)) p.paidInstallments.push(btn.dataset.inst);
+          const all = getPurchaseInstallments(p);
+          if(all.every(inst => inst.status === "paid" || p.paidInstallments.includes(inst.installmentKey))) p.status = "paid";
+          autosave(); render(); if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true); toast("Parcela marcada como paga");
+        }
+      }
+      if(action === "mark-purchase-paid"){
+        const p = data.cardPurchases.find(x=>x.id===id);
+        if(p){ p.status = "paid"; autosave(); render(); if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true); toast("Compra marcada como paga"); }
+      }
+
+      if(action === "add-category") openCategoryModal();
+      if(action === "edit-category") openCategoryModal(id);
+      if(action === "delete-category"){
+        if(confirm("Excluir categoria? Lançamentos existentes continuarão com o nome salvo.")){
+          data.categories = data.categories.filter(c=>c.id!==id);
+          autosave(); render(); toast("Categoria excluída");
+        }
+      }
+
+      if(action === "save-config"){
+        data.settings.startMonth = Number(document.getElementById("cfgStartMonth").value);
+        data.settings.initialBalance = round(document.getElementById("cfgInitialBalance").value);
+        state.year = Number(document.getElementById("cfgYear").value || state.year);
+        data.settings.year = state.year;
+        autosave(); render(); toast("Configurações salvas");
+      }
+      if(action === "export") exportData();
+      if(action === "import") document.getElementById("importFile").click();
+      if(action === "restore-examples"){
+        if(confirm("Restaurar os exemplos iniciais? Isso substitui os dados atuais.")){
+          data = clone(INITIAL_DATA);
+          state.month = 0; state.year = data.settings.year || 2026;
+          saveData(true); render(); toast("Exemplos restaurados");
+        }
+      }
+      if(action === "clear-data"){
+        if(confirm("Excluir todos os dados deste navegador?")){
+          data = clone(INITIAL_DATA);
+          data.entries = []; data.expenses = []; data.cardPurchases = []; data.invoicePayments = {};
+          saveData(true); render(); toast("Dados limpos");
+        }
+      }
+    });
+
+    let filterRenderTimer = null;
+    document.addEventListener("input", (e) => {
+      const target = e.target;
+      if(target.matches("[data-filter]")){
+        state.filters[target.dataset.filter] = target.value;
+        clearTimeout(filterRenderTimer);
+        filterRenderTimer = setTimeout(() => {
+          if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true);
+          else render();
+        }, 220);
+      }
+    });
+    document.addEventListener("change", (e) => {
+      const target = e.target;
+      if(target.id === "monthSelect"){ state.month = Number(target.value); data.settings.currentMonth = state.month; autosave(); render(); }
+      if(target.id === "yearInput"){ state.year = Number(target.value || state.year); data.settings.year = state.year; autosave(); render(); }
+      if(target.matches("[data-filter]")){
+        state.filters[target.dataset.filter] = target.value;
+        if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true);
+        else render();
+      }
+      if(target.matches("[data-analysis]")){ state.analysis[target.dataset.analysis] = target.value; render(); }
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => saveData(true));
+    document.getElementById("exportBtn").addEventListener("click", exportData);
+    document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+    document.getElementById("importFile").addEventListener("change", e => {
+      if(e.target.files?.[0]) importData(e.target.files[0]);
+      e.target.value = "";
+    });
+    document.getElementById("clearFiltersBtn").addEventListener("click", () => {
+      state.filters = { search:"", category:"all", status:"all", date:"", method:"all", card:"all", sort:"date" };
+      render(); toast("Filtros limpos");
+    });
+
+    render();
   </script>
 </body>
 </html>
