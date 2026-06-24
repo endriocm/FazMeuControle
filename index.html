@@ -1618,6 +1618,24 @@
     const PAYMENT_METHODS = ["boleto","pix","débito","cartão de crédito","transferência","outros"];
     const chartPalette = ["#704323","#B98252","#C99A5B","#3F7D58","#A94A3A","#8C6544","#D7B786","#5A3825","#A7794F","#7AA078"];
 
+    function createEmptyData(){
+      const now = new Date();
+      const monthIndex = Math.max(0, MONTH_NUMBERS.indexOf(now.getMonth() + 1));
+      return {
+        version:"1.1.0",
+        settings:{ startMonth:monthIndex, currentMonth:monthIndex, year:now.getFullYear(), currency:"BRL", initialBalance:0, theme:"marrom elegante" },
+        categories:[
+          {id:"cat_entradas",name:"Entradas",type:"entrada",color:"#3F7D58"},
+          {id:"cat_saidas",name:"Saídas",type:"saída",color:"#A94A3A"}
+        ],
+        cards:[], entries:[], expenses:[], cardPurchases:[], invoicePayments:{}, updatedAt:""
+      };
+    }
+
+    function hasFinancialData(){
+      return Boolean(data.entries.length || data.expenses.length || data.cards.length || data.cardPurchases.length);
+    }
+
     let data = loadData();
     let saveTimer = null;
     let charts = {};
@@ -1675,13 +1693,13 @@
     function loadData(){
       try{
         const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return clone(INITIAL_DATA);
+        if(!raw) return createEmptyData();
         const parsed = JSON.parse(raw);
-        if(!parsed.version || !parsed.cards || !parsed.entries) return clone(INITIAL_DATA);
+        if(!parsed.version || !parsed.cards || !parsed.entries) return createEmptyData();
         return parsed;
       }catch(e){
         console.warn("Falha ao carregar localStorage:", e);
-        return clone(INITIAL_DATA);
+        return createEmptyData();
       }
     }
 
@@ -1930,6 +1948,10 @@
     }
 
     function renderSummary(){
+      if(!hasFinancialData()){
+        document.getElementById("summaryCards").innerHTML = "";
+        return;
+      }
       const t = calcTotals(state.month);
       const items = [
         ["Saldo mês anterior", t.previous, "neutral", "levado do mês anterior"],
@@ -1977,6 +1999,30 @@
     }
 
     function renderDashboard(){
+      if(!hasFinancialData()){
+        return `
+          <section class="page">
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2 class="panel-title">Comece seu controle financeiro</h2>
+                  <p class="panel-subtitle">Nenhum lançamento foi registrado ainda.</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="empty" style="padding:22px 0 12px">
+                  Adicione uma entrada, uma saída ou um cartão. Os indicadores e análises aparecerão conforme você preencher as informações.
+                </div>
+                <div class="item-actions" style="justify-content:center">
+                  <button class="btn green" data-action="add-entry">＋ Registrar entrada</button>
+                  <button class="btn primary" data-action="add-expense">＋ Registrar saída</button>
+                  <button class="btn soft" data-action="add-card">＋ Adicionar cartão</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
       const entries = getEntriesForMonth().filter(e => e.status === "pending").slice(0,5);
       const expenses = getExpensesForMonth().filter(e => e.status === "pending").sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,6);
       const cards = data.cards.slice(0,5);
@@ -2406,13 +2452,12 @@
               <div class="panel-header">
                 <div>
                   <h2 class="panel-title">Backup e dados</h2>
-                  <p class="panel-subtitle">Exporte, importe, limpe ou restaure os exemplos iniciais.</p>
+                  <p class="panel-subtitle">Exporte, importe ou limpe os seus dados.</p>
                 </div>
               </div>
               <div class="panel-body compact-list">
                 <button class="btn dark" data-action="export">⬇ Exportar backup JSON</button>
                 <button class="btn soft" data-action="import">⬆ Importar backup JSON</button>
-                <button class="btn soft" data-action="restore-examples">↺ Restaurar exemplos iniciais</button>
                 <button class="btn red" data-action="clear-data">Excluir todos os dados</button>
                 <div class="empty" style="text-align:left">
                   Os dados ficam salvos apenas neste navegador via <span class="kbd">localStorage</span>. Para trocar de computador, use o backup JSON.
@@ -2970,17 +3015,11 @@
       }
       if(action === "export") exportData();
       if(action === "import") document.getElementById("importFile").click();
-      if(action === "restore-examples"){
-        if(confirm("Restaurar os exemplos iniciais? Isso substitui os dados atuais.")){
-          data = clone(INITIAL_DATA);
-          state.month = 0; state.year = data.settings.year || 2026;
-          saveData(true); render(); toast("Exemplos restaurados");
-        }
-      }
       if(action === "clear-data"){
         if(confirm("Excluir todos os dados deste navegador?")){
-          data = clone(INITIAL_DATA);
-          data.entries = []; data.expenses = []; data.cardPurchases = []; data.invoicePayments = {};
+          data = createEmptyData();
+          state.month = data.settings.currentMonth;
+          state.year = data.settings.year;
           saveData(true); render(); toast("Dados limpos");
         }
       }
