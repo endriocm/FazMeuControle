@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Controle Financeiro Premium</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="shortcut icon" href="/favicon.svg">
+  <meta name="theme-color" content="#3B2417">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -445,6 +448,20 @@
     .form-field label{display:block;margin:0 0 6px;font-weight:800;font-size:.73rem;color:var(--coffee)}
     .form-field.full{grid-column:1/-1}
     .form-hint{margin:6px 0 0;color:var(--muted);font-size:.68rem;line-height:1.35}
+    .check-field{
+      display:flex!important;
+      align-items:flex-start;
+      gap:10px;
+      margin:0!important;
+      padding:11px 12px;
+      border:1px solid rgba(112,67,35,.14);
+      border-radius:12px;
+      background:#fffdf9;
+      cursor:pointer;
+    }
+    .check-field input{width:16px;height:16px;margin:1px 0 0;accent-color:var(--caramel);flex:0 0 auto}
+    .check-field strong{display:block;color:var(--coffee);font-size:.78rem}
+    .check-field small{display:block;margin-top:3px;color:var(--muted);font-weight:600;font-size:.68rem;line-height:1.35}
     .modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--line);background:#fff4e6}
 
     .drawer-backdrop{justify-content:flex-end;padding:0}
@@ -538,6 +555,7 @@
           </div>
           <span class="saved-indicator"><span class="pulse-dot"></span><span id="savedText">salvo automaticamente</span></span>
           <input type="file" id="importFile" accept=".txt,.json,application/json,text/plain" hidden />
+          <input type="file" id="nubankImportFile" accept=".csv,text/csv,application/vnd.ms-excel" hidden />
         </div>
       </div>
     </header>
@@ -662,6 +680,18 @@
       "name": "Alimentação",
       "type": "saida",
       "color": "#B98252"
+    },
+    {
+      "id": "cat_mercado",
+      "name": "Mercado",
+      "type": "saida",
+      "color": "#D19042"
+    },
+    {
+      "id": "cat_farmacia",
+      "name": "Farmácia",
+      "type": "saida",
+      "color": "#6A9F7B"
     },
     {
       "id": "cat_transporte",
@@ -1785,6 +1815,45 @@
     const RECURRENCES = ["única","semanal","quinzenal","mensal","bimestral","trimestral","semestral","anual"];
     const PAYMENT_METHODS = ["boleto","pix","débito","cartão de crédito","transferência","outros"];
     const chartPalette = ["#704323","#B98252","#C99A5B","#3F7D58","#A94A3A","#8C6544","#D7B786","#5A3825","#A7794F","#7AA078"];
+    const DEFAULT_CATEGORIES = [
+      {id:"cat_salario",name:"Salário",type:"entrada",color:"#3F7D58"},
+      {id:"cat_renda_extra",name:"Renda extra",type:"entrada",color:"#6A9F7B"},
+      {id:"cat_freelance",name:"Freelance",type:"entrada",color:"#4F8D6A"},
+      {id:"cat_vendas",name:"Vendas",type:"entrada",color:"#7AA99A"},
+      {id:"cat_reembolso",name:"Reembolso",type:"entrada",color:"#6D9E91"},
+      {id:"cat_cashback",name:"Cashback",type:"entrada",color:"#8BAF6A"},
+      {id:"cat_investimentos",name:"Investimentos",type:"entrada",color:"#2F7D62"},
+      {id:"cat_aluguel_recebido",name:"Aluguel recebido",type:"entrada",color:"#5C936A"},
+      {id:"cat_presente_recebido",name:"Presente/Doação recebida",type:"entrada",color:"#9AB66F"},
+      {id:"cat_mercado",name:"Mercado",type:"saida",color:"#D19042"},
+      {id:"cat_farmacia",name:"Farmácia",type:"saida",color:"#6A9F7B"},
+      {id:"cat_alimentacao",name:"Alimentação",type:"saida",color:"#B98252"},
+      {id:"cat_moradia",name:"Moradia",type:"saida",color:"#3B2417"},
+      {id:"cat_aluguel_financiamento",name:"Aluguel/Financiamento",type:"saida",color:"#704323"},
+      {id:"cat_condominio",name:"Condomínio",type:"saida",color:"#8C6544"},
+      {id:"cat_luz",name:"Luz",type:"saida",color:"#D1A86D"},
+      {id:"cat_agua",name:"Água",type:"saida",color:"#5E8AA8"},
+      {id:"cat_internet",name:"Internet",type:"saida",color:"#87664D"},
+      {id:"cat_telefone",name:"Telefone",type:"saida",color:"#6B5C7D"},
+      {id:"cat_transporte",name:"Transporte",type:"saida",color:"#A7794F"},
+      {id:"cat_combustivel",name:"Combustível",type:"saida",color:"#A65F3B"},
+      {id:"cat_saude",name:"Saúde",type:"saida",color:"#8F6043"},
+      {id:"cat_educacao",name:"Educação",type:"saida",color:"#8B735B"},
+      {id:"cat_cartao_credito",name:"Cartão de Crédito",type:"saida",color:"#5A3825"},
+      {id:"cat_boleto",name:"Boleto",type:"saida",color:"#704323"},
+      {id:"cat_assinaturas",name:"Assinaturas",type:"saida",color:"#7C5A3D"},
+      {id:"cat_compras",name:"Compras",type:"saida",color:"#A7794F"},
+      {id:"cat_lazer",name:"Lazer",type:"saida",color:"#B89166"},
+      {id:"cat_beleza",name:"Beleza",type:"saida",color:"#C99A5B"},
+      {id:"cat_vestuario",name:"Vestuário",type:"saida",color:"#A94A3A"},
+      {id:"cat_pet",name:"Pet",type:"saida",color:"#9A7358"},
+      {id:"cat_viagem",name:"Viagem",type:"saida",color:"#587B8F"},
+      {id:"cat_impostos",name:"Impostos",type:"saida",color:"#9B6F45"},
+      {id:"cat_seguro",name:"Seguro",type:"saida",color:"#7A6A5A"},
+      {id:"cat_igreja_doacoes",name:"Igreja/Doações",type:"saida",color:"#A58A6A"},
+      {id:"cat_renegociacao",name:"Renegociação",type:"saida",color:"#9B6F45"},
+      {id:"cat_outros",name:"Outros",type:"ambos",color:"#C99A5B"}
+    ];
     const CARD_TEMPLATES = [
       {id:"nubank", label:"Nubank", name:"Nubank", short:"Nu", color:"#6F35B8", accent:"#3B146D", text:"#FFFFFF", match:["nubank"]},
       {id:"renner", label:"Renner", name:"Renner", short:"R", color:"#A94A3A", accent:"#5B1F1B", text:"#FFFFFF", match:["renner"]},
@@ -1815,12 +1884,9 @@
       const now = new Date();
       const monthIndex = Math.max(0, MONTH_NUMBERS.indexOf(now.getMonth() + 1));
       return {
-        version:"1.1.0",
+        version:"1.2.0",
         settings:{ startMonth:monthIndex, currentMonth:monthIndex, year:now.getFullYear(), currency:"BRL", initialBalance:0, theme:"marrom elegante" },
-        categories:[
-          {id:"cat_entradas",name:"Entradas",type:"entrada",color:"#3F7D58"},
-          {id:"cat_saidas",name:"Saídas",type:"saída",color:"#A94A3A"}
-        ],
+        categories:defaultCategories(),
         cards:[], entries:[], expenses:[], cardPurchases:[], invoicePayments:{}, updatedAt:""
       };
     }
@@ -1842,6 +1908,34 @@
     };
 
     function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+    function defaultCategories(){
+      return DEFAULT_CATEGORIES.map(category => ({...category}));
+    }
+    function normalizeCategoryType(type){
+      const normalized = normalizeText(type);
+      if(normalized === "saida") return "saida";
+      if(normalized === "entrada") return "entrada";
+      return normalized === "ambos" ? "ambos" : String(type || "saida");
+    }
+    function categoryKey(category){
+      return `${normalizeCategoryType(category.type)}:${normalizeText(category.name)}`;
+    }
+    function mergeDefaultCategories(targetData){
+      if(!targetData) return createEmptyData();
+      targetData.categories = Array.isArray(targetData.categories) ? targetData.categories : [];
+      targetData.categories.forEach(category => {
+        category.type = normalizeCategoryType(category.type);
+      });
+      const existing = new Set(targetData.categories.map(categoryKey));
+      DEFAULT_CATEGORIES.forEach(category => {
+        const key = categoryKey(category);
+        if(!existing.has(key)){
+          targetData.categories.push({...category});
+          existing.add(key);
+        }
+      });
+      return targetData;
+    }
     function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
     function number(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
     function round(v){ return Math.round((number(v) + Number.EPSILON) * 100) / 100; }
@@ -1889,7 +1983,7 @@
         if(!raw) return createEmptyData();
         const parsed = JSON.parse(raw);
         if(!parsed.version || !parsed.cards || !parsed.entries) return createEmptyData();
-        return parsed;
+        return mergeDefaultCategories(parsed);
       }catch(e){
         console.warn("Falha ao carregar localStorage:", e);
         return createEmptyData();
@@ -1925,7 +2019,7 @@
 
     window.financeReplaceData = (remoteData) => {
       if(!remoteData?.version || !remoteData?.cards || !remoteData?.entries || !remoteData?.expenses) return;
-      data = remoteData;
+      data = mergeDefaultCategories(remoteData);
       state.month = Number(data.settings.currentMonth ?? 0);
       state.year = Number(data.settings.year ?? 2026);
       activeDrawerCardId = "";
@@ -2069,14 +2163,92 @@
         .filter(Boolean);
     }
 
+    function getManualExpenseInstallmentForMonth(expense, monthIndex = state.month){
+      if(!expense.dueDate) return null;
+      const targetKey = getMonthKey(monthIndex);
+      const diff = monthDiff(expense.dueDate, targetKey);
+      if(expense.fixedInstallment){
+        if(diff < 0) return null;
+        const dueDate = addMonths(expense.dueDate, diff);
+        return {
+          ...expense,
+          dueDate,
+          displayValue: round(number(expense.value)),
+          occurrences:1,
+          currentInstallment:Math.max(1, Number(expense.currentInstallment || 1) + diff),
+          installmentLabel:"Parcela fixa",
+          projectedInstallment:true,
+          virtual:false
+        };
+      }
+      const total = Math.max(1, Number(expense.installments || 1));
+      if(total <= 1) return null;
+      const current = Math.min(total, Math.max(1, Number(expense.currentInstallment || 1)));
+      const installmentNumber = current + diff;
+      if(diff < 0 || installmentNumber < 1 || installmentNumber > total) return null;
+      const dueDate = addMonths(expense.dueDate, diff);
+      return {
+        ...expense,
+        dueDate,
+        displayValue: round(number(expense.value)),
+        occurrences:1,
+        currentInstallment:installmentNumber,
+        installments:total,
+        installmentLabel:`${installmentNumber}/${total}`,
+        projectedInstallment:true,
+        virtual:false
+      };
+    }
+
     function getManualExpensesForMonth(monthIndex = state.month){
       return data.expenses
         .map(e => {
+          const projectedInstallment = getManualExpenseInstallmentForMonth(e, monthIndex);
+          if(projectedInstallment) return projectedInstallment;
           const count = recurrenceCount(e, "dueDate", monthIndex);
           if(!count) return null;
           return {...e, displayValue: round(number(e.value) * count), occurrences: count, virtual:false};
         })
         .filter(Boolean);
+    }
+
+    function getLinkedExpenseRowsForCard(cardId, monthIndex = state.month){
+      const key = getMonthKey(monthIndex);
+      return getManualExpensesForMonth(monthIndex)
+        .filter(expense => expense.cardId === cardId)
+        .map(expense => {
+          const total = Math.max(1, Number(expense.installments || 1));
+          const number = Math.max(1, Number(expense.currentInstallment || 1));
+          return {
+            source:"expense",
+            purchase:expense,
+            inst:{
+              key,
+              installmentKey:`expense_${expense.id}_${key}`,
+              number,
+              total,
+              label:expense.fixedInstallment ? "Parcela fixa" : (expense.installmentLabel || (total > 1 ? `${number}/${total}` : "Saída vinculada")),
+              value:round(expense.displayValue ?? expense.value),
+              dueDate:expense.dueDate,
+              status:expense.status === "paid" ? "paid" : "open"
+            }
+          };
+        });
+    }
+
+    function getLinkedExpenseStats(card, monthIndex = state.month){
+      const rows = getLinkedExpenseRowsForCard(card.id, monthIndex);
+      const invoice = rows.reduce((sum, row) => sum + number(row.inst.value), 0);
+      const paidInMonth = rows.filter(row => row.inst.status === "paid").reduce((sum, row) => sum + number(row.inst.value), 0);
+      const open = rows.filter(row => row.inst.status !== "paid").reduce((sum, row) => sum + number(row.inst.value), 0);
+      return {
+        used:round(open),
+        available:0,
+        invoice:round(invoice),
+        future:0,
+        paidInMonth:round(paidInMonth),
+        percent:0
+      };
     }
 
     function getPurchaseInstallments(purchase){
@@ -2113,7 +2285,7 @@
       return result;
     }
 
-    function getCardStats(card, monthIndex = state.month){
+    function getCardPurchaseStats(card, monthIndex = state.month){
       const currentKey = getMonthKey(monthIndex);
       let used = 0, invoice = 0, future = 0, paidInMonth = 0;
       data.cardPurchases.filter(p => p.cardId === card.id).forEach(p => {
@@ -2137,10 +2309,25 @@
       };
     }
 
+    function getCardStats(card, monthIndex = state.month){
+      const purchaseStats = getCardPurchaseStats(card, monthIndex);
+      const linkedStats = getLinkedExpenseStats(card, monthIndex);
+      const limit = Math.max(0, number(card.limit));
+      const used = round(purchaseStats.used + linkedStats.used);
+      return {
+        used,
+        available:round(limit - used),
+        invoice:round(purchaseStats.invoice + linkedStats.invoice),
+        future:round(purchaseStats.future + linkedStats.future),
+        paidInMonth:round(purchaseStats.paidInMonth + linkedStats.paidInMonth),
+        percent: limit ? Math.min(999, round((used / limit) * 100)) : 0
+      };
+    }
+
     function getVirtualInvoicesForMonth(monthIndex = state.month){
       const key = getMonthKey(monthIndex);
       return data.cards.map(card => {
-        const stats = getCardStats(card, monthIndex);
+        const stats = getCardPurchaseStats(card, monthIndex);
         if(stats.invoice <= 0) return null;
         const payKey = `${key}_${card.id}`;
         const payment = data.invoicePayments[payKey] || {};
@@ -2500,6 +2687,7 @@
               <span class="tag ${item.status==="paid"?"green":"yellow"}">${item.status==="paid"?"Pago":"Pendente"}</span>
               <span class="tag dark">📅 ${formatDate(item.dueDate)}</span>
               <span class="tag">${escapeHtml(item.paymentMethod || "outros")}</span>
+              ${item.fixedInstallment ? `<span class="tag dark">${escapeHtml(item.installmentLabel || "Parcela fixa")}</span>` : item.installments > 1 ? `<span class="tag dark">${item.installmentLabel || `${item.currentInstallment}/${item.installments}`}</span>` : item.occurrences > 1 ? `<span class="tag">×${item.occurrences}</span>` : ""}
               ${cardName ? `<span class="tag">💳 ${escapeHtml(cardName)}</span>` : ""}
               ${item.virtual ? `<span class="tag dark">automático</span>` : ""}
             </div>
@@ -2558,7 +2746,10 @@
                 <h2 class="panel-title">Cartões de crédito</h2>
                 <p class="panel-subtitle">Limite, fechamento, melhor dia de compra, fatura atual e parcelas futuras.</p>
               </div>
-              <button class="btn primary" data-action="add-card">+ Novo cartão</button>
+              <div class="toolbar" style="justify-content:flex-end">
+                <button class="btn soft" data-action="import-nubank">Importar Nubank</button>
+                <button class="btn primary" data-action="add-card">+ Novo cartão</button>
+              </div>
             </div>
             <div class="panel-body">
               <div class="card-grid">
@@ -2809,6 +3000,7 @@
           <div class="form-field"><label>Parcelas</label><input class="input" name="installments" type="number" min="1" value="${number(item.installments || 1)}" /></div>
           <div class="form-field"><label>Parcela atual</label><input class="input" name="currentInstallment" type="number" min="1" value="${number(item.currentInstallment || 1)}" /></div>
           <div class="form-field"><label>Recorrência</label><select class="select" name="recurrence">${RECURRENCES.map(r=>`<option value="${r}" ${item.recurrence===r?"selected":""}>${r}</option>`).join("")}</select></div>
+          <div class="form-field full"><label class="check-field"><input type="checkbox" name="fixedInstallment" ${item.fixedInstallment ? "checked" : ""} /><span><strong>Parcela fixa sem fim</strong><small>Use para parcelas indefinidas. A saída será projetada mensalmente a partir do vencimento inicial, sem data final.</small></span></label></div>
           <div class="form-field full"><label>Observações</label><textarea class="textarea" name="notes">${escapeHtml(item.notes || "")}</textarea></div>
         </div>
       `;
@@ -2848,7 +3040,8 @@
           cardId: fd.get("cardId"),
           installments: Math.max(1, Number(fd.get("installments") || 1)),
           currentInstallment: Math.max(1, Number(fd.get("currentInstallment") || 1)),
-          recurrence: fd.get("recurrence"),
+          fixedInstallment: fd.get("fixedInstallment") === "on",
+          recurrence: fd.get("fixedInstallment") === "on" ? "mensal" : fd.get("recurrence"),
           notes: fd.get("notes"),
           source:"manual"
         };
@@ -2980,8 +3173,9 @@
       const rows = [];
       const selectedKey = getMonthKey();
       data.cardPurchases.filter(p => p.cardId === cardId).forEach(p => {
-        getPurchaseInstallments(p).filter(inst => inst.key === selectedKey).forEach(inst => rows.push({purchase:p, inst}));
+        getPurchaseInstallments(p).filter(inst => inst.key === selectedKey).forEach(inst => rows.push({source:"purchase", purchase:p, inst}));
       });
+      rows.push(...getLinkedExpenseRowsForCard(cardId));
       const filteredRows = rows.filter(({purchase,inst}) => {
         const search = state.filters.search.trim().toLowerCase();
         const okSearch = !search || purchase.description.toLowerCase().includes(search);
@@ -3013,25 +3207,33 @@
           </select>
         </div>
         <div class="compact-list">
-          ${filteredRows.length ? filteredRows.map(({purchase,inst}) => `
+          ${filteredRows.length ? filteredRows.map(({source,purchase,inst}) => `
             <article class="item-card">
               <div class="item-main">
                 <div class="item-title">${escapeHtml(purchase.description)}</div>
                 <div class="item-meta">
                   <span class="tag">${escapeHtml(purchase.category)}</span>
-                  <span class="tag dark">${inst.number}/${inst.total}</span>
+                  <span class="tag dark">${escapeHtml(inst.label || `${inst.number}/${inst.total}`)}</span>
                   <span class="tag ${inst.status==="paid"?"green":"yellow"}">${inst.status==="paid"?"Pago":"Em aberto"}</span>
                   <span class="tag">📅 ${formatDate(inst.dueDate)}</span>
+                  ${source === "expense" ? `<span class="tag dark">saída vinculada</span>` : ""}
                 </div>
               </div>
               <div>
                 <div class="item-value">${toBRL(inst.value)}</div>
                 <div class="item-actions">
-                  ${inst.status==="paid" ? "" : `<button class="btn green small" data-action="mark-installment-paid" data-id="${purchase.id}" data-inst="${inst.installmentKey}">Pagar parcela</button>`}
-                  <button class="btn soft small" data-action="mark-purchase-paid" data-id="${purchase.id}">Compra paga</button>
-                  <button class="btn soft small" data-action="edit-purchase" data-id="${purchase.id}" data-card="${card.id}">Editar</button>
-                  <button class="btn soft small" data-action="duplicate-purchase" data-id="${purchase.id}">Duplicar</button>
-                  <button class="btn red small" data-action="delete-purchase" data-id="${purchase.id}">Excluir</button>
+                  ${source === "expense" ? `
+                    ${inst.status==="paid" ? `<button class="btn soft small" data-action="mark-expense" data-id="${purchase.id}" data-status="pending">Pendente</button>` : `<button class="btn green small" data-action="mark-expense" data-id="${purchase.id}" data-status="paid">Pagar</button>`}
+                    <button class="btn soft small" data-action="edit-expense" data-id="${purchase.id}">Editar</button>
+                    <button class="btn soft small" data-action="duplicate-expense" data-id="${purchase.id}">Duplicar</button>
+                    <button class="btn red small" data-action="delete-expense" data-id="${purchase.id}">Excluir</button>
+                  ` : `
+                    ${inst.status==="paid" ? "" : `<button class="btn green small" data-action="mark-installment-paid" data-id="${purchase.id}" data-inst="${inst.installmentKey}">Pagar parcela</button>`}
+                    <button class="btn soft small" data-action="mark-purchase-paid" data-id="${purchase.id}">Compra paga</button>
+                    <button class="btn soft small" data-action="edit-purchase" data-id="${purchase.id}" data-card="${card.id}">Editar</button>
+                    <button class="btn soft small" data-action="duplicate-purchase" data-id="${purchase.id}">Duplicar</button>
+                    <button class="btn red small" data-action="delete-purchase" data-id="${purchase.id}">Excluir</button>
+                  `}
                 </div>
               </div>
             </article>
@@ -3067,6 +3269,7 @@
       item.status = status;
       item.paymentDate = status === "paid" ? (item.paymentDate || isoToday()) : "";
       autosave(); render();
+      if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true);
       toast(status === "paid" ? "Saída marcada como paga" : "Saída voltou para pendente");
     }
 
@@ -3077,14 +3280,18 @@
       copy.id = uid(prefix);
       copy.description = `${copy.description} (cópia)`;
       list.push(copy);
-      autosave(); render(); toast("Item duplicado");
+      autosave(); render();
+      if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true);
+      toast("Item duplicado");
     }
 
     function deleteById(list, id, label){
       if(!confirm(`Excluir ${label}?`)) return;
       const idx = list.findIndex(x=>x.id===id);
       if(idx >= 0) list.splice(idx,1);
-      autosave(); render(); toast("Item excluído");
+      autosave(); render();
+      if(activeDrawerCardId) openCardDrawer(activeDrawerCardId, true);
+      toast("Item excluído");
     }
 
     function attachDragAndDrop(){
@@ -3335,7 +3542,7 @@
           const text = String(reader.result || "");
           const memoryCode = extractMemoryBackupCode(text);
           const imported = assertBackupData(memoryCode ? await decryptMemoryBackup(memoryCode) : JSON.parse(text));
-          data = imported;
+          data = mergeDefaultCategories(imported);
           state.month = Number(data.settings?.currentMonth ?? 0);
           state.year = Number(data.settings?.year ?? state.year);
           saveData(true); render();
@@ -3343,6 +3550,178 @@
         }catch(e){
           console.error("Falha ao importar memória:", e);
           alert("Não consegui importar este arquivo. Use uma memória TXT válida ou um backup JSON antigo.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCsvRows(text){
+      const rows = [];
+      let row = [];
+      let field = "";
+      let quoted = false;
+      const input = String(text || "").replace(/^\uFEFF/, "");
+      for(let i=0;i<input.length;i++){
+        const char = input[i];
+        const next = input[i+1];
+        if(char === '"'){
+          if(quoted && next === '"'){
+            field += '"';
+            i++;
+          } else {
+            quoted = !quoted;
+          }
+        } else if(char === "," && !quoted){
+          row.push(field);
+          field = "";
+        } else if((char === "\n" || char === "\r") && !quoted){
+          if(char === "\r" && next === "\n") i++;
+          row.push(field);
+          if(row.some(value => String(value).trim() !== "")) rows.push(row);
+          row = [];
+          field = "";
+        } else {
+          field += char;
+        }
+      }
+      row.push(field);
+      if(row.some(value => String(value).trim() !== "")) rows.push(row);
+      return rows;
+    }
+
+    function parseNubankAmount(value){
+      const raw = String(value || "").replace(/"/g, "").replace(/\s/g, "");
+      const negative = raw.includes("-");
+      const numeric = Number(raw.replace("-", "").replace(/\./g, "").replace(",", "."));
+      if(!Number.isFinite(numeric)) return 0;
+      return round(negative ? -numeric : numeric);
+    }
+
+    function getNubankInvoiceInfo(fileName = ""){
+      const match = String(fileName).match(/(20\d{2})-(\d{2})-(\d{2})/);
+      if(match){
+        return {invoiceMonth:`${match[1]}-${match[2]}`, invoiceDueDate:`${match[1]}-${match[2]}-${match[3]}`};
+      }
+      const nubank = findOrCreateNubankCard();
+      return {invoiceMonth:getMonthKey(), invoiceDueDate:dateFromDay(nubank.dueDay || 1)};
+    }
+
+    function findOrCreateNubankCard(){
+      let card = data.cards.find(card => findCardTemplate(card).id === "nubank" || normalizeText(card.name).includes("nubank"));
+      if(card) return card;
+      card = {
+        id:"card_nubank",
+        name:"Nubank",
+        templateId:"nubank",
+        brand:"mastercard",
+        color:"#6F35B8",
+        limit:0,
+        dueDay:1,
+        closingDay:1,
+        bestDay:2
+      };
+      if(data.cards.some(item => item.id === card.id)) card.id = uid("card");
+      data.cards.push(card);
+      return card;
+    }
+
+    function parseNubankInstallment(title){
+      const match = String(title || "").match(/(?:parcela\s*)?(\d+)\s*\/\s*(\d+)/i);
+      if(!match) return {current:1, total:1};
+      return {current:Math.max(1, Number(match[1]) || 1), total:Math.max(1, Number(match[2]) || 1)};
+    }
+
+    function cleanNubankTitle(title){
+      return String(title || "")
+        .replace(/^\s*Parcelamento de Compra\s*-\s*/i, "")
+        .replace(/\s*-\s*Parcela\s*\d+\s*\/\s*\d+\s*$/i, "")
+        .replace(/\s*-\s*\d+\s*\/\s*\d+\s*$/i, "")
+        .trim();
+    }
+
+    function inferNubankCategory(title){
+      const text = normalizeText(title);
+      if(/farmacia|drogaria|droga|panvel|sao joao/.test(text)) return "Farmácia";
+      if(/mercado|supermercado|zaffari|carrefour|atacadao|atacad|assai|big|nacional/.test(text)) return "Mercado";
+      if(/ifood|restaurante|alimen|cafe|panetteria|padaria|pao|jeronimo|macaron|burger|pizza|lanch/.test(text)) return "Alimentação";
+      if(/uber|99|posto|combustivel|shell|ipiranga|petrobras/.test(text)) return /posto|combustivel|shell|ipiranga|petrobras/.test(text) ? "Combustível" : "Transporte";
+      if(/americanas|lojas|loja|magazine|amazon|shopee|mercadolivre|mercado livre/.test(text)) return "Compras";
+      if(/comissao|imposto|taxa|tarifa|valores mobiliarios/.test(text)) return "Impostos";
+      if(/netflix|spotify|prime|assinatura|google|apple|microsoft/.test(text)) return "Assinaturas";
+      return "Outros";
+    }
+
+    function buildNubankImportKey({invoiceDueDate, rowIndex, date, title, amount}){
+      return ["nubank", invoiceDueDate, rowIndex, date, normalizeText(title), amount.toFixed(2)].join("|");
+    }
+
+    function importNubankCsv(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const rows = parseCsvRows(reader.result);
+          if(rows.length < 2) throw new Error("Arquivo vazio.");
+          const header = rows[0].map(name => normalizeText(name));
+          const dateIndex = header.indexOf("date");
+          const titleIndex = header.indexOf("title");
+          const amountIndex = header.indexOf("amount");
+          if(dateIndex < 0 || titleIndex < 0 || amountIndex < 0) throw new Error("Colunas esperadas: date, title, amount.");
+
+          const card = findOrCreateNubankCard();
+          const {invoiceMonth, invoiceDueDate} = getNubankInvoiceInfo(file.name);
+          const importedKeys = new Set(data.cardPurchases.map(item => item.importedKey).filter(Boolean));
+          let added = 0;
+          let ignored = 0;
+          let duplicated = 0;
+
+          rows.slice(1).forEach((row, index) => {
+            const date = String(row[dateIndex] || "").trim();
+            const title = String(row[titleIndex] || "").trim();
+            const amount = parseNubankAmount(row[amountIndex]);
+            if(!date || !title || amount <= 0){
+              ignored++;
+              return;
+            }
+            const key = buildNubankImportKey({invoiceDueDate, rowIndex:index + 1, date, title, amount});
+            if(importedKeys.has(key)){
+              duplicated++;
+              return;
+            }
+            const installment = parseNubankInstallment(title);
+            const description = cleanNubankTitle(title);
+            const purchase = {
+              id:uid("pur"),
+              cardId:card.id,
+              date,
+              description,
+              category:inferNubankCategory(title),
+              totalValue:amount,
+              type:installment.total > 1 ? "parcelado" : "à vista",
+              installments:installment.total,
+              currentInstallment:installment.current,
+              installmentValue:amount,
+              recurrence:"única",
+              status:"open",
+              paidInstallments:[],
+              importedSource:"nubank_csv",
+              importedFile:file.name,
+              importedKey:key,
+              importedInvoiceMonth:invoiceMonth,
+              invoiceDueDate,
+              notes:`Importado do arquivo Nubank ${file.name}.`
+            };
+            data.cardPurchases.push(purchase);
+            importedKeys.add(key);
+            added++;
+          });
+
+          autosave();
+          render();
+          if(activeDrawerCardId === card.id) openCardDrawer(card.id, true);
+          toast(`Nubank importado: ${added} lançamentos, ${ignored} ignorados, ${duplicated} duplicados`);
+        }catch(error){
+          console.error("Falha ao importar Nubank:", error);
+          alert(`Não consegui importar este arquivo do Nubank. ${error.message}`);
         }
       };
       reader.readAsText(file);
@@ -3426,6 +3805,7 @@
       }
       if(action === "export") exportData();
       if(action === "import") document.getElementById("importFile").click();
+      if(action === "import-nubank") document.getElementById("nubankImportFile").click();
       if(action === "clear-data"){
         if(confirm("Excluir todos os dados deste navegador?")){
           data = createEmptyData();
@@ -3466,6 +3846,10 @@
     document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
     document.getElementById("importFile").addEventListener("change", e => {
       if(e.target.files?.[0]) importData(e.target.files[0]);
+      e.target.value = "";
+    });
+    document.getElementById("nubankImportFile").addEventListener("change", e => {
+      if(e.target.files?.[0]) importNubankCsv(e.target.files[0]);
       e.target.value = "";
     });
     document.getElementById("clearFiltersBtn").addEventListener("click", () => {
