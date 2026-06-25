@@ -12,27 +12,41 @@ module.exports = async (req, res) => {
       throw error;
     }
     const currentPlan = plan();
-    const request = await fetch('https://api.mercadopago.com/checkout/preferences', {
+    if (!user.email) {
+      const error = new Error('A conta precisa ter e-mail para criar a assinatura no Mercado Pago.');
+      error.statusCode = 400;
+      throw error;
+    }
+    const request = await fetch('https://api.mercadopago.com/preapproval', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        items: [{ title: currentPlan.label, quantity: 1, currency_id: currentPlan.currency, unit_price: currentPlan.amount }],
+        reason: currentPlan.label,
         external_reference: user.uid,
-        metadata: { firebase_uid: user.uid },
-        payer: { email: user.email || undefined },
-        back_urls: { success: origin, pending: origin, failure: origin },
-        auto_return: 'approved',
-        notification_url: `${origin}/api/mercadopago-webhook`
+        payer_email: user.email,
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: 'months',
+          transaction_amount: currentPlan.amount,
+          currency_id: currentPlan.currency
+        },
+        back_url: origin,
+        status: 'pending'
       })
     });
     const payload = await request.json();
     if (!request.ok || !payload.init_point) {
-      console.error('Mercado Pago preference error:', payload);
-      const error = new Error('O Mercado Pago não conseguiu iniciar o checkout.');
+      console.error('Mercado Pago subscription error:', payload);
+      const error = new Error('O Mercado Pago não conseguiu iniciar a assinatura.');
       error.statusCode = 502;
       throw error;
     }
-    await db().collection('checkoutAttempts').doc(payload.id).set({ uid: user.uid, createdAt: new Date(), status: 'created' });
+    await db().collection('checkoutAttempts').doc(payload.id).set({
+      uid: user.uid,
+      createdAt: new Date(),
+      status: payload.status || 'created',
+      type: 'subscription'
+    });
     return res.status(200).json({ checkoutUrl: payload.init_point });
   } catch (error) { return sendError(res, error); }
 };

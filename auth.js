@@ -132,13 +132,13 @@ function renderSubscription(message = '') {
     <div class="auth-logo">CF</div>
     <p class="auth-kicker">OLÁ, ${escapeHtml(firstName(state.user)).toUpperCase()}</p>
     <h2>Libere seu controle financeiro.</h2>
-    <p>Seu cadastro está pronto. Escolha o pagamento pelo Mercado Pago ou use um código de acesso válido.</p>
+    <p>Seu cadastro está pronto. Escolha a assinatura mensal pelo Mercado Pago ou use um código de acesso válido.</p>
     <div class="access-summary">
       <div class="access-row"><strong>Conta</strong><span>${escapeHtml(state.user.email || '')}</span></div>
-      <div class="access-row"><strong>Status</strong><span>Pagamento ou código necessário</span></div>
+      <div class="access-row"><strong>Status</strong><span>Assinatura ou código necessário</span></div>
     </div>
     <div class="auth-actions">
-      <button class="auth-button gold" data-auth-action="checkout">Assinar acesso — ${escapeHtml(price)}</button>
+      <button class="auth-button gold" data-auth-action="checkout">Assinar mensalmente — ${escapeHtml(price)}</button>
       <button class="auth-button outline" data-auth-action="show-code">Tenho um código de acesso</button>
     </div>
     <form class="auth-form" id="redeemForm" hidden>
@@ -146,7 +146,7 @@ function renderSubscription(message = '') {
       <button class="auth-button" type="submit">Validar código</button>
     </form>
     ${message ? note(escapeHtml(message), message.startsWith('Acesso liberado') ? 'success' : 'error') : ''}
-    ${note('O pagamento é processado pelo Mercado Pago. A liberação é automática após a confirmação do pagamento.')}
+    ${note('A assinatura é processada pelo Mercado Pago. A liberação é automática após a confirmação.')}
   `;
 }
 
@@ -364,14 +364,16 @@ async function boot() {
         console.warn('Não foi possível atualizar o perfil do usuário:', error);
         notify('Login feito, mas o perfil não foi sincronizado no Firestore.');
       }
-      const paymentId = new URLSearchParams(window.location.search).get('payment_id');
-      if (state.config?.billing?.enabled && paymentId) {
+      const params = new URLSearchParams(window.location.search);
+      const paymentId = params.get('payment_id');
+      const preapprovalId = params.get('preapproval_id');
+      if (state.config?.billing?.enabled && (paymentId || preapprovalId)) {
         try {
-          await request('/api/confirm-payment', { method: 'POST', body: JSON.stringify({ paymentId }) });
+          await request('/api/confirm-payment', { method: 'POST', body: JSON.stringify({ paymentId, preapprovalId }) });
           window.history.replaceState({}, document.title, window.location.pathname);
-          notify('Pagamento confirmado. Seu acesso foi liberado.');
+          notify('Assinatura confirmada. Seu acesso foi liberado.');
         } catch (error) {
-          console.warn('Pagamento ainda não confirmado:', error);
+          console.warn('Assinatura ainda não confirmada:', error);
         }
       }
       await refreshAccess();

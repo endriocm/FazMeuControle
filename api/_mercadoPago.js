@@ -28,6 +28,16 @@ async function paymentById(paymentId) {
   return response.json();
 }
 
+async function subscriptionById(subscriptionId) {
+  const response = await fetch(`https://api.mercadopago.com/preapproval/${encodeURIComponent(subscriptionId)}`, { headers: { Authorization: `Bearer ${token()}` } });
+  if (!response.ok) {
+    const error = new Error('Não foi possível confirmar a assinatura no Mercado Pago.');
+    error.statusCode = 502;
+    throw error;
+  }
+  return response.json();
+}
+
 function assertApprovedPayment(payment, uid) {
   const currentPlan = plan();
   if (payment.status !== 'approved') {
@@ -35,7 +45,7 @@ function assertApprovedPayment(payment, uid) {
     error.statusCode = 409;
     throw error;
   }
-  if (payment.external_reference !== uid) {
+  if (String(payment.external_reference || '') !== uid) {
     const error = new Error('Este pagamento não pertence à conta conectada.');
     error.statusCode = 403;
     throw error;
@@ -48,4 +58,14 @@ function assertApprovedPayment(payment, uid) {
   return currentPlan;
 }
 
-module.exports = { token, plan, paymentById, assertApprovedPayment };
+function assertSubscriptionOwner(subscription, uid) {
+  const externalReference = String(subscription.external_reference || '');
+  if (externalReference !== uid) {
+    const error = new Error('Esta assinatura não pertence à conta conectada.');
+    error.statusCode = 403;
+    throw error;
+  }
+  return plan();
+}
+
+module.exports = { token, plan, paymentById, subscriptionById, assertApprovedPayment, assertSubscriptionOwner };

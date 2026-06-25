@@ -1,25 +1,37 @@
 const { db, getBody, sendError } = require('./_firebaseAdmin');
-const { paymentById, assertApprovedPayment } = require('./_mercadoPago');
+const { paymentById, subscriptionById } = require('./_mercadoPago');
+const { grantPayment, grantSubscription } = require('./confirm-payment');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(200).json({ received: true });
   try {
     const body = getBody(req);
     const type = body.type || req.query.type || req.query.topic;
-    const paymentId = body.data?.id || req.query['data.id'] || req.query.id;
-    if (type !== 'payment' || !paymentId) return res.status(200).json({ received: true });
-    const payment = await paymentById(paymentId);
-    const uid = payment.external_reference;
-    if (!uid || payment.status !== 'approved') return res.status(200).json({ received: true });
-    const currentPlan = assertApprovedPayment(payment, uid);
-    await db().collection('entitlements').doc(uid).set({
-      active: true,
-      source: 'mercado_pago',
-      paymentId: String(payment.id),
-      plan: currentPlan.label,
-      updatedAt: new Date(),
-      paidAt: payment.date_approved ? new Date(payment.date_approved) : new Date()
-    }, { merge: true });
+    const resourceId = body.data?.id || req.query['data.id'] || req.query.id;
+    if (!type || !resourceId) return res.status(200).json({ received: true });
+    if (type === 'payment') {
+      const payment = await paymentById(resourceId);
+      const uid = String(payment.external_reference || payment.metadata?.firebase_uid || '');
+      if (!uid || payment.status !== 'approved') return res.status(200).json({ received: true });
+      await grantPayment(uid, payment);
+      return res.status(200).json({ received: true });
+    }
+    if (['preapproval', 'subscription_preapproval'].includes(type)) {
+      const subscription = await subscriptionById(resourceId);
+      const uid = String(subscription.external_reference || '');
+      if (!uid) return res.status(200).json({ received: true });
+      if (subscription.status === 'authorized') {
+        await grantSubscription(uid, subscription);
+      } else if (['cancelled', 'paused'].includes(subscription.status)) {
+        await db().collection('entitlements').doc(uid).set({
+          active: false,
+          source: 'mercado_pago_subscription',
+          subscriptionId: String(subscription.id),
+          subscriptionStatus: subscription.status,
+          updatedAt: new Date()
+        }, { merge: true });
+      }
+    }
     return res.status(200).json({ received: true });
   } catch (error) {
     // O Mercado Pago repetirá a notificação quando houver falha transitória.
