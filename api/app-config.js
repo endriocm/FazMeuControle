@@ -1,6 +1,6 @@
 module.exports = (req, res) => {
-  // O login depende apenas do Firebase. A cobrança é ativada quando as
-  // variáveis do Mercado Pago e a URL pública forem configuradas.
+  // O login depende do Firebase. O acesso ao painel depende de assinatura,
+  // código de acesso ou e-mail liberado em FREE_ACCESS_EMAILS.
   const required = [
     'FIREBASE_API_KEY',
     'FIREBASE_AUTH_DOMAIN',
@@ -25,7 +25,7 @@ module.exports = (req, res) => {
       messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
       appId: process.env.FIREBASE_APP_ID
     },
-    billing: { enabled: Boolean(process.env.MERCADO_PAGO_ACCESS_TOKEN && process.env.APP_URL) },
+    billing: { enabled: Boolean(process.env.MERCADO_PAGO_ACCESS_TOKEN && process.env.APP_URL), required: true },
     plan: { amount, currency, formatted, label: process.env.PLAN_LABEL || 'Acesso ao Controle Financeiro' }
   });
 };

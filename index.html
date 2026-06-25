@@ -380,7 +380,17 @@
           <button class="btn ghost" id="exportBtn">⬇ Backup JSON</button>
           <button class="btn ghost" id="importBtn">⬆ Importar</button>
           <button class="btn ghost" id="clearFiltersBtn">🧹 Limpar filtros</button>
-          <button class="btn ghost" id="accountBtn" type="button">Entrar</button>
+          <div class="account-menu-wrap" id="accountMenuWrap">
+            <button class="btn ghost" id="accountBtn" type="button">Entrar</button>
+            <div class="account-menu hidden" id="accountMenu" aria-label="Menu da conta">
+              <div class="account-menu-head">
+                <strong id="accountMenuName">Minha conta</strong>
+                <span id="accountMenuEmail"></span>
+              </div>
+              <button type="button" data-auth-action="open-account">Minha conta</button>
+              <button type="button" data-auth-action="logout">Sair da conta</button>
+            </div>
+          </div>
           <span class="saved-indicator"><span class="pulse-dot"></span><span id="savedText">salvo automaticamente</span></span>
           <input type="file" id="importFile" accept="application/json" hidden />
         </div>

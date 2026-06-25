@@ -5,7 +5,10 @@ import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.
 const gate = document.getElementById('authGate');
 const card = document.getElementById('authCard');
 const accountButton = document.getElementById('accountBtn');
-const state = { config: null, user: null, access: null, mode: 'login', panel: 'auth', appReady: false, syncTimer: null, pendingData: null };
+const accountMenu = document.getElementById('accountMenu');
+const accountMenuName = document.getElementById('accountMenuName');
+const accountMenuEmail = document.getElementById('accountMenuEmail');
+const state = { config: null, user: null, access: null, mode: 'login', panel: 'auth', appReady: false, accountMenuOpen: false, syncTimer: null, pendingData: null };
 let auth = null;
 let db = null;
 
@@ -37,8 +40,18 @@ function setAccountButton() {
 
 function note(message, type = '') { return `<div class="auth-note ${type}">${message}</div>`; }
 
+function renderAccountMenu() {
+  if (!accountMenu) return;
+  const canOpen = Boolean(state.user && state.access?.active && state.accountMenuOpen);
+  accountMenu.classList.toggle('hidden', !canOpen);
+  if (!canOpen) return;
+  if (accountMenuName) accountMenuName.textContent = firstName(state.user);
+  if (accountMenuEmail) accountMenuEmail.textContent = state.user.email || '';
+}
+
 function render() {
   setAccountButton();
+  renderAccountMenu();
   if (!state.appReady) {
     showGate();
     card.className = 'auth-card';
@@ -153,6 +166,8 @@ function renderSubscription(message = '') {
 function renderAccount(message = '') {
   const source = state.access?.source === 'access_code'
     ? 'Código de acesso'
+    : state.access?.source === 'free_email'
+      ? 'E-mail liberado'
     : state.access?.source === 'firebase'
       ? 'Login Firebase'
       : 'Mercado Pago';
@@ -186,13 +201,6 @@ async function request(path, options = {}) {
 
 async function refreshAccess() {
   if (!state.user) return;
-  if (!state.config?.billing?.enabled) {
-    state.access = { active: true, source: 'firebase', expiresAt: null, isAdmin: false };
-    window.financeSetStorageScope?.(state.user.uid);
-    await restoreCloudData();
-    render();
-    return;
-  }
   try {
     state.access = await request('/api/access-status');
     if (state.access.active) {
@@ -316,15 +324,22 @@ async function generateCode(form) {
 
 document.addEventListener('click', async (event) => {
   const button = event.target.closest('[data-auth-action]');
-  if (!button) return;
-  const action = button.dataset.authAction;
-  if (action === 'mode-login') { state.mode = 'login'; renderMesaAuth(); }
-  if (action === 'mode-signup') { state.mode = 'signup'; renderMesaAuth(); }
-  if (action === 'google') await signInGoogle();
-  if (action === 'checkout') await beginCheckout();
-  if (action === 'show-code') document.getElementById('redeemForm')?.removeAttribute('hidden');
-  if (action === 'logout') { await signOut(auth); state.panel = 'auth'; state.generatedCode = ''; }
-  if (action === 'close-account') { state.panel = 'app'; render(); }
+  if (button) {
+    const action = button.dataset.authAction;
+    if (action === 'mode-login') { state.mode = 'login'; renderMesaAuth(); }
+    if (action === 'mode-signup') { state.mode = 'signup'; renderMesaAuth(); }
+    if (action === 'google') await signInGoogle();
+    if (action === 'checkout') await beginCheckout();
+    if (action === 'show-code') document.getElementById('redeemForm')?.removeAttribute('hidden');
+    if (action === 'open-account') { state.accountMenuOpen = false; state.panel = 'account'; render(); }
+    if (action === 'logout') { state.accountMenuOpen = false; await signOut(auth); state.panel = 'auth'; state.generatedCode = ''; }
+    if (action === 'close-account') { state.panel = 'app'; render(); }
+    return;
+  }
+  if (state.accountMenuOpen && !event.target.closest('#accountMenuWrap')) {
+    state.accountMenuOpen = false;
+    renderAccountMenu();
+  }
 });
 
 document.addEventListener('submit', async (event) => {
@@ -334,8 +349,13 @@ document.addEventListener('submit', async (event) => {
 });
 
 accountButton?.addEventListener('click', () => {
-  state.panel = state.user ? 'account' : 'auth';
-  render();
+  if (!state.user || !state.access?.active) {
+    state.panel = 'auth';
+    render();
+    return;
+  }
+  state.accountMenuOpen = !state.accountMenuOpen;
+  renderAccountMenu();
 });
 
 async function boot() {
@@ -355,6 +375,7 @@ async function boot() {
       state.generatedCode = '';
       if (!user) {
         window.financeSetStorageScope?.('');
+        state.accountMenuOpen = false;
         render();
         return;
       }
