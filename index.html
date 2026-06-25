@@ -377,7 +377,7 @@
             <input id="yearInput" type="number" min="2000" max="2100" />
           </div>
           <button class="btn primary" id="saveBtn">💾 Salvar</button>
-          <button class="btn ghost" id="exportBtn">⬇ Backup JSON</button>
+          <button class="btn ghost" id="exportBtn">⬇ Memória TXT</button>
           <button class="btn ghost" id="importBtn">⬆ Importar</button>
           <button class="btn ghost" id="clearFiltersBtn">🧹 Limpar filtros</button>
           <div class="account-menu-wrap" id="accountMenuWrap">
@@ -392,7 +392,7 @@
             </div>
           </div>
           <span class="saved-indicator"><span class="pulse-dot"></span><span id="savedText">salvo automaticamente</span></span>
-          <input type="file" id="importFile" accept="application/json" hidden />
+          <input type="file" id="importFile" accept=".txt,.json,application/json,text/plain" hidden />
         </div>
       </div>
     </header>
@@ -2469,11 +2469,11 @@
                 </div>
               </div>
               <div class="panel-body compact-list">
-                <button class="btn dark" data-action="export">⬇ Exportar backup JSON</button>
-                <button class="btn soft" data-action="import">⬆ Importar backup JSON</button>
+                <button class="btn dark" data-action="export">⬇ Exportar memória criptografada</button>
+                <button class="btn soft" data-action="import">⬆ Importar memória</button>
                 <button class="btn red" data-action="clear-data">Excluir todos os dados</button>
                 <div class="empty" style="text-align:left">
-                  Os dados ficam salvos apenas neste navegador via <span class="kbd">localStorage</span>. Para trocar de computador, use o backup JSON.
+                  Os dados ficam salvos neste navegador e na sua conta. Para guardar uma cópia externa, exporte uma memória criptografada em arquivo TXT.
                 </div>
               </div>
             </div>
@@ -2921,30 +2921,138 @@
       });
     }
 
-    function exportData(){
-      const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `backup-controle-financeiro-${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast("Backup exportado");
+    const MEMORY_BACKUP_MAGIC = "FAZ-MEU-CONTROLE-MEMORIA";
+    const MEMORY_BACKUP_VERSION = 1;
+    const MEMORY_BACKUP_KEY_SEED = "faz-meu-controle|memoria-criptografada|v1";
+
+    function bytesToBase64Url(bytes){
+      let binary = "";
+      const chunkSize = 0x8000;
+      for(let i = 0; i < bytes.length; i += chunkSize){
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+      }
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function base64UrlToBytes(value){
+      const base64 = String(value || "").replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+      const binary = atob(padded);
+      const bytes = new Uint8Array(binary.length);
+      for(let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+
+    function textToBase64Url(value){
+      return bytesToBase64Url(new TextEncoder().encode(value));
+    }
+
+    function base64UrlToText(value){
+      return new TextDecoder().decode(base64UrlToBytes(value));
+    }
+
+    function wrapBackupCode(value, size = 76){
+      return String(value).match(new RegExp(`.{1,${size}}`, "g"))?.join("\n") || "";
+    }
+
+    async function getMemoryBackupKey(){
+      if(!window.crypto?.subtle) throw new Error("Criptografia indisponível neste navegador.");
+      const seedBytes = new TextEncoder().encode(MEMORY_BACKUP_KEY_SEED);
+      const hash = await crypto.subtle.digest("SHA-256", seedBytes);
+      return crypto.subtle.importKey("raw", hash, { name:"AES-GCM" }, false, ["encrypt", "decrypt"]);
+    }
+
+    async function encryptMemoryBackup(payload){
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await getMemoryBackupKey();
+      const encrypted = await crypto.subtle.encrypt(
+        { name:"AES-GCM", iv },
+        key,
+        new TextEncoder().encode(JSON.stringify(payload))
+      );
+      const envelope = {
+        v: MEMORY_BACKUP_VERSION,
+        alg: "AES-GCM",
+        iv: bytesToBase64Url(iv),
+        data: bytesToBase64Url(new Uint8Array(encrypted))
+      };
+      return textToBase64Url(JSON.stringify(envelope));
+    }
+
+    async function decryptMemoryBackup(code){
+      const envelope = JSON.parse(base64UrlToText(code));
+      if(envelope.v !== MEMORY_BACKUP_VERSION || envelope.alg !== "AES-GCM") throw new Error("Versão de memória inválida.");
+      const key = await getMemoryBackupKey();
+      const decrypted = await crypto.subtle.decrypt(
+        { name:"AES-GCM", iv: base64UrlToBytes(envelope.iv) },
+        key,
+        base64UrlToBytes(envelope.data)
+      );
+      const payload = JSON.parse(new TextDecoder().decode(decrypted));
+      return payload.data;
+    }
+
+    function buildMemoryBackupText(code){
+      return [
+        MEMORY_BACKUP_MAGIC,
+        `versao: ${MEMORY_BACKUP_VERSION}`,
+        `gerado_em: ${new Date().toISOString()}`,
+        "tipo: memoria-criptografada",
+        "",
+        "Copie ou guarde este arquivo TXT. A ferramenta Faz Meu Controle lê o código abaixo para restaurar seus dados.",
+        "",
+        "codigo:",
+        wrapBackupCode(code),
+        ""
+      ].join("\n");
+    }
+
+    function extractMemoryBackupCode(text){
+      if(!String(text || "").includes(MEMORY_BACKUP_MAGIC)) return "";
+      const lines = String(text).split(/\r?\n/);
+      const markerIndex = lines.findIndex(line => line.trim().toLowerCase() === "codigo:");
+      if(markerIndex < 0) throw new Error("Código da memória não encontrado.");
+      return lines.slice(markerIndex + 1).join("").replace(/\s/g, "");
+    }
+
+    function assertBackupData(imported){
+      if(!imported?.cards || !imported?.entries || !imported?.expenses) throw new Error("Formato inválido");
+      return imported;
+    }
+
+    async function exportData(){
+      try{
+        const payload = { app:"faz-meu-controle", exportedAt:new Date().toISOString(), data };
+        const code = await encryptMemoryBackup(payload);
+        const blob = new Blob([buildMemoryBackupText(code)], {type:"text/plain;charset=utf-8"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `memoria-faz-meu-controle-${new Date().toISOString().slice(0,10)}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast("Memória criptografada exportada");
+      }catch(e){
+        console.error("Falha ao exportar memória:", e);
+        alert("Não consegui gerar a memória criptografada neste navegador.");
+      }
     }
 
     function importData(file){
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         try{
-          const imported = JSON.parse(reader.result);
-          if(!imported.cards || !imported.entries || !imported.expenses) throw new Error("Formato inválido");
+          const text = String(reader.result || "");
+          const memoryCode = extractMemoryBackupCode(text);
+          const imported = assertBackupData(memoryCode ? await decryptMemoryBackup(memoryCode) : JSON.parse(text));
           data = imported;
           state.month = Number(data.settings?.currentMonth ?? 0);
           state.year = Number(data.settings?.year ?? state.year);
           saveData(true); render();
-          toast("Backup importado com sucesso");
+          toast(memoryCode ? "Memória restaurada com sucesso" : "Backup JSON importado com sucesso");
         }catch(e){
-          alert("Não consegui importar este arquivo JSON.");
+          console.error("Falha ao importar memória:", e);
+          alert("Não consegui importar este arquivo. Use uma memória TXT válida ou um backup JSON antigo.");
         }
       };
       reader.readAsText(file);
