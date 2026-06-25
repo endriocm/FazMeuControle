@@ -1,5 +1,14 @@
 module.exports = (req, res) => {
-  const required = ['FIREBASE_API_KEY', 'FIREBASE_AUTH_DOMAIN', 'FIREBASE_PROJECT_ID', 'FIREBASE_APP_ID'];
+  // O login depende apenas do Firebase. A cobrança é ativada quando as
+  // variáveis do Mercado Pago e a URL pública forem configuradas.
+  const required = [
+    'FIREBASE_API_KEY',
+    'FIREBASE_AUTH_DOMAIN',
+    'FIREBASE_PROJECT_ID',
+    'FIREBASE_APP_ID',
+    'FIREBASE_CLIENT_EMAIL',
+    'FIREBASE_PRIVATE_KEY'
+  ];
   const missing = required.filter((name) => !process.env[name]);
   res.setHeader('Cache-Control', 'no-store');
   if (missing.length) return res.status(200).json({ configured: false, missing });
@@ -16,6 +25,7 @@ module.exports = (req, res) => {
       messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
       appId: process.env.FIREBASE_APP_ID
     },
+    billing: { enabled: Boolean(process.env.MERCADO_PAGO_ACCESS_TOKEN && process.env.APP_URL) },
     plan: { amount, currency, formatted, label: process.env.PLAN_LABEL || 'Acesso ao Controle Financeiro' }
   });
 };

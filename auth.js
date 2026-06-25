@@ -91,7 +91,7 @@ function renderAuth(error = '') {
 }
 
 function mesaBrand() {
-  return `<div class="auth-brand"><div class="auth-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-9"/><path d="M16 6h5v5"/></svg></div><div><h1>Faz Meu Controle</h1><p>Acesso seguro ao seu planejamento financeiro</p></div></div>`;
+  return `<div class="auth-brand"><div class="auth-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-9"/><path d="M16 6h5v5"/></svg></div><div class="auth-brand-copy"><h1>Faz Meu Controle</h1><p>Seu ambiente financeiro pessoal</p></div></div>`;
 }
 
 function mesaStats() {
@@ -113,7 +113,7 @@ function renderMesaAuth(error = '') {
       ${signup ? '<div class="auth-field auth-field--icon"><label for="authName">Nome</label><input id="authName" name="name" autocomplete="name" required placeholder="Como quer ser chamado?"><span class="auth-field-icon" aria-hidden="true">◉</span></div>' : ''}
       <div class="auth-field auth-field--icon"><label for="authEmail">E-mail</label><input id="authEmail" name="email" type="email" autocomplete="email" required placeholder="seuemail@exemplo.com"><span class="auth-field-icon" aria-hidden="true">✉</span></div>
       <div class="auth-field auth-field--icon"><label for="authPassword">Senha</label><input id="authPassword" name="password" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" minlength="6" required placeholder="${signup ? 'Mínimo de 6 caracteres' : 'Sua senha'}"><span class="auth-field-icon" aria-hidden="true">◈</span></div>
-      <label class="auth-remember"><input id="authRemember" type="checkbox" checked><span>Manter meu acesso neste dispositivo</span></label>
+      <label class="auth-remember"><input id="authRemember" name="remember" type="checkbox" checked><span>Manter meu acesso neste dispositivo</span></label>
       <button class="auth-button" type="submit">${signup ? 'Criar conta' : 'Entrar'}</button>
     </form>
     <button class="auth-button outline" data-auth-action="${signup ? 'mode-login' : 'mode-signup'}">${signup ? 'Já tenho uma conta' : 'Criar conta'}</button>
@@ -151,7 +151,11 @@ function renderSubscription(message = '') {
 }
 
 function renderAccount(message = '') {
-  const source = state.access?.source === 'access_code' ? 'Código de acesso' : 'Mercado Pago';
+  const source = state.access?.source === 'access_code'
+    ? 'Código de acesso'
+    : state.access?.source === 'firebase'
+      ? 'Login Firebase'
+      : 'Mercado Pago';
   const expires = state.access?.expiresAt ? new Date(state.access.expiresAt).toLocaleDateString('pt-BR') : 'Sem vencimento definido';
   card.className = 'auth-card has-close';
   card.innerHTML = `
@@ -182,6 +186,13 @@ async function request(path, options = {}) {
 
 async function refreshAccess() {
   if (!state.user) return;
+  if (!state.config?.billing?.enabled) {
+    state.access = { active: true, source: 'firebase', expiresAt: null, isAdmin: false };
+    window.financeSetStorageScope?.(state.user.uid);
+    await restoreCloudData();
+    render();
+    return;
+  }
   try {
     state.access = await request('/api/access-status');
     if (state.access.active) {
@@ -222,9 +233,19 @@ function syncData(payload) {
 
 async function signInGoogle() {
   try {
+    const remember = document.getElementById('authRemember')?.checked !== false;
+    await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
     await signInWithPopup(auth, new GoogleAuthProvider());
   } catch (error) {
-    renderMesaAuth(error.message.includes('popup') ? 'A janela do Google foi bloqueada. Permita pop-ups e tente novamente.' : 'Não foi possível entrar com Google.');
+    const messages = {
+      'auth/operation-not-allowed': 'O login com Google ainda não está ativado no Firebase.',
+      'auth/unauthorized-domain': 'Este domínio ainda não está autorizado no Firebase Authentication.',
+      'auth/popup-blocked': 'A janela do Google foi bloqueada. Permita pop-ups e tente novamente.',
+      'auth/popup-closed-by-user': 'A janela do Google foi fechada antes de concluir o login.',
+      'auth/cancelled-popup-request': 'Já existe uma tentativa de login com Google em andamento.',
+      'auth/network-request-failed': 'Falha de conexão. Verifique a internet e tente novamente.'
+    };
+    renderMesaAuth(messages[error.code] || 'Não foi possível entrar com Google.');
   }
 }
 
@@ -233,6 +254,8 @@ async function handleAuthForm(form) {
   const email = String(values.get('email') || '').trim();
   const password = String(values.get('password') || '');
   try {
+    const remember = values.get('remember') === 'on';
+    await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
     if (form.dataset.mode === 'signup') {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
       const name = String(values.get('name') || '').trim();
@@ -241,7 +264,16 @@ async function handleAuthForm(form) {
       await signInWithEmailAndPassword(auth, email, password);
     }
   } catch (error) {
-    const messages = { 'auth/email-already-in-use': 'Este e-mail já possui uma conta.', 'auth/invalid-credential': 'E-mail ou senha inválidos.', 'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.', 'auth/invalid-email': 'Informe um e-mail válido.' };
+    const messages = {
+      'auth/email-already-in-use': 'Este e-mail já possui uma conta. Use Entrar ou escolha outro e-mail.',
+      'auth/invalid-credential': 'E-mail ou senha inválidos.',
+      'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
+      'auth/invalid-email': 'Informe um e-mail válido.',
+      'auth/operation-not-allowed': 'O login por e-mail e senha ainda não está ativado no Firebase.',
+      'auth/user-disabled': 'Esta conta foi desativada no Firebase.',
+      'auth/too-many-requests': 'Muitas tentativas seguidas. Aguarde alguns minutos e tente novamente.',
+      'auth/network-request-failed': 'Falha de conexão. Verifique a internet e tente novamente.'
+    };
     renderMesaAuth(messages[error.code] || 'Não foi possível autenticar. Tente novamente.');
   }
 }
@@ -326,9 +358,14 @@ async function boot() {
         render();
         return;
       }
-      await setDoc(doc(db, 'profiles', user.uid), { email: user.email || '', displayName: user.displayName || '', updatedAt: serverTimestamp(), createdAt: serverTimestamp() }, { merge: true });
+      try {
+        await setDoc(doc(db, 'profiles', user.uid), { email: user.email || '', displayName: user.displayName || '', updatedAt: serverTimestamp(), createdAt: serverTimestamp() }, { merge: true });
+      } catch (error) {
+        console.warn('Não foi possível atualizar o perfil do usuário:', error);
+        notify('Login feito, mas o perfil não foi sincronizado no Firestore.');
+      }
       const paymentId = new URLSearchParams(window.location.search).get('payment_id');
-      if (paymentId) {
+      if (state.config?.billing?.enabled && paymentId) {
         try {
           await request('/api/confirm-payment', { method: 'POST', body: JSON.stringify({ paymentId }) });
           window.history.replaceState({}, document.title, window.location.pathname);
