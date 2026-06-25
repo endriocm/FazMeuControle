@@ -231,7 +231,7 @@
     .filterbar .select{width:auto;min-width:150px}
 
     .card-grid{
-      display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;
     }
     .credit-card{
       overflow:hidden;border-radius:20px;background:var(--card);
@@ -239,11 +239,155 @@
       box-shadow:var(--shadow);
     }
     .credit-head{
-      color:#fff;padding:14px 14px 13px;
-      display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
+      position:relative;
+      min-height:168px;
+      color:var(--card-text,#fff);
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:14px;
+      background:
+        linear-gradient(135deg,var(--card-color,#B98252) 0%,var(--card-accent,#3B2417) 100%);
+      isolation:isolate;
     }
-    .credit-name{font-weight:900;font-size:1.02rem;letter-spacing:-.03em}
+    .credit-head:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(115deg,rgba(255,255,255,.2),transparent 34%),
+        linear-gradient(0deg,rgba(0,0,0,.16),transparent 55%);
+      z-index:-1;
+    }
+    .credit-head:after{
+      content:"";
+      position:absolute;
+      right:-42px;
+      top:-38px;
+      width:150px;
+      height:150px;
+      border:1px solid rgba(255,255,255,.22);
+      transform:rotate(28deg);
+      border-radius:28px;
+      z-index:-1;
+    }
+    .credit-top,.credit-bottom{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      min-width:0;
+    }
+    .credit-bottom{align-items:flex-end}
+    .credit-logo{
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.24);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      letter-spacing:.02em;
+      box-shadow:0 12px 24px rgba(0,0,0,.12);
+      flex:0 0 auto;
+    }
+    .credit-chip{
+      width:42px;
+      height:30px;
+      border-radius:8px;
+      background:
+        linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.28)),
+        linear-gradient(135deg,#d8b66b,#8d6a2f);
+      border:1px solid rgba(255,255,255,.38);
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+      flex:0 0 auto;
+    }
+    .credit-chip:before{
+      content:"";
+      display:block;
+      width:1px;
+      height:100%;
+      margin-left:18px;
+      background:rgba(59,36,23,.28);
+    }
+    .credit-number{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:.85rem;
+      letter-spacing:.08em;
+      opacity:.9;
+      white-space:nowrap;
+    }
+    .credit-template{
+      font-size:.64rem;
+      font-weight:850;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.76;
+      margin-bottom:5px;
+    }
+    .credit-name{font-weight:900;font-size:1.08rem;letter-spacing:-.03em;line-height:1.1}
     .credit-dates{font-size:.7rem;opacity:.9;margin-top:5px;line-height:1.45}
+    .credit-brand{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:5px;
+      font-size:.66rem;
+      font-weight:850;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      min-width:76px;
+    }
+    .brand-mark{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:48px;
+      height:24px;
+      border-radius:8px;
+      color:#fff;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.22);
+      font-size:.7rem;
+      font-weight:900;
+      line-height:1;
+    }
+    .brand-mark.mastercard{
+      position:relative;
+      width:48px;
+      min-width:48px;
+      background:transparent;
+      border:0;
+    }
+    .brand-mark.mastercard span{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      display:block;
+      position:absolute;
+      top:0;
+    }
+    .brand-mark.mastercard span:first-child{left:7px;background:#eb001b}
+    .brand-mark.mastercard span:last-child{right:7px;background:#f79e1b;mix-blend-mode:screen}
+    .brand-mark.visa{font-style:italic;letter-spacing:.08em}
+    .brand-mark.elo{background:#111;color:#fff}
+    .brand-mark.amex{background:#2e77bb;color:#fff}
+    .brand-mark.hipercard{background:#b0182d;color:#fff}
+    .brand-mark.diners{background:#0079be;color:#fff}
+    .mini-card-mark{
+      width:24px;
+      height:18px;
+      border-radius:5px;
+      display:inline-grid;
+      place-items:center;
+      margin-right:7px;
+      font-size:.58rem;
+      font-weight:900;
+      vertical-align:middle;
+      box-shadow:0 4px 10px rgba(59,36,23,.12);
+    }
     .credit-body{padding:13px 14px 14px}
     .metric-row{display:flex;justify-content:space-between;gap:10px;font-size:.78rem;margin:6px 0;color:var(--muted)}
     .metric-row strong{color:var(--espresso)}
@@ -300,6 +444,7 @@
     .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
     .form-field label{display:block;margin:0 0 6px;font-weight:800;font-size:.73rem;color:var(--coffee)}
     .form-field.full{grid-column:1/-1}
+    .form-hint{margin:6px 0 0;color:var(--muted);font-size:.68rem;line-height:1.35}
     .modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--line);background:#fff4e6}
 
     .drawer-backdrop{justify-content:flex-end;padding:0}
@@ -595,6 +740,8 @@
     {
       "id": "card_magalu",
       "name": "Magalu",
+      "templateId": "magalu",
+      "brand": "visa",
       "color": "#315A7D",
       "limit": 1000,
       "dueDay": 7,
@@ -604,6 +751,8 @@
     {
       "id": "card_mae",
       "name": "Mastercard Mãe",
+      "templateId": "custom",
+      "brand": "mastercard",
       "color": "#B98252",
       "limit": 2000,
       "dueDay": 18,
@@ -613,6 +762,8 @@
     {
       "id": "card_nubank",
       "name": "Nubank",
+      "templateId": "nubank",
+      "brand": "mastercard",
       "color": "#6F35B8",
       "limit": 11200,
       "dueDay": 22,
@@ -622,6 +773,8 @@
     {
       "id": "card_renner",
       "name": "Renner",
+      "templateId": "renner",
+      "brand": "mastercard",
       "color": "#A94A3A",
       "limit": 4800,
       "dueDay": 10,
@@ -631,6 +784,8 @@
     {
       "id": "card_xp",
       "name": "XP",
+      "templateId": "xp",
+      "brand": "visa",
       "color": "#232323",
       "limit": 11200,
       "dueDay": 22,
@@ -1630,6 +1785,31 @@
     const RECURRENCES = ["única","semanal","quinzenal","mensal","bimestral","trimestral","semestral","anual"];
     const PAYMENT_METHODS = ["boleto","pix","débito","cartão de crédito","transferência","outros"];
     const chartPalette = ["#704323","#B98252","#C99A5B","#3F7D58","#A94A3A","#8C6544","#D7B786","#5A3825","#A7794F","#7AA078"];
+    const CARD_TEMPLATES = [
+      {id:"nubank", label:"Nubank", name:"Nubank", short:"Nu", color:"#6F35B8", accent:"#3B146D", text:"#FFFFFF", match:["nubank"]},
+      {id:"renner", label:"Renner", name:"Renner", short:"R", color:"#A94A3A", accent:"#5B1F1B", text:"#FFFFFF", match:["renner"]},
+      {id:"magalu", label:"Magalu", name:"Magalu", short:"ML", color:"#315A7D", accent:"#0C8CE9", text:"#FFFFFF", match:["magalu","magazine luiza"]},
+      {id:"xp", label:"XP", name:"XP", short:"XP", color:"#232323", accent:"#D6A83D", text:"#FFFFFF", match:["xp"]},
+      {id:"itau", label:"Itaú", name:"Itaú", short:"I", color:"#EC7000", accent:"#003399", text:"#FFFFFF", match:["itau","itaú"]},
+      {id:"santander", label:"Santander", name:"Santander", short:"S", color:"#E00000", accent:"#7E1010", text:"#FFFFFF", match:["santander"]},
+      {id:"bradesco", label:"Bradesco", name:"Bradesco", short:"B", color:"#C8102E", accent:"#6F0B1C", text:"#FFFFFF", match:["bradesco"]},
+      {id:"bb", label:"Banco do Brasil", name:"Banco do Brasil", short:"BB", color:"#F7D117", accent:"#1D4F91", text:"#10233F", match:["banco do brasil","bb"]},
+      {id:"caixa", label:"Caixa", name:"Caixa", short:"CX", color:"#005CA9", accent:"#F39200", text:"#FFFFFF", match:["caixa"]},
+      {id:"inter", label:"Inter", name:"Inter", short:"IN", color:"#FF7A00", accent:"#A94200", text:"#FFFFFF", match:["inter"]},
+      {id:"c6", label:"C6 Bank", name:"C6 Bank", short:"C6", color:"#1E1E1E", accent:"#B8A46D", text:"#FFFFFF", match:["c6","c6 bank"]},
+      {id:"mercado_pago", label:"Mercado Pago", name:"Mercado Pago", short:"MP", color:"#00A6D6", accent:"#006C9A", text:"#FFFFFF", match:["mercado pago"]},
+      {id:"picpay", label:"PicPay", name:"PicPay", short:"PP", color:"#11C76F", accent:"#087A44", text:"#FFFFFF", match:["picpay"]},
+      {id:"custom", label:"Personalizado", name:"Cartão personalizado", short:"CF", color:"#B98252", accent:"#3B2417", text:"#FFFFFF", match:[]}
+    ];
+    const CARD_BRANDS = [
+      {id:"mastercard", label:"Mastercard"},
+      {id:"visa", label:"Visa"},
+      {id:"elo", label:"Elo"},
+      {id:"amex", label:"American Express"},
+      {id:"hipercard", label:"Hipercard"},
+      {id:"diners", label:"Diners Club"},
+      {id:"other", label:"Outra"}
+    ];
 
     function createEmptyData(){
       const now = new Date();
@@ -1773,6 +1953,82 @@
     }
     function getCategoryColor(name){
       return data.categories.find(c => c.name === name)?.color || "#B98252";
+    }
+    function normalizeText(str){
+      return String(str ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    }
+    function safeHexColor(value, fallback = "#B98252"){
+      const color = String(value || "").trim();
+      return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
+    }
+    function initials(value){
+      const words = String(value || "CF").trim().split(/\s+/).filter(Boolean);
+      const picked = words.slice(0,2).map(word => word[0] || "").join("");
+      return (picked || "CF").toUpperCase();
+    }
+    function findCardTemplate(card = {}){
+      const custom = CARD_TEMPLATES.find(t => t.id === "custom");
+      const byId = CARD_TEMPLATES.find(t => t.id === card.templateId);
+      if(byId) return byId;
+      const name = normalizeText(card.name);
+      return CARD_TEMPLATES.find(t => t.id !== "custom" && (t.match || []).some(term => name.includes(normalizeText(term)))) || custom;
+    }
+    function defaultBrandForTemplate(templateId){
+      const defaults = {magalu:"visa", xp:"visa", bb:"elo", caixa:"elo"};
+      return defaults[templateId] || "mastercard";
+    }
+    function inferCardBrandId(card = {}){
+      if(CARD_BRANDS.some(brand => brand.id === card.brand)) return card.brand;
+      const raw = normalizeText(`${card.brand || ""} ${card.name || ""}`);
+      if(raw.includes("visa")) return "visa";
+      if(raw.includes("elo")) return "elo";
+      if(raw.includes("american") || raw.includes("amex")) return "amex";
+      if(raw.includes("hipercard")) return "hipercard";
+      if(raw.includes("diners")) return "diners";
+      if(raw.includes("master")) return "mastercard";
+      return "";
+    }
+    function getCardBrand(card = {}, templateId = "custom"){
+      const brandId = inferCardBrandId(card) || defaultBrandForTemplate(templateId);
+      return CARD_BRANDS.find(brand => brand.id === brandId) || CARD_BRANDS[0];
+    }
+    function getCardVisual(card = {}){
+      const template = findCardTemplate(card);
+      const brand = getCardBrand(card, template.id);
+      return {
+        templateId: template.id,
+        templateLabel: template.label,
+        name: card.name || template.name,
+        short: template.id === "custom" ? initials(card.name || template.name) : template.short,
+        color: safeHexColor(card.color, template.color),
+        accent: safeHexColor(template.accent, "#3B2417"),
+        text: safeHexColor(template.text, "#FFFFFF"),
+        brand
+      };
+    }
+    function cardTemplateOptions(selected = ""){
+      return CARD_TEMPLATES.map(template => `<option value="${template.id}" ${template.id===selected ? "selected":""}>${escapeHtml(template.label)}</option>`).join("");
+    }
+    function cardBrandOptions(selected = ""){
+      return CARD_BRANDS.map(brand => `<option value="${brand.id}" ${brand.id===selected ? "selected":""}>${escapeHtml(brand.label)}</option>`).join("");
+    }
+    function renderBrandMark(brandId){
+      const brand = CARD_BRANDS.find(item => item.id === brandId) || CARD_BRANDS[0];
+      if(brand.id === "mastercard"){
+        return `<span class="brand-mark mastercard" aria-label="${escapeHtml(brand.label)}"><span></span><span></span></span>`;
+      }
+      const labels = {
+        visa:"VISA",
+        elo:"elo",
+        amex:"AMEX",
+        hipercard:"HC",
+        diners:"DC",
+        other:"CARD"
+      };
+      return `<span class="brand-mark ${brand.id}">${escapeHtml(labels[brand.id] || brand.label)}</span>`;
+    }
+    function cardVisualStyle(visual){
+      return `--card-color:${visual.color};--card-accent:${visual.accent};--card-text:${visual.text};`;
     }
 
     function recurrenceCount(item, dateField, monthIndex = state.month){
@@ -2271,12 +2527,14 @@
     function renderMiniCard(card){
       const s = getCardStats(card);
       const tone = s.percent >= 95 ? "danger" : s.percent >= 80 ? "warn" : "";
+      const visual = getCardVisual(card);
       return `
         <div class="item-card">
           <div class="item-main">
-            <div class="item-title">💳 ${escapeHtml(card.name)}</div>
+            <div class="item-title"><span class="mini-card-mark" style="background:${visual.color};color:${visual.text}">${escapeHtml(visual.short)}</span>${escapeHtml(card.name)}</div>
             <div class="item-meta">
               <span class="tag dark">Fatura ${toBRL(s.invoice)}</span>
+              <span class="tag">${escapeHtml(visual.brand.label)}</span>
               <span class="tag ${s.percent>=80?"red":"green"}">${s.percent.toFixed(0)}% usado</span>
             </div>
             <div class="progress ${tone}"><span style="width:${Math.min(100,s.percent)}%"></span></div>
@@ -2315,14 +2573,26 @@
     function renderCreditCard(card){
       const s = getCardStats(card);
       const tone = s.percent >= 95 ? "danger" : s.percent >= 80 ? "warn" : "";
+      const visual = getCardVisual(card);
       return `
-        <article class="credit-card">
-          <div class="credit-head" style="background:linear-gradient(135deg,${card.color},#3B2417)">
-            <div>
-              <div class="credit-name">${escapeHtml(card.name)}</div>
-              <div class="credit-dates">Venc. dia ${card.dueDay || "-"} • Fecha dia ${card.closingDay || "-"}<br>Melhor compra: dia ${calcBestDay(card)}</div>
+        <article class="credit-card" data-template="${escapeHtml(visual.templateId)}">
+          <div class="credit-head" style="${cardVisualStyle(visual)}">
+            <div class="credit-top">
+              <div>
+                <div class="credit-template">${escapeHtml(visual.templateLabel)}</div>
+                <div class="credit-name">${escapeHtml(visual.name)}</div>
+                <div class="credit-dates">Venc. dia ${card.dueDay || "-"} • Fecha dia ${card.closingDay || "-"}<br>Melhor compra: dia ${calcBestDay(card)}</div>
+              </div>
+              <div class="credit-logo">${escapeHtml(visual.short)}</div>
             </div>
-            <div style="font-size:1.35rem">💳</div>
+            <div class="credit-number">•••• •••• •••• ••••</div>
+            <div class="credit-bottom">
+              <div class="credit-chip" aria-hidden="true"></div>
+              <div class="credit-brand">
+                ${renderBrandMark(visual.brand.id)}
+                <span>${escapeHtml(visual.brand.label)}</span>
+              </div>
+            </div>
           </div>
           <div class="credit-body">
             <div class="metric-row"><span>Limite total</span><strong>${toBRL(card.limit)}</strong></div>
@@ -2496,6 +2766,17 @@
     }
     function closeModal(){ document.getElementById("modal").classList.add("hidden"); }
     function closeDrawer(){ document.getElementById("drawerBackdrop").classList.add("hidden"); activeDrawerCardId = ""; }
+    function applySelectedCardTemplateToForm(select){
+      const template = CARD_TEMPLATES.find(item => item.id === select.value);
+      if(!template || template.id === "custom") return;
+      const form = select.closest("form");
+      const nameInput = form?.querySelector("[data-card-name]");
+      const colorInput = form?.querySelector("[data-card-color]");
+      const brandSelect = form?.querySelector('select[name="brand"]');
+      if(nameInput) nameInput.value = template.name;
+      if(colorInput) colorInput.value = template.color;
+      if(brandSelect) brandSelect.value = defaultBrandForTemplate(template.id);
+    }
 
     function entryForm(item = {}){
       const selectedCategory = item.category || "Salário";
@@ -2579,10 +2860,15 @@
     }
 
     function cardForm(card = {}){
+      const visual = getCardVisual(card);
+      const selectedTemplate = card.templateId || visual.templateId;
+      const selectedBrand = card.brand || visual.brand.id;
       return `
         <div class="form-grid">
-          <div class="form-field full"><label>Nome do cartão</label><input class="input" name="name" required value="${escapeHtml(card.name || "")}" /></div>
-          <div class="form-field"><label>Cor do cartão</label><input class="input" name="color" type="color" value="${card.color || "#B98252"}" /></div>
+          <div class="form-field"><label>Cartão</label><select class="select" name="templateId" data-card-template>${cardTemplateOptions(selectedTemplate)}</select><p class="form-hint">Escolha Nubank, Renner, Magalu, XP, bancos ou use personalizado.</p></div>
+          <div class="form-field"><label>Bandeira</label><select class="select" name="brand">${cardBrandOptions(selectedBrand)}</select></div>
+          <div class="form-field full"><label>Nome do cartão</label><input class="input" name="name" data-card-name required value="${escapeHtml(card.name || visual.name)}" /></div>
+          <div class="form-field"><label>Cor do cartão</label><input class="input" name="color" data-card-color type="color" value="${visual.color}" /></div>
           <div class="form-field"><label>Limite total</label><input class="input" name="limit" type="number" step="0.01" value="${number(card.limit)}" /></div>
           <div class="form-field"><label>Vencimento</label><input class="input" name="dueDay" type="number" min="1" max="31" value="${card.dueDay || 1}" /></div>
           <div class="form-field"><label>Fechamento</label><input class="input" name="closingDay" type="number" min="1" max="31" value="${card.closingDay || 1}" /></div>
@@ -2594,9 +2880,13 @@
     function openCardModal(id = ""){
       const card = id ? data.cards.find(c=>c.id===id) : null;
       openModal(card ? "Editar cartão" : "Novo cartão", cardForm(card || {}), (fd) => {
+        const template = CARD_TEMPLATES.find(t => t.id === fd.get("templateId")) || CARD_TEMPLATES.find(t => t.id === "custom");
+        const name = String(fd.get("name") || "").trim() || template.name;
         const payload = {
-          name: fd.get("name"),
-          color: fd.get("color"),
+          name,
+          templateId: template.id,
+          brand: fd.get("brand") || "mastercard",
+          color: safeHexColor(fd.get("color"), template.color),
           limit: round(fd.get("limit")),
           dueDay: Number(fd.get("dueDay") || 1),
           closingDay: Number(fd.get("closingDay") || 1),
@@ -3160,6 +3450,7 @@
     });
     document.addEventListener("change", (e) => {
       const target = e.target;
+      if(target.matches("[data-card-template]")){ applySelectedCardTemplateToForm(target); return; }
       if(target.id === "monthSelect"){ state.month = Number(target.value); data.settings.currentMonth = state.month; autosave(); render(); }
       if(target.id === "yearInput"){ state.year = Number(target.value || state.year); data.settings.year = state.year; autosave(); render(); }
       if(target.matches("[data-filter]")){
