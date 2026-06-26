@@ -2544,28 +2544,45 @@
           </section>
         `;
       }
-      const entries = getEntriesForMonth().filter(e => e.status === "pending").slice(0,5);
-      const expenses = getExpensesForMonth().filter(e => e.status === "pending").sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,6);
+      const totals = calcTotals(state.month);
       const cards = data.cards.slice(0,5);
+      const monthLabel = `${MONTHS[state.month]}/${getMonthKey().slice(0,4)}`;
+      const receivedPercent = totals.entradasPrevistas ? Math.round((totals.entradasRecebidas / totals.entradasPrevistas) * 100) : 0;
+      const paidPercent = totals.saidasPrevistas ? Math.round((totals.saidasPagas / totals.saidasPrevistas) * 100) : 0;
+      const openBalance = round(totals.entradasPendentes - totals.saidasPendentes);
       return `
         <section class="page">
           <div class="section-grid">
             <div class="panel">
               <div class="panel-header">
                 <div>
-                  <h2 class="panel-title">Visão rápida de ${MONTHS[state.month]}/${getMonthKey().slice(0,4)}</h2>
-                  <p class="panel-subtitle">Pendências, recebimentos e faturas em uma leitura compacta.</p>
+                  <h2 class="panel-title">Resumo de ${monthLabel}</h2>
+                  <p class="panel-subtitle">Visão consolidada do mês selecionado.</p>
                 </div>
-                <button class="btn primary small" data-action="add-expense">+ Saída</button>
               </div>
-              <div class="panel-body grid-2">
-                <div>
-                  <h3 class="drop-title">Entradas pendentes <span class="drop-total positive">${toBRL(entries.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
-                  <div class="compact-list">${entries.length ? entries.map(renderEntryCard).join("") : `<div class="empty">Nenhuma entrada pendente.</div>`}</div>
+              <div class="panel-body">
+                <div class="grid-3">
+                  <article class="kpi-card">
+                    <div class="kpi-label">Entradas</div>
+                    <div class="kpi-value positive">${toBRL(totals.entradasPrevistas)}</div>
+                    <div class="kpi-hint">${toBRL(totals.entradasRecebidas)} recebidas</div>
+                  </article>
+                  <article class="kpi-card">
+                    <div class="kpi-label">Saídas</div>
+                    <div class="kpi-value negative">${toBRL(totals.saidasPrevistas)}</div>
+                    <div class="kpi-hint">${toBRL(totals.saidasPagas)} pagas</div>
+                  </article>
+                  <article class="kpi-card">
+                    <div class="kpi-label">Saldo final</div>
+                    <div class="kpi-value ${totals.saldoFinal >= 0 ? "positive" : "negative"}">${toBRL(totals.saldoFinal)}</div>
+                    <div class="kpi-hint">vai para o próximo mês</div>
+                  </article>
                 </div>
-                <div>
-                  <h3 class="drop-title">Saídas pendentes <span class="drop-total negative">${toBRL(expenses.reduce((s,e)=>s+number(e.displayValue),0))}</span></h3>
-                  <div class="compact-list">${expenses.length ? expenses.map(renderExpenseCard).join("") : `<div class="empty">Nenhuma saída pendente.</div>`}</div>
+                <div style="margin-top:12px">
+                  <div class="metric-row"><span>Entradas pendentes</span><strong>${toBRL(totals.entradasPendentes)}</strong></div>
+                  <div class="metric-row"><span>Saídas pendentes</span><strong>${toBRL(totals.saidasPendentes)}</strong></div>
+                  <div class="metric-row"><span>Faturas do mês</span><strong>${toBRL(totals.faturas)}</strong></div>
+                  <div class="metric-row"><span>Resultado pendente</span><strong class="${openBalance >= 0 ? "positive" : "negative"}">${toBRL(openBalance)}</strong></div>
                 </div>
               </div>
             </div>
@@ -2573,14 +2590,30 @@
             <div class="panel">
               <div class="panel-header">
                 <div>
-                  <h2 class="panel-title">Cartões do mês</h2>
-                  <p class="panel-subtitle">Fatura atual, limite usado e alerta de uso.</p>
+                  <h2 class="panel-title">Status do mês</h2>
+                  <p class="panel-subtitle">Progresso financeiro sem detalhar lançamentos.</p>
                 </div>
-                <button class="btn soft small" data-action="add-card">+ Cartão</button>
               </div>
-              <div class="panel-body compact-list">
-                ${cards.map(renderMiniCard).join("")}
+              <div class="panel-body">
+                <div class="metric-row"><span>Entradas recebidas</span><strong class="positive">${receivedPercent}%</strong></div>
+                <div class="progress"><span style="width:${Math.min(100, receivedPercent)}%"></span></div>
+                <div class="metric-row"><span>Saídas pagas</span><strong class="negative">${paidPercent}%</strong></div>
+                <div class="progress warn"><span style="width:${Math.min(100, paidPercent)}%"></span></div>
+                <div class="metric-row"><span>Saldo previsto</span><strong class="${totals.saldoPrevisto >= 0 ? "positive" : "negative"}">${toBRL(totals.saldoPrevisto)}</strong></div>
+                <div class="metric-row"><span>Saldo realizado</span><strong class="${totals.saldoRealizado >= 0 ? "positive" : "negative"}">${toBRL(totals.saldoRealizado)}</strong></div>
               </div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top:14px">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Cartões do mês</h2>
+                <p class="panel-subtitle">Resumo das faturas e limites dos cartões cadastrados.</p>
+              </div>
+            </div>
+            <div class="panel-body compact-list">
+              ${cards.length ? cards.map(renderMiniCard).join("") : `<div class="empty">Nenhum cartão cadastrado.</div>`}
             </div>
           </div>
 
