@@ -540,6 +540,7 @@
           </div>
           <button class="btn primary" id="saveBtn">💾 Salvar</button>
           <button class="btn ghost" id="exportBtn">⬇ Memória TXT</button>
+          <button class="btn ghost" id="excelBtn">📊 Excel</button>
           <button class="btn ghost" id="importBtn">⬆ Importar</button>
           <button class="btn ghost" id="clearFiltersBtn">🧹 Limpar filtros</button>
           <div class="account-menu-wrap" id="accountMenuWrap">
@@ -1883,9 +1884,10 @@
     function createEmptyData(){
       const now = new Date();
       const monthIndex = Math.max(0, MONTH_NUMBERS.indexOf(now.getMonth() + 1));
+      const planningYear = now.getMonth() + 1 <= 6 ? now.getFullYear() - 1 : now.getFullYear();
       return {
         version:"1.2.0",
-        settings:{ startMonth:monthIndex, currentMonth:monthIndex, year:now.getFullYear(), currency:"BRL", initialBalance:0, theme:"marrom elegante" },
+        settings:{ startMonth:monthIndex, currentMonth:monthIndex, year:planningYear, currency:"BRL", initialBalance:0, theme:"marrom elegante" },
         categories:defaultCategories(),
         cards:[], entries:[], expenses:[], cardPurchases:[], invoicePayments:{}, updatedAt:""
       };
@@ -1948,12 +1950,47 @@
       const y = planningYear + (m <= 6 ? 1 : 0);
       return `${y}-${String(m).padStart(2,"0")}`;
     }
+    function planningYearFromMonthKey(key){
+      const [year, month] = String(key || "").slice(0,7).split("-").map(Number);
+      return month <= 6 ? year - 1 : year;
+    }
+    function setVisibleMonthFromDate(date){
+      const key = keyFromDate(date);
+      if(!key) return;
+      const [, month] = key.split("-").map(Number);
+      const monthIndex = MONTH_NUMBERS.indexOf(month);
+      if(monthIndex < 0) return;
+      state.month = monthIndex;
+      state.year = planningYearFromMonthKey(key);
+      data.settings.currentMonth = state.month;
+      data.settings.year = state.year;
+    }
     function dateFromDay(day, monthIndex = state.month, planningYear = state.year){
       const key = getMonthKey(monthIndex, planningYear);
       const [y,m] = key.split("-").map(Number);
       const last = new Date(y, m, 0).getDate();
       const d = Math.min(Math.max(Number(day) || 1, 1), last);
       return `${key}-${String(d).padStart(2,"0")}`;
+    }
+    function dateFromYearMonthDay(year, month, day){
+      let y = Number(year);
+      let m = Number(month);
+      while(m > 12){ m -= 12; y += 1; }
+      while(m < 1){ m += 12; y -= 1; }
+      const last = new Date(y, m, 0).getDate();
+      const d = Math.min(Math.max(Number(day) || 1, 1), last);
+      return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    }
+    function getCardInvoiceDueDate(card, purchaseDate){
+      if(!card || !purchaseDate) return purchaseDate || "";
+      const purchase = parseDate(purchaseDate);
+      const closingDay = Math.min(31, Math.max(1, Number(card.closingDay || 1)));
+      const dueDay = Math.min(31, Math.max(1, Number(card.dueDay || 1)));
+      let invoiceMonth = purchase.getMonth() + 1 + (purchase.getDate() > closingDay ? 1 : 0);
+      let invoiceYear = purchase.getFullYear();
+      while(invoiceMonth > 12){ invoiceMonth -= 12; invoiceYear += 1; }
+      const dueMonth = invoiceMonth + (dueDay <= closingDay ? 1 : 0);
+      return dateFromYearMonthDay(invoiceYear, dueMonth, dueDay);
     }
     function keyFromDate(date){ return date ? date.slice(0,7) : ""; }
     function parseDate(date){ return new Date(`${date}T00:00:00`); }
@@ -2695,7 +2732,7 @@
           <div>
             <div class="item-value ${item.status==="paid"?"neutral":"negative"}">${toBRL(item.displayValue ?? item.value)}</div>
             <div class="item-actions">
-              ${item.status==="pending" ? `<button class="btn green small" data-action="mark-expense" data-id="${item.id}" data-status="paid">Pago</button>` : `<button class="btn soft small" data-action="mark-expense" data-id="${item.id}" data-status="pending">Pendente</button>`}
+              ${item.status==="pending" ? `<button class="btn green small" data-action="mark-expense" data-id="${item.id}" data-status="paid">Marcar pago</button>` : `<button class="btn soft small" data-action="mark-expense" data-id="${item.id}" data-status="pending">Marcar pendente</button>`}
               ${item.virtual ? `<button class="btn soft small" data-action="open-card" data-id="${item.cardId}">Cartão</button>` : `<button class="btn soft small" data-action="edit-expense" data-id="${item.id}">Editar</button><button class="btn soft small" data-action="duplicate-expense" data-id="${item.id}">Duplicar</button><button class="btn red small" data-action="delete-expense" data-id="${item.id}">Excluir</button>`}
             </div>
           </div>
@@ -2968,6 +3005,25 @@
       if(colorInput) colorInput.value = template.color;
       if(brandSelect) brandSelect.value = defaultBrandForTemplate(template.id);
     }
+    function syncExpenseCardDueDate(form){
+      if(!form) return;
+      const cardId = form.querySelector("[data-expense-card]")?.value || "";
+      const purchaseDateInput = form.querySelector("[data-expense-purchase-date]");
+      const dueDateInput = form.querySelector("[data-expense-due-date]");
+      const hint = form.querySelector("[data-card-invoice-hint]");
+      if(!purchaseDateInput || !dueDateInput) return;
+      const card = data.cards.find(item => item.id === cardId);
+      if(card){
+        const dueDate = getCardInvoiceDueDate(card, purchaseDateInput.value || dueDateInput.value || isoToday());
+        dueDateInput.value = dueDate;
+        dueDateInput.readOnly = true;
+        if(hint) hint.textContent = `Calculado pelo ${card.name}: fecha dia ${card.closingDay || "-"} e vence dia ${card.dueDay || "-"}.`;
+      } else {
+        dueDateInput.readOnly = false;
+        if(!dueDateInput.value && purchaseDateInput.value) dueDateInput.value = purchaseDateInput.value;
+        if(hint) hint.textContent = "Sem cartão vinculado, o vencimento pode ser ajustado manualmente.";
+      }
+    }
 
     function entryForm(item = {}){
       const selectedCategory = item.category || "Salário";
@@ -2987,16 +3043,18 @@
 
     function expenseForm(item = {}){
       const selectedCategory = item.category || "Boleto";
+      const purchaseDate = item.purchaseDate || item.dueDate || dateFromDay(1);
       return `
         <div class="form-grid">
           <div class="form-field full"><label>Descrição</label><input class="input" name="description" required value="${escapeHtml(item.description || "")}" /></div>
           <div class="form-field"><label>Categoria</label><select class="select" name="category">${categoryOptions("saida", selectedCategory)}</select></div>
           <div class="form-field"><label>Valor</label><input class="input" name="value" type="number" step="0.01" required value="${number(item.value)}" /></div>
-          <div class="form-field"><label>Vencimento</label><input class="input" name="dueDate" type="date" required value="${item.dueDate || dateFromDay(1)}" /></div>
+          <div class="form-field"><label>Data da compra</label><input class="input" name="purchaseDate" data-expense-purchase-date type="date" required value="${purchaseDate}" /></div>
+          <div class="form-field"><label>Vencimento</label><input class="input" name="dueDate" data-expense-due-date type="date" required value="${item.dueDate || purchaseDate}" /><p class="form-hint" data-card-invoice-hint></p></div>
           <div class="form-field"><label>Data de pagamento</label><input class="input" name="paymentDate" type="date" value="${item.paymentDate || ""}" /></div>
           <div class="form-field"><label>Status</label><select class="select" name="status"><option value="pending" ${item.status!=="paid"?"selected":""}>Pendente</option><option value="paid" ${item.status==="paid"?"selected":""}>Pago</option></select></div>
           <div class="form-field"><label>Forma de pagamento</label><select class="select" name="paymentMethod">${PAYMENT_METHODS.map(m=>`<option value="${m}" ${item.paymentMethod===m?"selected":""}>${m}</option>`).join("")}</select></div>
-          <div class="form-field"><label>Cartão vinculado</label><select class="select" name="cardId">${cardOptions(item.cardId || "")}</select></div>
+          <div class="form-field"><label>Cartão vinculado</label><select class="select" name="cardId" data-expense-card>${cardOptions(item.cardId || "")}</select></div>
           <div class="form-field"><label>Parcelas</label><input class="input" name="installments" type="number" min="1" value="${number(item.installments || 1)}" /></div>
           <div class="form-field"><label>Parcela atual</label><input class="input" name="currentInstallment" type="number" min="1" value="${number(item.currentInstallment || 1)}" /></div>
           <div class="form-field"><label>Recorrência</label><select class="select" name="recurrence">${RECURRENCES.map(r=>`<option value="${r}" ${item.recurrence===r?"selected":""}>${r}</option>`).join("")}</select></div>
@@ -3029,11 +3087,15 @@
     function openExpenseModal(id = ""){
       const item = id ? data.expenses.find(e=>e.id===id) : null;
       openModal(item ? "Editar saída" : "Nova saída", expenseForm(item || {}), (fd) => {
+        const card = data.cards.find(c => c.id === fd.get("cardId"));
+        const purchaseDate = fd.get("purchaseDate") || fd.get("dueDate");
+        const dueDate = card ? getCardInvoiceDueDate(card, purchaseDate) : fd.get("dueDate");
         const payload = {
           description: fd.get("description"),
           category: fd.get("category"),
           value: round(fd.get("value")),
-          dueDate: fd.get("dueDate"),
+          purchaseDate,
+          dueDate,
           paymentDate: fd.get("paymentDate"),
           status: fd.get("status"),
           paymentMethod: fd.get("paymentMethod"),
@@ -3048,8 +3110,10 @@
         if(payload.status === "paid" && !payload.paymentDate) payload.paymentDate = isoToday();
         if(item) Object.assign(item, payload);
         else data.expenses.push({id:uid("exp"), ...payload});
+        setVisibleMonthFromDate(payload.dueDate);
         closeModal(); autosave(); render(); toast(item ? "Saída atualizada" : "Saída adicionada");
       });
+      syncExpenseCardDueDate(document.getElementById("modalForm"));
     }
 
     function cardForm(card = {}){
@@ -3063,8 +3127,8 @@
           <div class="form-field full"><label>Nome do cartão</label><input class="input" name="name" data-card-name required value="${escapeHtml(card.name || visual.name)}" /></div>
           <div class="form-field"><label>Cor do cartão</label><input class="input" name="color" data-card-color type="color" value="${visual.color}" /></div>
           <div class="form-field"><label>Limite total</label><input class="input" name="limit" type="number" step="0.01" value="${number(card.limit)}" /></div>
-          <div class="form-field"><label>Vencimento</label><input class="input" name="dueDay" type="number" min="1" max="31" value="${card.dueDay || 1}" /></div>
-          <div class="form-field"><label>Fechamento</label><input class="input" name="closingDay" type="number" min="1" max="31" value="${card.closingDay || 1}" /></div>
+          <div class="form-field"><label>Dia de vencimento da fatura</label><input class="input" name="dueDay" type="number" min="1" max="31" value="${card.dueDay || 1}" /></div>
+          <div class="form-field"><label>Dia de fechamento da fatura</label><input class="input" name="closingDay" type="number" min="1" max="31" value="${card.closingDay || 1}" /></div>
           <div class="form-field"><label>Melhor dia de compra</label><input class="input" name="bestDay" type="number" min="1" max="31" value="${card.bestDay || calcBestDay(card)}" /></div>
         </div>
       `;
@@ -3223,7 +3287,7 @@
                 <div class="item-value">${toBRL(inst.value)}</div>
                 <div class="item-actions">
                   ${source === "expense" ? `
-                    ${inst.status==="paid" ? `<button class="btn soft small" data-action="mark-expense" data-id="${purchase.id}" data-status="pending">Pendente</button>` : `<button class="btn green small" data-action="mark-expense" data-id="${purchase.id}" data-status="paid">Pagar</button>`}
+                    ${inst.status==="paid" ? `<button class="btn soft small" data-action="mark-expense" data-id="${purchase.id}" data-status="pending">Marcar pendente</button>` : `<button class="btn green small" data-action="mark-expense" data-id="${purchase.id}" data-status="paid">Marcar pago</button>`}
                     <button class="btn soft small" data-action="edit-expense" data-id="${purchase.id}">Editar</button>
                     <button class="btn soft small" data-action="duplicate-expense" data-id="${purchase.id}">Duplicar</button>
                     <button class="btn red small" data-action="delete-expense" data-id="${purchase.id}">Excluir</button>
@@ -3535,6 +3599,155 @@
       }
     }
 
+    function excelEscape(value){
+      return String(value ?? "").replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+    }
+
+    function excelTable(title, headers, rows){
+      return `
+        <h2>${excelEscape(title)}</h2>
+        <table>
+          <thead><tr>${headers.map(header => `<th>${excelEscape(header)}</th>`).join("")}</tr></thead>
+          <tbody>
+            ${rows.length ? rows.map(row => `<tr>${row.map(cell => `<td>${excelEscape(cell)}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${headers.length}">Sem dados</td></tr>`}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function exportExcel(){
+      const generatedAt = new Date().toLocaleString("pt-BR");
+      const monthRows = MONTHS.map((month, index) => {
+        const totals = calcTotals(index);
+        return [
+          `${month}/${getMonthKey(index).slice(0,4)}`,
+          toBRL(totals.entradasPrevistas),
+          toBRL(totals.entradasRecebidas),
+          toBRL(totals.saidasPrevistas),
+          toBRL(totals.saidasPagas),
+          toBRL(totals.faturas),
+          toBRL(totals.saldoPrevisto),
+          toBRL(totals.saldoRealizado),
+          toBRL(totals.saldoFinal)
+        ];
+      });
+
+      const entryRows = data.entries.map(entry => [
+        entry.description,
+        entry.category,
+        toBRL(entry.value),
+        formatDate(entry.plannedDate),
+        entry.receivedDate ? formatDate(entry.receivedDate) : "",
+        entry.status === "received" ? "Recebido" : "Pendente",
+        entry.recurrence,
+        entry.notes || ""
+      ]);
+
+      const expenseRows = data.expenses.map(expense => {
+        const cardName = expense.cardId ? data.cards.find(card => card.id === expense.cardId)?.name || "" : "";
+        return [
+          expense.description,
+          expense.category,
+          toBRL(expense.value),
+          expense.purchaseDate ? formatDate(expense.purchaseDate) : "",
+          formatDate(expense.dueDate),
+          expense.paymentDate ? formatDate(expense.paymentDate) : "",
+          expense.status === "paid" ? "Pago" : "Pendente",
+          expense.paymentMethod || "",
+          cardName,
+          expense.fixedInstallment ? "Parcela fixa" : `${expense.currentInstallment || 1}/${expense.installments || 1}`,
+          expense.recurrence || "",
+          expense.notes || ""
+        ];
+      });
+
+      const projectedExpenseRows = MONTHS.flatMap((month, index) => {
+        const key = getMonthKey(index);
+        return getExpensesForMonth(index).map(expense => {
+          const cardName = expense.cardId ? data.cards.find(card => card.id === expense.cardId)?.name || "" : "";
+          return [
+            `${month}/${key.slice(0,4)}`,
+            expense.description,
+            expense.category,
+            toBRL(expense.displayValue ?? expense.value),
+            formatDate(expense.dueDate),
+            expense.status === "paid" ? "Pago" : "Pendente",
+            cardName,
+            expense.fixedInstallment ? "Parcela fixa" : (expense.installmentLabel || (expense.installments > 1 ? `${expense.currentInstallment}/${expense.installments}` : "")),
+            expense.virtual ? "Fatura automática" : "Manual"
+          ];
+        });
+      });
+
+      const cardRows = data.cards.map(card => {
+        const stats = getCardStats(card);
+        return [
+          card.name,
+          getCardBrand(card, findCardTemplate(card).id).label,
+          `Fecha dia ${card.closingDay || "-"}`,
+          `Vence dia ${card.dueDay || "-"}`,
+          `Melhor dia ${calcBestDay(card)}`,
+          toBRL(card.limit),
+          toBRL(stats.used),
+          toBRL(stats.available),
+          toBRL(stats.invoice),
+          `${stats.percent.toFixed(1)}%`
+        ];
+      });
+
+      const cardPurchaseRows = data.cardPurchases.map(purchase => {
+        const cardName = data.cards.find(card => card.id === purchase.cardId)?.name || "";
+        return [
+          cardName,
+          purchase.description,
+          purchase.category,
+          toBRL(purchase.totalValue),
+          formatDate(purchase.date),
+          purchase.type,
+          `${purchase.currentInstallment || 1}/${purchase.installments || 1}`,
+          purchase.status === "paid" ? "Pago" : "Em aberto",
+          purchase.importedFile || "",
+          purchase.notes || ""
+        ];
+      });
+
+      const html = `<!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body{font-family:Arial,sans-serif;color:#2B1B12}
+            h1{font-size:22px;margin:0 0 6px;color:#3B2417}
+            h2{font-size:16px;margin:24px 0 8px;color:#3B2417;background:#F6EFE7;padding:8px;border-left:5px solid #B98252}
+            p{font-size:12px;color:#5A3825}
+            table{border-collapse:collapse;width:100%;margin-bottom:14px}
+            th{background:#3B2417;color:#FFF8EF;font-weight:bold}
+            th,td{border:1px solid #D7B786;padding:6px;font-size:12px;vertical-align:top}
+            tr:nth-child(even) td{background:#FFF8EF}
+          </style>
+        </head>
+        <body>
+          <h1>Faz Meu Controle</h1>
+          <p>Exportado em ${excelEscape(generatedAt)}</p>
+          ${excelTable("Resumo mensal", ["Mês","Entradas previstas","Entradas recebidas","Saídas previstas","Saídas pagas","Faturas","Saldo previsto","Saldo realizado","Saldo final"], monthRows)}
+          ${excelTable("Entradas cadastradas", ["Descrição","Categoria","Valor","Data prevista","Data recebida","Status","Recorrência","Observações"], entryRows)}
+          ${excelTable("Saídas cadastradas", ["Descrição","Categoria","Valor","Data da compra","Vencimento","Pagamento","Status","Forma","Cartão","Parcela","Recorrência","Observações"], expenseRows)}
+          ${excelTable("Projeção de saídas - 12 meses", ["Mês","Descrição","Categoria","Valor","Vencimento","Status","Cartão","Parcela","Origem"], projectedExpenseRows)}
+          ${excelTable("Cartões", ["Cartão","Bandeira","Fechamento","Vencimento","Melhor compra","Limite","Utilizado","Disponível","Fatura atual","Uso"], cardRows)}
+          ${excelTable("Lançamentos dos cartões", ["Cartão","Descrição","Categoria","Valor","Data","Tipo","Parcela","Status","Arquivo importado","Observações"], cardPurchaseRows)}
+        </body>
+        </html>`;
+
+      const blob = new Blob([html], {type:"application/vnd.ms-excel;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `faz-meu-controle-${new Date().toISOString().slice(0,10)}.xls`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("Excel exportado");
+    }
+
     function importData(file){
       const reader = new FileReader();
       reader.onload = async () => {
@@ -3804,6 +4017,7 @@
         autosave(); render(); toast("Configurações salvas");
       }
       if(action === "export") exportData();
+      if(action === "export-excel") exportExcel();
       if(action === "import") document.getElementById("importFile").click();
       if(action === "import-nubank") document.getElementById("nubankImportFile").click();
       if(action === "clear-data"){
@@ -3819,6 +4033,7 @@
     let filterRenderTimer = null;
     document.addEventListener("input", (e) => {
       const target = e.target;
+      if(target.matches("[data-expense-purchase-date]")) syncExpenseCardDueDate(target.closest("form"));
       if(target.matches("[data-filter]")){
         state.filters[target.dataset.filter] = target.value;
         clearTimeout(filterRenderTimer);
@@ -3831,6 +4046,7 @@
     document.addEventListener("change", (e) => {
       const target = e.target;
       if(target.matches("[data-card-template]")){ applySelectedCardTemplateToForm(target); return; }
+      if(target.matches("[data-expense-card], [data-expense-purchase-date]")){ syncExpenseCardDueDate(target.closest("form")); return; }
       if(target.id === "monthSelect"){ state.month = Number(target.value); data.settings.currentMonth = state.month; autosave(); render(); }
       if(target.id === "yearInput"){ state.year = Number(target.value || state.year); data.settings.year = state.year; autosave(); render(); }
       if(target.matches("[data-filter]")){
@@ -3843,6 +4059,7 @@
 
     document.getElementById("saveBtn").addEventListener("click", () => saveData(true));
     document.getElementById("exportBtn").addEventListener("click", exportData);
+    document.getElementById("excelBtn").addEventListener("click", exportExcel);
     document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
     document.getElementById("importFile").addEventListener("change", e => {
       if(e.target.files?.[0]) importData(e.target.files[0]);
