@@ -1802,8 +1802,10 @@
 };
     const STORAGE_KEY_BASE = "controle_financeiro_marrom_premium_v1";
     let STORAGE_KEY = STORAGE_KEY_BASE;
-    const MONTHS = ["JUL","AGO","SET","OUT","NOV","DEZ","JAN","FEV","MAR","ABR","MAI","JUN"];
-    const MONTH_NUMBERS = [7,8,9,10,11,12,1,2,3,4,5,6];
+    const CALENDAR_MODE = "calendar-year";
+    const LEGACY_MONTH_NUMBERS = [7,8,9,10,11,12,1,2,3,4,5,6];
+    const MONTHS = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+    const MONTH_NUMBERS = [1,2,3,4,5,6,7,8,9,10,11,12];
     const TABS = [
       ["dashboard","Dashboard"],
       ["entradas","Entradas"],
@@ -1884,10 +1886,9 @@
     function createEmptyData(){
       const now = new Date();
       const monthIndex = Math.max(0, MONTH_NUMBERS.indexOf(now.getMonth() + 1));
-      const planningYear = now.getMonth() + 1 <= 6 ? now.getFullYear() - 1 : now.getFullYear();
       return {
-        version:"1.2.0",
-        settings:{ startMonth:monthIndex, currentMonth:monthIndex, year:planningYear, currency:"BRL", initialBalance:0, theme:"marrom elegante" },
+        version:"1.3.0",
+        settings:{ startMonth:monthIndex, currentMonth:monthIndex, year:now.getFullYear(), currency:"BRL", initialBalance:0, theme:"marrom elegante", calendarMode:CALENDAR_MODE },
         categories:defaultCategories(),
         cards:[], entries:[], expenses:[], cardPurchases:[], invoicePayments:{}, updatedAt:""
       };
@@ -1922,8 +1923,32 @@
     function categoryKey(category){
       return `${normalizeCategoryType(category.type)}:${normalizeText(category.name)}`;
     }
+    function migrateCalendarSettings(targetData){
+      targetData.settings = targetData.settings || {};
+      const settings = targetData.settings;
+      const clampMonth = value => Math.min(11, Math.max(0, Number(value) || 0));
+      if(settings.calendarMode !== CALENDAR_MODE){
+        ["startMonth","currentMonth"].forEach(field => {
+          const oldIndex = clampMonth(settings[field]);
+          const oldMonthNumber = LEGACY_MONTH_NUMBERS[oldIndex];
+          const newIndex = MONTH_NUMBERS.indexOf(oldMonthNumber);
+          settings[field] = newIndex >= 0 ? newIndex : oldIndex;
+        });
+        settings.calendarMode = CALENDAR_MODE;
+      } else {
+        settings.startMonth = clampMonth(settings.startMonth);
+        settings.currentMonth = clampMonth(settings.currentMonth);
+      }
+      settings.year = Number(settings.year || new Date().getFullYear());
+      settings.currency = settings.currency || "BRL";
+      settings.theme = settings.theme || "marrom elegante";
+      settings.initialBalance = number(settings.initialBalance);
+      return targetData;
+    }
     function mergeDefaultCategories(targetData){
       if(!targetData) return createEmptyData();
+      migrateCalendarSettings(targetData);
+      targetData.version = "1.3.0";
       targetData.categories = Array.isArray(targetData.categories) ? targetData.categories : [];
       targetData.categories.forEach(category => {
         category.type = normalizeCategoryType(category.type);
@@ -1947,12 +1972,12 @@
     function isoToday(){ return new Date().toISOString().slice(0,10); }
     function getMonthKey(monthIndex = state.month, planningYear = state.year){
       const m = MONTH_NUMBERS[monthIndex];
-      const y = planningYear + (m <= 6 ? 1 : 0);
+      const y = planningYear;
       return `${y}-${String(m).padStart(2,"0")}`;
     }
     function planningYearFromMonthKey(key){
       const [year, month] = String(key || "").slice(0,7).split("-").map(Number);
-      return month <= 6 ? year - 1 : year;
+      return year;
     }
     function setVisibleMonthFromDate(date){
       const key = keyFromDate(date);
@@ -2030,6 +2055,7 @@
     function saveData(showToast = false){
       data.settings.currentMonth = state.month;
       data.settings.year = state.year;
+      data.settings.calendarMode = CALENDAR_MODE;
       data.updatedAt = new Date().toISOString();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       window.financeAuth?.syncData?.(data);
@@ -2305,11 +2331,13 @@
         }];
       }
 
+      const card = data.cards.find(item => item.id === purchase.cardId);
+      const firstDueDate = card ? getCardInvoiceDueDate(card, purchase.date) : purchase.date;
       const installments = Math.max(1, Number(purchase.installments || 1));
       const base = round(number(purchase.totalValue) / installments);
       const result = [];
       for(let i=0;i<installments;i++){
-        const date = addMonths(purchase.date, i);
+        const date = addMonths(firstDueDate, i);
         const key = keyFromDate(date);
         let value = base;
         if(i === installments - 1){
@@ -2809,7 +2837,7 @@
               <div>
                 <div class="credit-template">${escapeHtml(visual.templateLabel)}</div>
                 <div class="credit-name">${escapeHtml(visual.name)}</div>
-                <div class="credit-dates">Venc. dia ${card.dueDay || "-"} • Fecha dia ${card.closingDay || "-"}<br>Melhor compra: dia ${calcBestDay(card)}</div>
+              <div class="credit-dates">Paga dia ${card.dueDay || "-"} • Fecha dia ${card.closingDay || "-"}<br>Melhor compra: dia ${calcBestDay(card)}</div>
               </div>
               <div class="credit-logo">${escapeHtml(visual.short)}</div>
             </div>
@@ -3017,11 +3045,11 @@
         const dueDate = getCardInvoiceDueDate(card, purchaseDateInput.value || dueDateInput.value || isoToday());
         dueDateInput.value = dueDate;
         dueDateInput.readOnly = true;
-        if(hint) hint.textContent = `Calculado pelo ${card.name}: fecha dia ${card.closingDay || "-"} e vence dia ${card.dueDay || "-"}.`;
+        if(hint) hint.textContent = `Data prevista da fatura calculada pelo ${card.name}: fecha dia ${card.closingDay || "-"} e paga dia ${card.dueDay || "-"}.`;
       } else {
         dueDateInput.readOnly = false;
         if(!dueDateInput.value && purchaseDateInput.value) dueDateInput.value = purchaseDateInput.value;
-        if(hint) hint.textContent = "Sem cartão vinculado, o vencimento pode ser ajustado manualmente.";
+        if(hint) hint.textContent = "Sem cartão vinculado, ajuste manualmente a data prevista de pagamento.";
       }
     }
 
@@ -3050,8 +3078,8 @@
           <div class="form-field"><label>Categoria</label><select class="select" name="category">${categoryOptions("saida", selectedCategory)}</select></div>
           <div class="form-field"><label>Valor</label><input class="input" name="value" type="number" step="0.01" required value="${number(item.value)}" /></div>
           <div class="form-field"><label>Data da compra</label><input class="input" name="purchaseDate" data-expense-purchase-date type="date" required value="${purchaseDate}" /></div>
-          <div class="form-field"><label>Vencimento</label><input class="input" name="dueDate" data-expense-due-date type="date" required value="${item.dueDate || purchaseDate}" /><p class="form-hint" data-card-invoice-hint></p></div>
-          <div class="form-field"><label>Data de pagamento</label><input class="input" name="paymentDate" type="date" value="${item.paymentDate || ""}" /></div>
+          <div class="form-field"><label>Data da fatura / pagamento previsto</label><input class="input" name="dueDate" data-expense-due-date type="date" required value="${item.dueDate || purchaseDate}" /><p class="form-hint" data-card-invoice-hint></p></div>
+          <div class="form-field"><label>Pago em</label><input class="input" name="paymentDate" type="date" value="${item.paymentDate || ""}" /><p class="form-hint">Use apenas quando a saída já foi quitada.</p></div>
           <div class="form-field"><label>Status</label><select class="select" name="status"><option value="pending" ${item.status!=="paid"?"selected":""}>Pendente</option><option value="paid" ${item.status==="paid"?"selected":""}>Pago</option></select></div>
           <div class="form-field"><label>Forma de pagamento</label><select class="select" name="paymentMethod">${PAYMENT_METHODS.map(m=>`<option value="${m}" ${item.paymentMethod===m?"selected":""}>${m}</option>`).join("")}</select></div>
           <div class="form-field"><label>Cartão vinculado</label><select class="select" name="cardId" data-expense-card>${cardOptions(item.cardId || "")}</select></div>
@@ -3127,7 +3155,7 @@
           <div class="form-field full"><label>Nome do cartão</label><input class="input" name="name" data-card-name required value="${escapeHtml(card.name || visual.name)}" /></div>
           <div class="form-field"><label>Cor do cartão</label><input class="input" name="color" data-card-color type="color" value="${visual.color}" /></div>
           <div class="form-field"><label>Limite total</label><input class="input" name="limit" type="number" step="0.01" value="${number(card.limit)}" /></div>
-          <div class="form-field"><label>Dia de vencimento da fatura</label><input class="input" name="dueDay" type="number" min="1" max="31" value="${card.dueDay || 1}" /></div>
+          <div class="form-field"><label>Dia de pagamento da fatura</label><input class="input" name="dueDay" type="number" min="1" max="31" value="${card.dueDay || 1}" /></div>
           <div class="form-field"><label>Dia de fechamento da fatura</label><input class="input" name="closingDay" type="number" min="1" max="31" value="${card.closingDay || 1}" /></div>
           <div class="form-field"><label>Melhor dia de compra</label><input class="input" name="bestDay" type="number" min="1" max="31" value="${card.bestDay || calcBestDay(card)}" /></div>
         </div>
@@ -3685,7 +3713,7 @@
           card.name,
           getCardBrand(card, findCardTemplate(card).id).label,
           `Fecha dia ${card.closingDay || "-"}`,
-          `Vence dia ${card.dueDay || "-"}`,
+          `Paga dia ${card.dueDay || "-"}`,
           `Melhor dia ${calcBestDay(card)}`,
           toBRL(card.limit),
           toBRL(stats.used),
@@ -3731,9 +3759,9 @@
           <p>Exportado em ${excelEscape(generatedAt)}</p>
           ${excelTable("Resumo mensal", ["Mês","Entradas previstas","Entradas recebidas","Saídas previstas","Saídas pagas","Faturas","Saldo previsto","Saldo realizado","Saldo final"], monthRows)}
           ${excelTable("Entradas cadastradas", ["Descrição","Categoria","Valor","Data prevista","Data recebida","Status","Recorrência","Observações"], entryRows)}
-          ${excelTable("Saídas cadastradas", ["Descrição","Categoria","Valor","Data da compra","Vencimento","Pagamento","Status","Forma","Cartão","Parcela","Recorrência","Observações"], expenseRows)}
-          ${excelTable("Projeção de saídas - 12 meses", ["Mês","Descrição","Categoria","Valor","Vencimento","Status","Cartão","Parcela","Origem"], projectedExpenseRows)}
-          ${excelTable("Cartões", ["Cartão","Bandeira","Fechamento","Vencimento","Melhor compra","Limite","Utilizado","Disponível","Fatura atual","Uso"], cardRows)}
+          ${excelTable("Saídas cadastradas", ["Descrição","Categoria","Valor","Data da compra","Pagamento previsto","Pago em","Status","Forma","Cartão","Parcela","Recorrência","Observações"], expenseRows)}
+          ${excelTable("Projeção de saídas - 12 meses", ["Mês","Descrição","Categoria","Valor","Pagamento previsto","Status","Cartão","Parcela","Origem"], projectedExpenseRows)}
+          ${excelTable("Cartões", ["Cartão","Bandeira","Fechamento","Pagamento da fatura","Melhor compra","Limite","Utilizado","Disponível","Fatura atual","Uso"], cardRows)}
           ${excelTable("Lançamentos dos cartões", ["Cartão","Descrição","Categoria","Valor","Data","Tipo","Parcela","Status","Arquivo importado","Observações"], cardPurchaseRows)}
         </body>
         </html>`;
