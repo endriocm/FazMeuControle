@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Faz Meu Controle">
+  <defs>
+    <linearGradient id="background" x1="120" y1="90" x2="900" y2="930" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1E3A"/>
+      <stop offset=".56" stop-color="#1E3A8A"/>
+      <stop offset="1" stop-color="#4F7CFF"/>
+    </linearGradient>
+    <linearGradient id="growth" x1="210" y1="720" x2="810" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7DE3D1"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="240" fill="url(#background)"/>
+  <circle cx="270" cy="300" r="118" fill="#FFFFFF" fill-opacity=".12"/>
+  <path d="M210 718 382 546l145 111 288-320" fill="none" stroke="url(#growth)" stroke-width="88" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M716 338h100v102" fill="none" stroke="#FFFFFF" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M240 262h78c51 0 86 31 86 76 0 44-35 75-86 75h-78V262Zm75 98c19 0 31-8 31-22 0-15-12-23-31-23h-18v45h18Z" fill="#FFFFFF"/>
+</svg>

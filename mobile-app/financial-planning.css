@@ -1,0 +1,984 @@
+  .financial-planning-dialog{
+    /* Identidade Principal */
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --soft: #f1f3f5;
+    --text: #1b1e23;
+    --muted: #6c757d;
+    --line: #e9ecef;
+    --dark: #1b1e23;
+    --gold: #4f7cff;
+    --gold-soft: #eef3ff;
+
+    /* Cores Funcionais */
+    --c-fixed: #4b5563; /* Grafite */
+    --c-debt: #ef6f61; /* Coral */
+    --c-reserve: #4299e1; /* Azul */
+    --c-property: #2563eb; /* Azul Royal */
+    --c-car: #8b5cf6; /* Roxo */
+    --c-investments: #22c55e; /* Verde */
+    --c-retirement: #16a34a; /* Verde Profundo */
+    --c-tech: #64748b; /* Azul Acinzentado */
+    --c-travel: #f97316; /* Laranja */
+    --c-education: #0f766e; /* Teal */
+    --c-leisure: #d4af37; /* Dourado */
+
+    --radius: 16px;
+  }
+
+  .financial-planning-dialog,
+  .financial-planning-dialog *{box-sizing:border-box}
+
+  /* Typography and Layout */
+  .shell{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    overflow-y: auto;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px 10px;
+  }
+
+  @media(min-width: 768px){
+    .shell{ padding: 40px; }
+  }
+
+  .app{
+    width: 100%;
+    max-width: 600px;
+    background: var(--card);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    transition: max-width 0.3s ease;
+  }
+
+  .app.is-result{
+    max-width: 1200px;
+  }
+
+  /* Topbar */
+  .financial-planning-topbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+
+  .brand{
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+  .brand span{
+    color: var(--gold);
+  }
+
+  /* Progress */
+  .financial-planning-progress{
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .financial-planning-progress-dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--line);
+    transition: all 0.3s ease;
+  }
+  .financial-planning-progress-dot.done{
+    background: var(--gold);
+    opacity: 0.5;
+  }
+  .financial-planning-progress-dot.active{
+    background: var(--gold);
+    transform: scale(1.3);
+  }
+
+  /* Content */
+  .content{
+    padding: 40px 30px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Typography */
+  .financial-planning-dialog h1,
+  .financial-planning-dialog h2,
+  .financial-planning-dialog h3{
+    margin: 0 0 15px 0;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .financial-planning-dialog h1{ font-size: 2.2rem; }
+  .financial-planning-dialog h2{ font-size: 1.8rem; }
+
+  .lead{
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  .kicker{
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  /* Premium Inputs */
+  .money-input-wrapper{
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 2px solid var(--line);
+    padding: 15px 20px;
+    border-radius: 16px;
+    font-size: 2rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+  .money-input-wrapper:focus-within{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px var(--gold-soft);
+  }
+  .money-prefix{
+    color: var(--muted);
+    margin-right: 12px;
+    font-size: 1.5rem;
+    user-select: none;
+  }
+  .money-input-wrapper input{
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: var(--text);
+    font-weight: 800;
+  }
+  #financialPlanningModal .financial-planning-input{
+    width: 100% !important;
+    min-height: 44px !important;
+    padding: 10px 12px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
+    box-shadow: none !important;
+    font: inherit !important;
+  }
+  #financialPlanningModal .money-input-wrapper .financial-planning-input{
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  #financialPlanningModal .financial-planning-input::selection{
+    background: rgba(79,124,255,.35);
+    color: var(--text);
+  }
+  .financial-planning-percent-field{
+    position: relative;
+    display: block;
+  }
+  #financialPlanningModal .financial-planning-percent-field .financial-planning-input{
+    padding-right: 34px !important;
+  }
+  .financial-planning-percent-field > b{
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: .9rem;
+    pointer-events: none;
+  }
+
+  .financial-planning-allocation-percent{
+    min-width: 72px;
+    color: var(--text);
+    font-size: 1.4rem;
+    text-align: right;
+  }
+
+  .financial-planning-rebalance-note{
+    display: grid;
+    gap: 3px;
+    margin-top: 18px;
+    padding: 12px 14px;
+    border: 1px solid rgba(22,163,74,.35);
+    border-radius: 12px;
+    background: rgba(22,163,74,.08);
+    color: #166534;
+    font-size: .78rem;
+    line-height: 1.4;
+  }
+
+  .financial-planning-allocation-breakdown{
+    margin: -14px 0 30px;
+  }
+  .financial-planning-allocation-breakdown > h4{
+    margin: 0 0 10px;
+    color: var(--muted);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .financial-planning-allocation-breakdown-list{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+    gap: 8px;
+  }
+  .financial-planning-allocation-breakdown-item{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 3px 10px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--soft);
+  }
+  .financial-planning-allocation-breakdown-name{
+    display: flex;
+    align-items: flex-start;
+    min-width: 0;
+    gap: 7px;
+    color: var(--text);
+    font-size: .82rem;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .financial-planning-allocation-breakdown-name > i{
+    width: 8px;
+    height: 8px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--allocation-color);
+  }
+  .financial-planning-allocation-breakdown-item > strong{
+    align-self: flex-start;
+    color: var(--allocation-color);
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .financial-planning-allocation-breakdown-item > small{
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: .72rem;
+  }
+
+  /* Buttons */
+  .actions{
+    margin-top: 40px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .financial-planning-button{
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+  .financial-planning-button.primary{
+    background: var(--screen-accent, var(--gold));
+    color: var(--dark);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  .financial-planning-button.primary:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+  .financial-planning-button.secondary{
+    background: var(--soft);
+    color: var(--text);
+  }
+  .financial-planning-button.secondary:hover{
+    background: var(--line);
+  }
+  .financial-planning-button:disabled{
+    opacity: .52;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Cards (Reserve, Debt, Goals) */
+  .choice-row{
+    display: flex;
+    gap: 15px;
+  }
+  .choice-card{
+    flex: 1;
+    padding: 20px;
+    border-radius: 16px;
+    background: #fff;
+    color: var(--text);
+    border: 2px solid var(--line);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .choice-card:hover{
+    border-color: var(--muted);
+  }
+  .choice-card.selected{
+    border-color: var(--screen-accent, var(--gold));
+    background: var(--screen-accent-soft, var(--gold-soft));
+    transform: scale(1.02);
+  }
+  .choice-card.selected strong{
+    color: var(--screen-accent, var(--gold));
+  }
+
+  /* Progress Bars */
+  .visual-bar-container{
+    height: 12px;
+    background: var(--soft);
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 15px 0;
+  }
+  .visual-bar-fill{
+    height: 100%;
+    background: var(--screen-accent, var(--gold));
+    transition: width 0.5s ease-out;
+  }
+
+  /* Timeline */
+  .timeline-container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .timeline-line{
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--line);
+    z-index: 0;
+  }
+  .timeline-node{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+  }
+  .timeline-circle{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 2px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  .timeline-node.active .timeline-circle{
+    border-color: var(--node-color, var(--gold));
+    background: var(--node-color, var(--gold));
+    color: #fff;
+    box-shadow: 0 0 0 4px var(--node-soft, var(--gold-soft));
+  }
+  .timeline-node.done .timeline-circle{
+    border-color: var(--node-color, var(--gold));
+    background: var(--node-color, var(--gold));
+    color: #fff;
+  }
+  .timeline-label{
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .timeline-node.active .timeline-label{
+    color: var(--text);
+  }
+
+  /* Phase Card */
+  .phase-card{
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+  }
+  .financial-planning-retirement-destination{
+    border-top: 4px solid var(--c-retirement);
+    box-shadow: 0 15px 40px rgba(22,163,74,.1);
+  }
+  .financial-planning-retirement-destination.is-infeasible{
+    border-top-color: var(--c-debt);
+  }
+  .financial-planning-retirement-hero{
+    max-width: 720px;
+    margin: 0 auto 28px;
+    text-align: center;
+  }
+  .financial-planning-retirement-hero .kicker{
+    color: var(--c-retirement);
+  }
+  .financial-planning-retirement-hero h3{
+    margin: 5px 0 8px;
+    color: var(--text);
+    font-size: clamp(1.65rem, 4vw, 2.25rem);
+    line-height: 1.1;
+  }
+  .financial-planning-retirement-hero p{
+    margin: 12px auto 0;
+    color: var(--muted);
+    font-size: .94rem;
+    line-height: 1.55;
+  }
+  .financial-planning-retirement-target{
+    display: block;
+    color: var(--c-retirement);
+    font-size: clamp(2rem, 6vw, 3.35rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-retirement-flow{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .financial-planning-retirement-flow > div{
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--soft);
+  }
+  .financial-planning-retirement-flow > div.is-highlighted{
+    border-color: rgba(22,163,74,.35);
+    background: rgba(22,163,74,.08);
+  }
+  .financial-planning-retirement-flow > i{
+    align-self: center;
+    color: var(--c-retirement);
+    font-size: 1.35rem;
+    font-style: normal;
+    text-align: center;
+  }
+  .financial-planning-retirement-flow span,
+  .financial-planning-retirement-flow small{
+    display: block;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-retirement-flow span{
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+  .financial-planning-retirement-flow strong{
+    display: block;
+    margin: 6px 0;
+    color: var(--text);
+    font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.18;
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-retirement-flow .is-highlighted strong{
+    color: var(--c-retirement);
+  }
+  .financial-planning-retirement-flow small{
+    font-size: .7rem;
+    line-height: 1.4;
+  }
+  .financial-planning-retirement-formula{
+    display: grid;
+    gap: 5px;
+    padding: 15px 17px;
+    border-left: 4px solid var(--c-retirement);
+    border-radius: 12px;
+    background: rgba(22,163,74,.07);
+  }
+  .financial-planning-retirement-formula > span,
+  .financial-planning-retirement-formula > small{
+    color: var(--muted);
+  }
+  .financial-planning-retirement-formula > span{
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .financial-planning-retirement-formula > strong{
+    color: var(--text);
+    font-size: 1.05rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-retirement-formula > small{
+    font-size: .72rem;
+    line-height: 1.4;
+  }
+  .financial-planning-retirement-section{
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .financial-planning-retirement-section > header{
+    margin-bottom: 12px;
+  }
+  .financial-planning-retirement-section > header span{
+    color: var(--c-retirement);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .financial-planning-retirement-section > header h4{
+    margin: 4px 0 0;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  .financial-planning-retirement-breakdown{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .financial-planning-retirement-breakdown > div{
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--soft);
+  }
+  .financial-planning-retirement-breakdown > div.is-total{
+    border-color: rgba(22,163,74,.4);
+    background: rgba(22,163,74,.08);
+  }
+  .financial-planning-retirement-breakdown span,
+  .financial-planning-retirement-breakdown small{
+    display: block;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-retirement-breakdown span{
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .financial-planning-retirement-breakdown strong{
+    display: block;
+    margin-top: 6px;
+    color: var(--text);
+    font-size: 1.08rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-retirement-breakdown .is-yield strong,
+  .financial-planning-retirement-breakdown .is-total strong{
+    color: var(--c-retirement);
+  }
+  .financial-planning-retirement-breakdown small{
+    margin-top: 5px;
+    font-size: .67rem;
+    line-height: 1.35;
+  }
+  .financial-planning-retirement-status{
+    display: grid;
+    gap: 4px;
+    margin-top: 12px;
+    padding: 13px 15px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: .8rem;
+    line-height: 1.45;
+  }
+  .financial-planning-retirement-status.is-positive{
+    border-color: rgba(22,163,74,.35);
+    background: rgba(22,163,74,.08);
+    color: #166534;
+  }
+  .financial-planning-retirement-status.is-warning{
+    border-color: rgba(239,111,97,.38);
+    background: rgba(239,111,97,.09);
+    color: #9f2d25;
+  }
+  .financial-planning-retirement-disclaimer{
+    margin: 20px 0 0;
+    color: var(--muted);
+    font-size: .7rem;
+    line-height: 1.45;
+    text-align: center;
+  }
+  .financial-planning-phase-heading{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+  .financial-planning-phase-deadline{
+    min-width: 190px;
+    padding: 13px 16px;
+    border: 1px solid var(--deadline-color, var(--line));
+    border-radius: 14px;
+    background: var(--soft);
+    text-align: right;
+  }
+  .financial-planning-phase-deadline.is-debt{
+    border-width: 2px;
+    background: rgba(239,111,97,.08);
+  }
+  .financial-planning-phase-deadline > span,
+  .financial-planning-phase-deadline > small{
+    display: block;
+    color: var(--muted);
+  }
+  .financial-planning-phase-deadline > span{
+    margin-bottom: 3px;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .financial-planning-phase-deadline > strong{
+    display: block;
+    color: var(--deadline-color, var(--text));
+    font-size: 1.65rem;
+    line-height: 1.1;
+  }
+  .financial-planning-phase-deadline > small{
+    margin-top: 4px;
+    font-size: .75rem;
+  }
+
+  .financial-planning-stage-summary{
+    margin-top: 4px;
+  }
+  .financial-planning-stage-summary > header{
+    margin-bottom: 12px;
+  }
+  .financial-planning-stage-summary > header h4{
+    margin: 0 0 4px;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  .financial-planning-stage-summary > header p{
+    margin: 0;
+    color: var(--muted);
+    font-size: .8rem;
+    line-height: 1.45;
+  }
+  .financial-planning-value-equation{
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+  }
+  .financial-planning-equation-term{
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--soft);
+  }
+  .financial-planning-equation-term.is-final{
+    border-color: var(--stage-color);
+    background: var(--soft);
+  }
+  .financial-planning-equation-term > span,
+  .financial-planning-equation-term > small{
+    display: block;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-equation-term > span{
+    font-size: .71rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .financial-planning-equation-term > strong{
+    display: block;
+    margin: 6px 0 4px;
+    color: var(--text);
+    font-size: 1.18rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .financial-planning-equation-term > small{
+    min-height: 2.6em;
+    font-size: .67rem;
+    line-height: 1.3;
+  }
+  .financial-planning-equation-term.is-yield > strong,
+  .financial-planning-equation-term.is-complete > strong{
+    color: var(--c-investments);
+  }
+  .financial-planning-equation-term.is-interest > strong{
+    color: var(--c-debt);
+  }
+  .financial-planning-equation-term.is-final > strong{
+    color: var(--stage-color);
+  }
+  .financial-planning-equation-operator{
+    align-self: center;
+    flex: 0 0 20px;
+    color: var(--muted);
+    font-size: 1.25rem;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .financial-planning-accumulation{
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .financial-planning-accumulation > header{
+    margin-bottom: 13px;
+  }
+  .financial-planning-accumulation > header h4{
+    margin: 0 0 4px;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  .financial-planning-accumulation > header p{
+    margin: 0;
+    color: var(--muted);
+    font-size: .8rem;
+    line-height: 1.45;
+  }
+  .financial-planning-accumulation-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+    gap: 10px;
+  }
+  .financial-planning-accumulation-card{
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--bucket-color);
+    border-radius: 12px;
+    background: #fff;
+  }
+  .financial-planning-accumulation-name{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: .84rem;
+  }
+  .financial-planning-accumulation-name > i{
+    width: 8px;
+    height: 8px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--bucket-color);
+  }
+  .financial-planning-accumulation-monthly{
+    margin: 0 0 11px;
+    color: var(--muted);
+    font-size: .72rem;
+    line-height: 1.4;
+  }
+  .financial-planning-accumulation-monthly strong{
+    color: var(--bucket-color);
+  }
+  .financial-planning-accumulation-equation{
+    display: grid;
+    gap: 7px;
+    padding-top: 9px;
+    border-top: 1px solid var(--line);
+  }
+  .financial-planning-accumulation-equation > div{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .financial-planning-accumulation-equation > div.is-total{
+    margin-top: 3px;
+    padding-top: 9px;
+    border-top: 1px solid var(--line);
+  }
+  .financial-planning-accumulation-equation span{
+    color: var(--muted);
+    font-size: .72rem;
+    line-height: 1.3;
+  }
+  .financial-planning-accumulation-equation span i{
+    display: inline-block;
+    width: 12px;
+    color: var(--muted);
+    font-style: normal;
+    font-weight: 900;
+  }
+  .financial-planning-accumulation-equation b{
+    color: var(--text);
+    font-size: .76rem;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
+  .financial-planning-accumulation-equation .is-yield b{
+    color: var(--c-investments);
+  }
+  .financial-planning-accumulation-equation .is-total span,
+  .financial-planning-accumulation-equation .is-total b{
+    color: var(--bucket-color);
+    font-weight: 800;
+  }
+  .financial-planning-accumulation-equation .is-total b{
+    font-size: 1rem;
+  }
+  .financial-planning-next-step{
+    margin-top: 24px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--next-color);
+    border-radius: 12px;
+    background: var(--soft);
+  }
+  .financial-planning-next-step b{
+    color: var(--text);
+    font-size: .85rem;
+  }
+  .financial-planning-next-step p{
+    margin: 5px 0 0;
+    color: var(--text);
+    font-size: .84rem;
+    line-height: 1.45;
+  }
+  .financial-planning-next-step small{
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+  }
+  .phase-metrics{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 30px;
+  }
+  .metric-box{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .metric-label{
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .metric-value{
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+  .metric-value.yield{ color: var(--c-investments); }
+  .metric-value.final{ color: var(--node-color, var(--text)); }
+
+  @media(max-width: 680px){
+    .phase-card{ padding: 20px; }
+    .financial-planning-retirement-flow{
+      grid-template-columns: 1fr;
+    }
+    .financial-planning-retirement-flow > i{
+      transform: rotate(90deg);
+    }
+    .financial-planning-retirement-breakdown{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .financial-planning-phase-heading{ flex-direction: column; }
+    .financial-planning-phase-deadline{
+      width: 100%;
+      min-width: 0;
+      text-align: left;
+    }
+    .financial-planning-value-equation{ flex-direction: column; }
+    .financial-planning-equation-operator{ flex-basis: 14px; }
+    .financial-planning-equation-term > small{ min-height: 0; }
+    .financial-planning-accumulation-grid{ grid-template-columns: 1fr; }
+  }
+  @media(max-width: 430px){
+    .financial-planning-retirement-breakdown{ grid-template-columns: 1fr; }
+  }
+
+  /* Utilities */
+  .text-center{ text-align: center; }
+  .mt-4{ margin-top: 20px; }
+  .mb-4{ margin-bottom: 20px; }
+  .hidden{ display: none !important; }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen{
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+  }
+  .screen.active{
+    display: block;
+  }
+  @media(prefers-reduced-motion:reduce){
+    .screen{ animation: none; }
+    .visual-bar-fill, .app, .timeline-circle{ transition: none; }
+  }
+
+body.financial-planning-open { overflow: hidden; }
