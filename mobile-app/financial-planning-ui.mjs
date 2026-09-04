@@ -10,7 +10,7 @@ import {
   simulateFinancialPlan,
   suggestFinancialPlanAllocation,
   validateFinancialPlan,
-} from "./financial-planning-domain.mjs?v=20260831-8";
+} from "./financial-planning-domain.mjs?v=20260904-1";
 
 const STEP_LABELS = [
   "Início",
@@ -985,6 +985,18 @@ export function createFinancialPlanningModule({ root, readPlan, savePlan, notify
     allocationInitialized = true;
   }
 
+  function persistProgress() {
+    const now = new Date().toISOString();
+    plan = normalizeFinancialPlan({
+      ...plan,
+      status: "draft",
+      currentStep: step,
+      createdAt: plan.createdAt || now,
+      updatedAt: now,
+    });
+    persistPlan(clone(plan));
+  }
+
   function rebalanceBaseAllocation() {
     if (!allocationInitialized || plan.incomeMinor <= 0 || plan.fixedCostMinor >= plan.incomeMinor) return;
     const before = JSON.stringify(plan.allocation);
@@ -1004,6 +1016,7 @@ export function createFinancialPlanningModule({ root, readPlan, savePlan, notify
     else if (step < 8) step += 1;
     if (step === 7) goalIndex = Math.max(0, Math.min(goalIndex, plan.goals.length - 1));
     if (step === 8) prepareAllocation();
+    persistProgress();
     render();
     focusDialog();
   }
@@ -1012,6 +1025,7 @@ export function createFinancialPlanningModule({ root, readPlan, savePlan, notify
     message = "";
     if (step === 7 && goalIndex > 0) goalIndex -= 1;
     else if (step > 0) step -= 1;
+    persistProgress();
     render();
     focusDialog();
   }
@@ -1198,6 +1212,7 @@ export function createFinancialPlanningModule({ root, readPlan, savePlan, notify
       allocationInitialized = false;
       allocationRebalanced = false;
       message = "";
+      persistProgress();
       render();
       return focusDialog();
     }

@@ -19,17 +19,17 @@ public class MainActivity extends BridgeActivity {
 
         View contentRoot = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(contentRoot, (view, windowInsets) -> {
-            Insets safeInsets = windowInsets.getInsets(
+            Insets systemInsets = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars()
                     | WindowInsetsCompat.Type.displayCutout()
-                    | WindowInsetsCompat.Type.ime()
             );
+            Insets keyboardInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
 
             view.setPadding(
-                safeInsets.left,
-                safeInsets.top,
-                safeInsets.right,
-                safeInsets.bottom
+                systemInsets.left,
+                systemInsets.top,
+                systemInsets.right,
+                Math.max(systemInsets.bottom, keyboardInsets.bottom)
             );
 
             return WindowInsetsCompat.CONSUMED;
