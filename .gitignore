@@ -2,7 +2,9 @@
 .vercel/
 .dev-server.pid
 .playwright-cli/
+.idea/
 npm-debug.log*
+firebase-debug.log
 node_modules/
 .env
 .env.local

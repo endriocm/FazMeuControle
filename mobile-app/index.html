@@ -7557,9 +7557,11 @@
     }
   </style>
   <link rel="stylesheet" href="./mobile-shell.css">
+  <link rel="stylesheet" href="./mobile-auth.css">
 </head>
 <body class="mesa-finance-body">
-  <div class="app-shell finance-os-app">
+  <div id="rumofiAuthRoot" class="rumofi-auth-root" aria-live="polite"></div>
+  <div id="rumofiAppShell" class="app-shell finance-os-app" hidden>
     <main class="finance-os-main">
     <header class="topbar">
       <div class="topbar-inner">
@@ -7597,6 +7599,7 @@
           </details>
           <button class="btn finance-header-action finance-clear-action" type="button" data-action="clear-data"><span aria-hidden="true">♲</span> Limpar</button>
           <button class="btn primary finance-save-action" id="saveBtn" type="button"><span aria-hidden="true">▣</span> Salvar</button>
+          <button class="btn finance-header-action rumofi-account-button" id="rumofiAccountButton" type="button" hidden aria-label="Abrir minha conta"></button>
           <input type="file" id="importFile" accept=".txt,.json,application/json,text/plain" hidden />
           <input type="file" id="nubankImportFile" accept=".csv,text/csv,application/vnd.ms-excel" hidden />
         </div>
@@ -7651,6 +7654,7 @@
     import { Capacitor } from "@capacitor/core";
     import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
     import { Share } from "@capacitor/share";
+    import { initializeRumoFiAuth } from "./mobile-auth.mjs";
     import {
       createEmptyFinancialDataV2,
       dateInFinancialTimeZone,
@@ -7692,7 +7696,9 @@
 
     const STORAGE_KEY_BASE = "faz_meu_controle_v1";
     const LEGACY_STORAGE_KEY_BASES = [];
+    const LEGACY_OWNER_KEY = `${STORAGE_KEY_BASE}:legacy_owner`;
     let STORAGE_KEY = STORAGE_KEY_BASE;
+    let rumofiAuthController = null;
     const CALENDAR_MODE = "calendar-year";
     const LEGACY_MONTH_NUMBERS = [7,8,9,10,11,12,1,2,3,4,5,6];
     const MONTHS = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
@@ -8303,6 +8309,111 @@
       return keyFromDate(start) === targetKey ? [start] : [];
     }
 
+    function readFinancialDataAtKey(storageKey){
+      try{
+        const raw = localStorage.getItem(storageKey);
+        if(!raw) return null;
+        const parsed = JSON.parse(raw);
+        if(!isRecognizedFinancialData(parsed)) return null;
+        ensureLocalMigrationBackup(localStorage, storageKey, parsed);
+        return mergeDefaultCategories(parsed);
+      }catch(error){
+        console.warn("Falha ao ler dados financeiros locais:", error);
+        return null;
+      }
+    }
+
+    function hasMeaningfulFinancialCandidate(candidate){
+      if(!candidate || typeof candidate !== "object") return false;
+      return Boolean(
+        candidate.entries?.length
+        || candidate.expenses?.length
+        || candidate.cards?.length
+        || candidate.cardPurchases?.length
+        || candidate.movements?.length
+        || candidate.expectedItems?.length
+        || candidate.cardBills?.length
+        || candidate.investments?.length
+        || candidate.financialPlan
+      );
+    }
+
+    function financialDataTimestamp(candidate, fallback = ""){
+      const timestamp = Date.parse(candidate?.updatedAt || fallback || "");
+      return Number.isFinite(timestamp) ? timestamp : 0;
+    }
+
+    function resetFinanceStateForUser(){
+      state.month = Number(data.settings.currentMonth ?? data.settings.startMonth ?? 0);
+      state.year = Number(data.settings.year ?? new Date().getFullYear());
+      state.filters = { search:"", category:"all", subcategory:"all", status:"all", date:"", method:"all", card:"all", sort:"date", kind:"all" };
+      state.analysis = { chartType:"doughnut", category:"all", subcategory:"all", card:"all" };
+      activeDrawerCardId = "";
+      knownSubcategoriesCache = null;
+      invalidateFinanceCaches();
+    }
+
+    async function activateFinancialUser({user, remoteData, remoteClientUpdatedAt}){
+      const scopedKey = `${STORAGE_KEY_BASE}:${user.uid}`;
+      const scopedData = readFinancialDataAtKey(scopedKey);
+      const claimedOwner = localStorage.getItem(LEGACY_OWNER_KEY) || "";
+      const canClaimLegacy = !claimedOwner || claimedOwner === user.uid;
+      const legacyData = canClaimLegacy ? readFinancialDataAtKey(STORAGE_KEY_BASE) : null;
+      const legacyHasData = hasMeaningfulFinancialCandidate(legacyData);
+
+      if(legacyHasData && !claimedOwner) localStorage.setItem(LEGACY_OWNER_KEY, user.uid);
+
+      const localData = scopedData || (legacyHasData ? legacyData : null);
+      const remoteIsValid = isRecognizedFinancialData(remoteData);
+      const remoteCandidate = remoteIsValid ? mergeDefaultCategories(remoteData) : null;
+      const localHasData = hasMeaningfulFinancialCandidate(localData);
+      const remoteHasData = hasMeaningfulFinancialCandidate(remoteCandidate);
+      const localTime = financialDataTimestamp(localData);
+      const remoteTime = financialDataTimestamp(remoteCandidate, remoteClientUpdatedAt);
+
+      let selected = localData || remoteCandidate || createEmptyData();
+      let selectedFromRemote = false;
+      if(remoteHasData && (!localHasData || remoteTime >= localTime)){
+        selected = remoteCandidate;
+        selectedFromRemote = true;
+      }else if(!localHasData && remoteCandidate){
+        selected = remoteCandidate;
+        selectedFromRemote = true;
+      }
+
+      STORAGE_KEY = scopedKey;
+      data = mergeDefaultCategories(selected);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      resetFinanceStateForUser();
+      render();
+
+      return {
+        financialData:data,
+        shouldUpload:!selectedFromRemote,
+      };
+    }
+
+    function handleFinancialSignOut(){
+      Object.values(charts).forEach(chart => chart?.destroy?.());
+      charts = {};
+      document.getElementById("app").replaceChildren();
+    }
+
+    function handleFinancialAccountDeleted(user){
+      const scopedKey = `${STORAGE_KEY_BASE}:${user.uid}`;
+      localStorage.removeItem(scopedKey);
+      if(localStorage.getItem(LEGACY_OWNER_KEY) === user.uid){
+        localStorage.removeItem(LEGACY_OWNER_KEY);
+        localStorage.removeItem(STORAGE_KEY_BASE);
+      }
+      handleFinancialSignOut();
+    }
+
+    function updateFinancialCloudStatus({message}){
+      const text = document.getElementById("savedText");
+      if(text && message) text.textContent = message;
+    }
+
     function loadData(){
       try{
         let raw = localStorage.getItem(STORAGE_KEY);
@@ -8338,7 +8449,8 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       const text = document.getElementById("savedText");
       if(text) text.textContent = "salvo automaticamente";
-      if(showToast) toast("Dados salvos no navegador");
+      rumofiAuthController?.queueFinancialSave(data, {immediate:showToast});
+      if(showToast) toast(rumofiAuthController?.currentUser ? "Dados salvos e sincronizando" : "Dados salvos no aparelho");
     }
 
     function saveViewStateLocally(){
@@ -16153,8 +16265,40 @@
       toast("Filtros limpos");
     });
 
-    render();
-    observeFinanceFrameHeight();
+    async function bootRumoFi(){
+      const authRoot = document.getElementById("rumofiAuthRoot");
+      try{
+        rumofiAuthController = await initializeRumoFiAuth({
+          root:authRoot,
+          appShell:document.getElementById("rumofiAppShell"),
+          accountButton:document.getElementById("rumofiAccountButton"),
+          onUserReady:activateFinancialUser,
+          onSignedOut:handleFinancialSignOut,
+          onAccountDeleted:handleFinancialAccountDeleted,
+          onCloudStatus:updateFinancialCloudStatus,
+        });
+        observeFinanceFrameHeight();
+      }catch(error){
+        console.error("Falha ao iniciar o acesso RumoFi:", error);
+        document.getElementById("rumofiAppShell").hidden = true;
+        authRoot.hidden = false;
+        authRoot.innerHTML = `
+          <main class="rumofi-auth-screen">
+            <section class="rumofi-auth-card">
+              <div class="rumofi-auth-logo" aria-hidden="true">R</div>
+              <div class="rumofi-auth-heading" style="margin-top:24px">
+                <p class="rumofi-auth-kicker">RumoFi</p>
+                <h1>Não foi possível iniciar</h1>
+                <p>Confira sua conexão e tente novamente. Seus dados locais continuam preservados.</p>
+              </div>
+              <button class="rumofi-auth-primary" id="rumofiRetryButton" type="button">Tentar novamente</button>
+            </section>
+          </main>`;
+        document.getElementById("rumofiRetryButton")?.addEventListener("click", () => window.location.reload());
+      }
+    }
+
+    void bootRumoFi();
   </script>
 </body>
 </html>

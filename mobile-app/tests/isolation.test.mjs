@@ -14,6 +14,8 @@ const productFiles = [
   "financial-planning-ui.mjs",
   "financial-planning.css",
   "investment-domain.mjs",
+  "mobile-auth.mjs",
+  "mobile-auth.css",
   "mobile-shell.css",
   "manifest.webmanifest",
   "capacitor.config.ts",
