@@ -17,8 +17,8 @@ public class MainActivity extends BridgeActivity {
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        View webView = getBridge().getWebView();
-        ViewCompat.setOnApplyWindowInsetsListener(webView, (view, windowInsets) -> {
+        View contentRoot = findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(contentRoot, (view, windowInsets) -> {
             Insets safeInsets = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars()
                     | WindowInsetsCompat.Type.displayCutout()
@@ -31,8 +31,8 @@ public class MainActivity extends BridgeActivity {
                 safeInsets.bottom
             );
 
-            return windowInsets;
+            return WindowInsetsCompat.CONSUMED;
         });
-        ViewCompat.requestApplyInsets(webView);
+        ViewCompat.requestApplyInsets(contentRoot);
     }
 }
