@@ -7648,6 +7648,9 @@
       - Dados iniciais inspirados na planilha anexada
     ========================================================= */
 
+    import { Capacitor } from "@capacitor/core";
+    import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
+    import { Share } from "@capacitor/share";
     import {
       createEmptyFinancialDataV2,
       dateInFinancialTimeZone,
@@ -14529,13 +14532,83 @@
     const MEMORY_BACKUP_VERSION = 1;
     const MEMORY_BACKUP_KEY_SEED = "faz-meu-controle|memoria-criptografada|v1";
 
-    function bytesToBase64Url(bytes){
+    function bytesToBase64(bytes){
       let binary = "";
       const chunkSize = 0x8000;
       for(let i = 0; i < bytes.length; i += chunkSize){
         binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
       }
-      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      return btoa(binary);
+    }
+
+    function bytesToBase64Url(bytes){
+      return bytesToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+
+    function downloadBlobInBrowser(blob, fileName){
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = fileName;
+      anchor.style.display = "none";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    async function deliverExportFile({fileName, mimeType, text, bytes}){
+      const isText = typeof text === "string";
+      const binaryBytes = bytes instanceof Uint8Array ? bytes : bytes ? new Uint8Array(bytes) : null;
+      if(!Capacitor.isNativePlatform()){
+        downloadBlobInBrowser(new Blob([isText ? text : binaryBytes], {type:mimeType}), fileName);
+        return {native:false, savedToDocuments:false};
+      }
+
+      const dataToWrite = isText ? text : bytesToBase64(binaryBytes || new Uint8Array());
+      const writeOptions = isText ? {encoding:Encoding.UTF8} : {};
+      let savedToDocuments = false;
+
+      try{
+        await Filesystem.writeFile({
+          path:`RumoFi/${fileName}`,
+          data:dataToWrite,
+          directory:Directory.Documents,
+          recursive:true,
+          ...writeOptions
+        });
+        savedToDocuments = true;
+      }catch(error){
+        console.warn("Não foi possível salvar diretamente em Documentos:", error);
+      }
+
+      try{
+        const sharedFile = await Filesystem.writeFile({
+          path:`exports/${fileName}`,
+          data:dataToWrite,
+          directory:Directory.Cache,
+          recursive:true,
+          ...writeOptions
+        });
+        const shareSupport = await Share.canShare();
+        if(shareSupport.value){
+          await Share.share({
+            title:fileName,
+            text:savedToDocuments
+              ? "Uma cópia foi salva em Documentos/RumoFi."
+              : "Escolha onde deseja salvar este arquivo.",
+            files:[sharedFile.uri],
+            dialogTitle:"Salvar ou compartilhar arquivo"
+          });
+        }else if(!savedToDocuments){
+          throw new Error("O dispositivo não oferece uma opção para salvar o arquivo.");
+        }
+      }catch(error){
+        if(!savedToDocuments) throw error;
+        console.warn("O arquivo foi salvo, mas não pôde ser compartilhado:", error);
+      }
+
+      return {native:true, savedToDocuments};
     }
 
     function base64UrlToBytes(value){
@@ -14629,17 +14702,18 @@
       try{
         const payload = { app:"faz-meu-controle", exportedAt:new Date().toISOString(), data };
         const code = await encryptMemoryBackup(payload);
-        const blob = new Blob([buildMemoryBackupText(code)], {type:"text/plain;charset=utf-8"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `memoria-rumofi-${new Date().toISOString().slice(0,10)}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast("Memória criptografada exportada");
+        const fileName = `memoria-rumofi-${new Date().toISOString().slice(0,10)}.txt`;
+        const result = await deliverExportFile({
+          fileName,
+          mimeType:"text/plain;charset=utf-8",
+          text:buildMemoryBackupText(code)
+        });
+        toast(result.native && result.savedToDocuments
+          ? "Memória salva em Documentos/RumoFi"
+          : "Memória criptografada exportada");
       }catch(e){
         console.error("Falha ao exportar memória:", e);
-        alert("Não consegui gerar a memória criptografada neste navegador.");
+        alert("Não consegui gerar ou salvar a memória criptografada.");
       }
     }
 
@@ -14813,14 +14887,19 @@
         </body>
         </html>`;
 
-      const blob = new Blob([html], {type:"application/vnd.ms-excel;charset=utf-8"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `rumofi-${new Date().toISOString().slice(0,10)}.xls`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast("Excel exportado");
+      const fileName = `rumofi-${new Date().toISOString().slice(0,10)}.xls`;
+      deliverExportFile({
+        fileName,
+        mimeType:"application/vnd.ms-excel;charset=utf-8",
+        text:html
+      }).then(result => {
+        toast(result.native && result.savedToDocuments
+          ? "Excel salvo em Documentos/RumoFi"
+          : "Excel exportado");
+      }).catch(error => {
+        console.error("Falha ao exportar Excel legado:", error);
+        alert("Não consegui gerar ou salvar o Excel.");
+      });
     }
 
     const EXCEL_EXPORT_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -15462,17 +15541,18 @@
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], {type:EXCEL_EXPORT_MIME});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `rumofi-${new Date().toISOString().slice(0,10)}.xlsx`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast("Excel formatado exportado");
+        const fileName = `rumofi-${new Date().toISOString().slice(0,10)}.xlsx`;
+        const result = await deliverExportFile({
+          fileName,
+          mimeType:EXCEL_EXPORT_MIME,
+          bytes:new Uint8Array(buffer)
+        });
+        toast(result.native && result.savedToDocuments
+          ? "Excel salvo em Documentos/RumoFi"
+          : "Excel formatado exportado");
       }catch(error){
         console.error("Falha ao exportar Excel:", error);
-        alert("Nao consegui gerar o Excel formatado. Tente novamente apos recarregar a pagina.");
+        alert("Não consegui gerar ou salvar o Excel formatado.");
       }finally{
         if(button){
           button.disabled = false;

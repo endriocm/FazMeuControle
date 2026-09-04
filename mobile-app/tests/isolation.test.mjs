@@ -62,3 +62,16 @@ test("empacota gráficos e Excel sem depender de CDN", () => {
   assert.doesNotMatch(index, /fonts\.googleapis\.com|http2\.mlstatic\.com/i);
   assert.match(index, /\.\/banks\/mercadopago\.svg/);
 });
+
+test("exporta TXT e Excel pelo sistema de arquivos nativo no aplicativo", () => {
+  const index = read("index.html");
+  const packageJson = read("package.json");
+
+  assert.match(packageJson, /"@capacitor\/filesystem"/);
+  assert.match(packageJson, /"@capacitor\/share"/);
+  assert.match(index, /Capacitor\.isNativePlatform\(\)/);
+  assert.match(index, /Filesystem\.writeFile\(\{/);
+  assert.match(index, /directory:Directory\.Documents/);
+  assert.match(index, /Share\.share\(\{/);
+  assert.match(index, /downloadBlobInBrowser/);
+});
