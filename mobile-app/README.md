@@ -1,4 +1,4 @@
-# Faz Meu Controle — aplicativo Android
+# RumoFi — aplicativo Android
 
 Aplicativo independente de controle financeiro pessoal. Esta pasta tem identidade, pacote Android e armazenamento próprios e não compartilha cadastros ou dados com outro produto.
 
@@ -10,9 +10,10 @@ Aplicativo independente de controle financeiro pessoal. Esta pasta tem identidad
 - Gráficos e exportação para Excel empacotados no aplicativo, sem depender de CDN.
 - Nenhuma permissão de internet na base local atual.
 - Projeto Android criado com Capacitor.
-- Identificador provisório: `app.fazmeucontrole.mobile`.
+- Nome definido: `RumoFi`.
+- Identificador técnico provisório: `app.fazmeucontrole.mobile`.
 
-O nome e o identificador devem ser confirmados antes da primeira publicação. Depois que o pacote entrar na Play Store, o identificador não deve ser trocado.
+O identificador técnico deve ser confirmado antes da primeira publicação. Depois que o pacote entrar na Play Store, ele não deve ser trocado.
 
 ## Desenvolvimento
 

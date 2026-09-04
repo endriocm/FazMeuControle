@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Faz Meu Controle</string>
-    <string name="title_activity_main">Faz Meu Controle</string>
+    <string name="app_name">RumoFi</string>
+    <string name="title_activity_main">RumoFi</string>
     <string name="package_name">app.fazmeucontrole.mobile</string>
     <string name="custom_url_scheme">app.fazmeucontrole.mobile</string>
 </resources>

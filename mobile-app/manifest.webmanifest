@@ -1,6 +1,6 @@
 {
-  "name": "Faz Meu Controle",
-  "short_name": "Meu Controle",
+  "name": "RumoFi",
+  "short_name": "RumoFi",
   "description": "Controle financeiro pessoal com entradas, despesas, cartões, faturas, investimentos e planejamento.",
   "lang": "pt-BR",
   "start_url": "./",

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="application-name" content="Faz Meu Controle" />
+  <meta name="application-name" content="RumoFi" />
   <meta name="description" content="Controle suas entradas, despesas, cartões, faturas e planejamento financeiro em um só aplicativo." />
-  <title>Faz Meu Controle</title>
+  <title>RumoFi</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="shortcut icon" href="./favicon.svg">
   <link rel="manifest" href="./manifest.webmanifest">
@@ -7564,7 +7564,7 @@
     <header class="topbar">
       <div class="topbar-inner">
         <div class="brand finance-os-title">
-          <div class="finance-origin">Faz Meu Controle</div>
+          <div class="finance-origin">RumoFi</div>
           <h1>Controle Financeiro</h1>
           <p>Visão geral, movimentações e cartões reunidos em uma única página.</p>
         </div>
@@ -7641,7 +7641,7 @@
 
   <script type="module">
     /* =========================================================
-      Faz Meu Controle
+      RumoFi
       - HTML/CSS/JS puro
       - Persistência localStorage
       - Chart.js via CDN
@@ -7712,7 +7712,7 @@
     if(embeddedFinanceView){
       document.documentElement.dataset.embed = embeddedFinanceView;
       document.body.dataset.embed = embeddedFinanceView;
-      document.title = "Investimentos | Faz Meu Controle";
+      document.title = "Investimentos | RumoFi";
     }
     const FINANCE_TAB_ALIASES = {
       entradas:"movements",
@@ -12684,7 +12684,7 @@
                   </div>
                   <div class="form-field full">
                     <label>Tema visual</label>
-                    <input class="input" value="Faz Meu Controle" disabled />
+                    <input class="input" value="RumoFi" disabled />
                   </div>
                 </div>
                 <div class="item-actions" style="margin-top:14px;justify-content:flex-start">
@@ -14624,7 +14624,7 @@
         `gerado_em: ${new Date().toISOString()}`,
         "tipo: memoria-criptografada",
         "",
-        "Copie ou guarde este arquivo TXT. O Faz Meu Controle lê o código abaixo para restaurar seus dados.",
+        "Copie ou guarde este arquivo TXT. O RumoFi lê o código abaixo para restaurar seus dados.",
         "",
         "codigo:",
         wrapBackupCode(code),
@@ -14654,7 +14654,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `memoria-faz-meu-controle-${new Date().toISOString().slice(0,10)}.txt`;
+        a.download = `memoria-rumofi-${new Date().toISOString().slice(0,10)}.txt`;
         a.click();
         URL.revokeObjectURL(url);
         toast("Memória criptografada exportada");
@@ -14823,7 +14823,7 @@
           </style>
         </head>
         <body>
-          <h1>Faz Meu Controle</h1>
+          <h1>RumoFi</h1>
           <p>Exportado em ${excelEscape(generatedAt)}</p>
           ${excelTable("Resumo mensal", ["Mês","Entradas previstas","Entradas recebidas","Saídas previstas","Saídas pagas","Resultado do mês","Faturas","Saldo previsto","Saldo realizado","Saldo final"], monthRows)}
           ${excelTable("Entradas cadastradas", ["Descrição","Categoria","Valor","Data prevista","Data recebida","Status","Recorrência","Observações"], entryRows)}
@@ -14838,7 +14838,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `faz-meu-controle-${new Date().toISOString().slice(0,10)}.xls`;
+      a.download = `rumofi-${new Date().toISOString().slice(0,10)}.xls`;
       a.click();
       URL.revokeObjectURL(url);
       toast("Excel exportado");
@@ -14949,8 +14949,8 @@
     }
     function createXlsxWorkbook(){
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = "Faz Meu Controle";
-      workbook.lastModifiedBy = "Faz Meu Controle";
+      workbook.creator = "RumoFi";
+      workbook.lastModifiedBy = "RumoFi";
       workbook.created = new Date();
       workbook.modified = new Date();
       workbook.calcProperties.fullCalcOnLoad = true;
@@ -15346,7 +15346,7 @@
       const worksheet = createXlsxSheet(workbook, usedNames, "Dashboard", XLSX_THEME.cyan);
       worksheet.views = [{showGridLines:false}];
       setXlsxColumnWidths(worksheet, [15,15,15,15,15,15,15,15,15,15,15,15]);
-      addXlsxTitle(worksheet, "Faz Meu Controle", `Dashboard exportado em ${generatedAt} | Mês base: ${MONTHS[state.month]}/${state.year}`, 12);
+      addXlsxTitle(worksheet, "RumoFi", `Dashboard exportado em ${generatedAt} | Mês base: ${MONTHS[state.month]}/${state.year}`, 12);
       const totals = calcTotals(state.month, financeCalcMemo, state.year);
       addXlsxMetricCard(worksheet, 4, 1, "Saldo previsto", xlsxCurrency(totals.saldoPrevisto), "Projecao considerando entradas e saidas previstas.", XLSX_THEME.cyan);
       addXlsxMetricCard(worksheet, 4, 4, "Saldo realizado", xlsxCurrency(totals.saldoRealizado), "Baseado no que ja foi recebido e pago.", XLSX_THEME.green);
@@ -15487,7 +15487,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `faz-meu-controle-${new Date().toISOString().slice(0,10)}.xlsx`;
+        a.download = `rumofi-${new Date().toISOString().slice(0,10)}.xlsx`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
         toast("Excel formatado exportado");
