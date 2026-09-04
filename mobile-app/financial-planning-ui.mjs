@@ -10,7 +10,7 @@ import {
   simulateFinancialPlan,
   suggestFinancialPlanAllocation,
   validateFinancialPlan,
-} from "./financial-planning-domain.mjs?v=20260904-1";
+} from "./financial-planning-domain.mjs?v=20260904-3";
 
 const STEP_LABELS = [
   "Início",
@@ -566,23 +566,23 @@ export function createFinancialPlanningModule({ root, readPlan, savePlan, notify
       `
       ${allocationRebalanced ? `<div class="financial-planning-rebalance-note"><strong>Percentuais atualizados</strong><span>A nova renda e o custo de vida foram considerados, mantendo a proporção das prioridades que você já havia definido.</span></div>` : ""}
       ${renderAllocationBar(rows)}
-      <div style="display:grid;gap:15px">
+      <div class="financial-planning-allocation-list">
         ${rows.map((row) => {
           const money = Math.round(plan.incomeMinor * (row.pct / 100));
 
           return `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 20px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,0.02);">
-              <div style="display:flex;align-items:center;gap:10px;flex:1;">
+            <div class="financial-planning-allocation-row">
+              <div class="financial-planning-allocation-identity">
                 <div style="width:12px;height:12px;border-radius:50%;background:${row.color};"></div>
                 <div>
                   <strong style="display:block;font-size:1rem;color:var(--text);">${row.name}</strong>
                   <span style="font-size:0.85rem;color:var(--muted);">${formatMoney(money)}/mês</span>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:15px;flex:1;justify-content:flex-end;">
+              <div class="financial-planning-allocation-controls${row.locked ? " is-locked" : ""}">
                 ${row.locked
                   ? `<strong class="financial-planning-allocation-percent" style="color:var(--muted)">${pct(row.pct)}</strong>`
-                  : `<input type="range" min="0" max="100" step="0.25" data-plan-allocation="${escapeHtml(row.key)}" value="${row.pct}" style="accent-color:${row.color};flex:1;max-width:150px;">
+                  : `<input class="financial-planning-allocation-slider" type="range" min="0" max="100" step="0.25" data-plan-allocation="${escapeHtml(row.key)}" value="${row.pct}" style="accent-color:${row.color}">
                      <strong class="financial-planning-allocation-percent" style="color:${row.color}">${pct(row.pct)}</strong>`
                 }
               </div>
@@ -590,7 +590,7 @@ export function createFinancialPlanningModule({ root, readPlan, savePlan, notify
         }).join("")}
       </div>
       ${remaining > 0.01 ? `<button class="financial-planning-button secondary" type="button" data-plan-action="allocation-auto" style="width:100%;margin-top:15px">Distribuir os ${pct(remaining)} restantes automaticamente</button>` : ""}
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px;padding:18px;background:var(--soft);border-radius:16px">
+      <div class="financial-planning-assumptions-grid">
         <label><span style="display:block;color:var(--muted);font-size:.78rem;font-weight:700;margin-bottom:6px">Rentabilidade mensal</span><span class="financial-planning-percent-field"><input class="financial-planning-input" type="number" min="0" max="20" step="0.01" data-plan-field="assumptions.monthlyReturnPct" value="${plan.assumptions.monthlyReturnPct}"><b aria-hidden="true">%</b></span></label>
         <label><span style="display:block;color:var(--muted);font-size:.78rem;font-weight:700;margin-bottom:6px">Inflação anual</span><span class="financial-planning-percent-field"><input class="financial-planning-input" type="number" min="0" max="100" step="0.01" data-plan-field="assumptions.annualInflationPct" value="${plan.assumptions.annualInflationPct}"><b aria-hidden="true">%</b></span></label>
         <label><span style="display:block;color:var(--muted);font-size:.78rem;font-weight:700;margin-bottom:6px">Taxa de retirada anual</span><span class="financial-planning-percent-field"><input class="financial-planning-input" type="number" min="0.1" max="20" step="0.01" data-plan-field="assumptions.withdrawalRatePct" value="${plan.assumptions.withdrawalRatePct}"><b aria-hidden="true">%</b></span></label>
@@ -1154,6 +1154,14 @@ export function createFinancialPlanningModule({ root, readPlan, savePlan, notify
       if (!dialog) return;
       dialog.scrollTop = 0;
       dialog.focus({ preventScroll: true });
+      requestAnimationFrame(() => {
+        const currentDialog = root.querySelector(".financial-planning-dialog");
+        if (currentDialog) currentDialog.scrollTop = 0;
+      });
+      setTimeout(() => {
+        const currentDialog = root.querySelector(".financial-planning-dialog");
+        if (currentDialog) currentDialog.scrollTop = 0;
+      }, 250);
     });
   }
 
