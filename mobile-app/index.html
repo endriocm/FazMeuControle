@@ -10621,27 +10621,6 @@
             deleteName:category
           });
         });
-        const firstUse = !hasFinancialData() && !data.settings.financeStarterBlockDeleted;
-        if(!expenseGroups.size && !search && firstUse){
-          primaryBlocks.push({
-            kind:"expense",
-            eyebrow:"Bloco de despesas",
-            title:"Despesas",
-            color:"#A94D4D",
-            textColor:"#FFFFFF",
-            totalLabel:"Total do bloco",
-            total:0,
-            rows:[],
-            addAction:"add-expense",
-            addLabel:"Adicionar saída",
-            emptyTitle:"Nenhuma saída neste mês",
-            emptyText:"Registre contas, Pix, débito ou dinheiro.",
-            footerText:"As despesas serão organizadas por categoria",
-            deleteKind:"starter",
-            deleteName:"Despesas"
-          });
-        }
-
         cardSets.forEach(({card,rows:allRows}) => {
           const cardVisual = getCardVisual(card);
           const cardMatchesSearch = search && normalizeText(card.name).includes(search);

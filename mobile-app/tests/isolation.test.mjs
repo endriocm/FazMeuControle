@@ -39,6 +39,7 @@ test("inicia sem registros demonstrativos ou dados pessoais", () => {
   assert.doesNotMatch(index, /const INITIAL_DATA\s*=/);
   assert.match(index, /cards:\[\], entries:\[\], expenses:\[\], cardPurchases:\[\]/);
   assert.match(index, /investments:\[\], financialPlan:null/);
+  assert.doesNotMatch(index, /deleteKind:"starter"/);
 });
 
 test("mantém os módulos centrais do controle financeiro", () => {
