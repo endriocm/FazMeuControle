@@ -22,6 +22,7 @@ public class MainActivity extends BridgeActivity {
             Insets safeInsets = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars()
                     | WindowInsetsCompat.Type.displayCutout()
+                    | WindowInsetsCompat.Type.ime()
             );
 
             view.setPadding(
