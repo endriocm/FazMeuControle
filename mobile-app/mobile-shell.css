@@ -44,3 +44,239 @@ summary {
     font-size: 16px;
   }
 }
+
+/* Tema claro do aplicativo: superfícies suaves, contraste alto e azul RumoFi. */
+:root[data-finance-theme="light"],
+html[data-finance-theme="light"] {
+  color-scheme: light;
+  background: #f3f6fb !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(49, 93, 235, 0.08), transparent 30%),
+    #f3f6fb !important;
+  color: #172033 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-origin {
+  color: #315deb !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .topbar {
+  border-bottom-color: #dce3ed !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-os-title h1 {
+  color: #172033 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-os-title p {
+  color: #627087 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-os-actions > .btn,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-os-actions > details > summary {
+  border-color: #d5deea !important;
+  background: #ffffff !important;
+  color: #25324a !important;
+  box-shadow: 0 4px 14px rgba(24, 39, 75, 0.06) !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-os-actions > details:first-child > summary,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-save-action {
+  border-color: #315deb !important;
+  background: #315deb !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(49, 93, 235, 0.20) !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-planning-launch.btn,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-os-actions > .btn.finance-planning-launch {
+  border-color: #315deb !important;
+  background: linear-gradient(135deg, #315deb, #4f7cff) !important;
+  color: #ffffff !important;
+  box-shadow: 0 9px 22px rgba(49, 93, 235, 0.22) !important;
+  animation: none !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-add-popover,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-utility-popover {
+  border-color: #dce3ed !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 48px rgba(24, 39, 75, 0.14) !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-add-popover button,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-utility-popover button {
+  border-color: #e1e7f0 !important;
+  background: #f7f9fc !important;
+  color: #172033 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-add-popover button:hover,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-utility-popover button:hover {
+  border-color: #b8c7f7 !important;
+  background: #eaf0ff !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-utility-status,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-utility-status .saved-indicator,
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-utility-status .finance-os-health {
+  color: #627087 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution,
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-organizer,
+body.mesa-finance-body[data-finance-theme="light"] .finance-tag-chart {
+  border-color: #dce3ed !important;
+  background: #ffffff !important;
+  color: #172033 !important;
+  box-shadow: 0 8px 26px rgba(24, 39, 75, 0.06);
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution > summary,
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-organizer > summary,
+body.mesa-finance-body[data-finance-theme="light"] .finance-tag-chart-summary,
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-head h2,
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-total strong,
+body.mesa-finance-body[data-finance-theme="light"] .finance-tag-chart-summary strong,
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-results-empty strong {
+  color: #172033 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-copy small,
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-head p,
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-total span,
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-month small,
+body.mesa-finance-body[data-finance-theme="light"] .finance-tag-chart-summary small,
+body.mesa-finance-body[data-finance-theme="light"] .finance-tag-chart-period {
+  color: #627087 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-panel,
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-organizer-body,
+body.mesa-finance-body[data-finance-theme="light"] .finance-tag-chart-body {
+  border-color: #dce3ed !important;
+  background: #f7f9fc !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-chevron {
+  border-color: #d5deea !important;
+  background: #f7f9fc !important;
+  color: #315deb !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-columns,
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-month.is-current .finance-evolution-columns {
+  border-bottom-color: #dce3ed;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-evolution-month.is-current .finance-evolution-columns {
+  border-bottom-color: #315deb;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-month-nav > button,
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-period {
+  border-color: #d5deea !important;
+  background: #ffffff !important;
+  color: #25324a !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-period select,
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-period input {
+  color: #172033 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-summary article {
+  border-color: #dce3ed;
+  background: #ffffff;
+  color: #172033;
+  box-shadow: 0 8px 24px rgba(24, 39, 75, 0.06);
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-summary article::after {
+  border-color: rgba(49, 93, 235, 0.10);
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-summary small,
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-summary p {
+  color: #627087;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-summary strong {
+  color: #172033;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-summary article:nth-child(2)::before {
+  background: #94a3b8;
+  opacity: 0.65;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-filterbar .movement-filter-chip {
+  border-color: #d5deea;
+  background: #ffffff;
+  color: #627087;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-filterbar .movement-filter-chip.active {
+  border-color: #315deb;
+  background: #315deb;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(49, 93, 235, 0.16);
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-search {
+  border-color: #d5deea !important;
+  background: #ffffff !important;
+  color: #172033 !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-search:focus {
+  border-color: #315deb !important;
+  box-shadow: 0 0 0 3px rgba(49, 93, 235, 0.12) !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-data-block {
+  border-color: #dce3ed;
+  box-shadow: 0 14px 34px rgba(24, 39, 75, 0.10);
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-data-block th {
+  background: #f1f5f9;
+  color: #627087;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-data-block td,
+body.mesa-finance-body[data-finance-theme="light"] .finance-data-block th,
+body.mesa-finance-body[data-finance-theme="light"] .finance-data-block-footer {
+  border-color: #e4e9f1;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-add-section .btn {
+  border-color: #9fb2ed !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  color: #315deb !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-add-section .btn:hover {
+  border-color: #315deb !important;
+  background: #eaf0ff !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-results-empty {
+  border-color: #c8d2df;
+  background: #f7f9fc;
+  color: #627087;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-choice span {
+  border-color: #dce3ed;
+  background: #f7f9fc;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .finance-block-choice input:checked + span {
+  border-color: #315deb;
+  background: #eef3ff;
+  box-shadow: 0 0 0 3px rgba(49, 93, 235, 0.12);
+}

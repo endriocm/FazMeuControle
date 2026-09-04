@@ -5734,36 +5734,36 @@
     html[data-finance-theme="light"] { background:#f5f6f8!important; color-scheme:light!important; }
     html[data-finance-theme="dark"] { background:#080808!important; color-scheme:dark!important; }
     body.mesa-finance-body[data-finance-theme="light"] {
-      --bg:#f5f6f8!important;
-      --bg2:#eef0f4!important;
+      --bg:#f3f6fb!important;
+      --bg2:#eaf0f7!important;
       --surface:#ffffff!important;
-      --surface2:#f7f8fa!important;
-      --surface3:#eef0f4!important;
+      --surface2:#f7f9fc!important;
+      --surface3:#edf2f8!important;
       --card:#ffffff!important;
-      --text:#17191f!important;
-      --muted:#626978!important;
-      --muted2:#858c98!important;
-      --line:#e1e4e9!important;
-      --line-strong:rgba(184,145,30,.38)!important;
+      --text:#172033!important;
+      --muted:#627087!important;
+      --muted2:#8792a5!important;
+      --line:#dce3ed!important;
+      --line-strong:rgba(49,93,235,.38)!important;
       --green:#087a55!important;
       --green2:#087a55!important;
-      --green3:#e8f5ef!important;
-      --red:#c43d49!important;
-      --gold:#b88d1c!important;
-      --blue:#b88d1c!important;
-      --soft-green:#e8f5ef!important;
-      --soft-red:#fff0f1!important;
-      --soft-gold:#faf3dd!important;
-      --soft-blue:#faf3dd!important;
+      --green3:#e6f5ef!important;
+      --red:#c73545!important;
+      --gold:#315deb!important;
+      --blue:#315deb!important;
+      --soft-green:#e6f5ef!important;
+      --soft-red:#fff0f2!important;
+      --soft-gold:#eaf0ff!important;
+      --soft-blue:#eaf0ff!important;
       --field-bg:#ffffff!important;
-      --field-text:#17191f!important;
-      --field-placeholder:#858c98!important;
-      --field-border:#d8dce3!important;
-      --shadow:0 20px 54px rgba(28,31,38,.10)!important;
-      --shadow2:0 10px 30px rgba(28,31,38,.07)!important;
+      --field-text:#172033!important;
+      --field-placeholder:#8792a5!important;
+      --field-border:#d5deea!important;
+      --shadow:0 18px 48px rgba(24,39,75,.10)!important;
+      --shadow2:0 8px 26px rgba(24,39,75,.08)!important;
       color:var(--text)!important;
       color-scheme:light!important;
-      background:#f5f6f8!important;
+      background:#f3f6fb!important;
     }
     body.mesa-finance-body[data-finance-theme="dark"] {
       --bg:#080808!important;
@@ -8013,7 +8013,7 @@
       const theme = normalizeFinanceTheme(value);
       document.documentElement.dataset.financeTheme = theme;
       document.body.dataset.financeTheme = theme;
-      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#080808" : "#f5f5f2");
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#080808" : "#f3f6fb");
       if(data?.settings){
         data.settings.themeMode = theme;
         if(persist) saveData(false);
