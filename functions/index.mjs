@@ -71,7 +71,8 @@ async function validateAndStoreSubscription({ uid, purchaseToken, productId = PR
   const basePlanId = String(lineItem?.offerDetails?.basePlanId || "");
   const expiresAt = String(lineItem?.expiryTime || "");
   const expiresTimestamp = Date.parse(expiresAt);
-  const active = ACTIVE_STATES.has(String(purchase.subscriptionState || ""))
+  const subscriptionState = String(purchase.subscriptionState || "UNKNOWN");
+  const active = ACTIVE_STATES.has(subscriptionState)
     && basePlanId === BASE_PLAN_ID
     && Number.isFinite(expiresTimestamp)
     && expiresTimestamp > Date.now();
@@ -79,6 +80,7 @@ async function validateAndStoreSubscription({ uid, purchaseToken, productId = PR
   // Uma compra válida precisa ser reconhecida em até três dias para não ser
   // reembolsada pela Google Play. O Admin SDK usa a conta de serviço da função.
   if(lineItem && basePlanId === BASE_PLAN_ID
+    && !subscriptionState.includes("PENDING")
     && purchase.acknowledgementState !== "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED") {
     await publisher.purchases.subscriptions.acknowledge({
       packageName: PACKAGE_NAME,
@@ -93,7 +95,7 @@ async function validateAndStoreSubscription({ uid, purchaseToken, productId = PR
     productId,
     basePlanId,
     packageName: PACKAGE_NAME,
-    subscriptionState: String(purchase.subscriptionState || "UNKNOWN"),
+    subscriptionState,
     expiresAt: Number.isFinite(expiresTimestamp) ? Timestamp.fromMillis(expiresTimestamp) : null,
     purchaseTokenHash: hashPurchaseToken(purchaseToken),
     updatedAt: FieldValue.serverTimestamp(),
