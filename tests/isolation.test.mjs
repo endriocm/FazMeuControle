@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -21,6 +21,13 @@ const productFiles = [
   "capacitor.config.ts",
   "package.json",
 ];
+
+test("mantém um único projeto RumoFi na raiz", () => {
+  assert.equal(existsSync(path.join(root, "mobile-app")), false);
+  assert.equal(existsSync(path.join(root, "api")), false);
+  assert.equal(existsSync(path.join(root, "vercel.json")), false);
+  assert.equal(JSON.parse(read("package.json")).name, "rumofi-app");
+});
 
 test("usa identidade e armazenamento independentes", () => {
   const source = productFiles.map(read).join("\n");

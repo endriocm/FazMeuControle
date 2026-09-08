@@ -1,38 +1,43 @@
-# Faz Meu Controle
+# RumoFi
 
-Controle financeiro estático hospedado na Vercel, com login, sincronização por usuário, pagamento pelo Mercado Pago e liberação alternativa por código de acesso.
+Aplicativo independente de controle financeiro pessoal para Android. Este repositório contém um único produto, com a aplicação web empacotada pelo Capacitor e o projeto Android na pasta `android/`.
 
-## Arquitetura
+O RumoFi tem identidade, autenticação, armazenamento e projeto Firebase próprios. Ele não compartilha cadastros nem dados com o CMT ou com outro produto.
 
-- `index.html`: controle financeiro e seus lançamentos;
-- `auth.js`: cadastro por e-mail/senha, Google e bloqueio de acesso até a liberação;
-- Firestore: um documento financeiro por usuário autenticado;
-- `api/`: funções serverless da Vercel. Tokens privados nunca chegam ao navegador;
-- Mercado Pago: cria a assinatura mensal, confirma o retorno e recebe a notificação de pagamento;
-- Códigos: gerados e validados no servidor usando o Firebase Admin.
+## Recursos atuais
 
-## Configuração obrigatória
+- Entradas, despesas, recorrências, cartões, faturas e categorias.
+- Investimentos e planejamento financeiro.
+- Cadastro e login por e-mail ou Google no Firebase exclusivo do RumoFi.
+- Perfil com nome, e-mail, telefone e consentimentos opcionais separados.
+- Sincronização dos dados financeiros por usuário.
+- Recuperação de senha, encerramento da sessão e exclusão da conta.
+- Backup e restauração por arquivo TXT.
+- Gráficos e exportação para Excel empacotados no aplicativo, sem CDN.
 
-1. Crie um projeto no Firebase e habilite **Authentication** com os provedores **E-mail/senha** e **Google**.
-2. Em Authentication > Settings > Authorized domains, adicione o domínio de produção da Vercel.
-3. Crie o banco **Cloud Firestore** em modo produção e publique as regras de [`firestore.rules`](./firestore.rules).
-4. Crie uma conta de serviço no Firebase (Project settings > Service accounts) e use seus dados apenas nas variáveis privadas da Vercel.
-5. Para ativar cobranças, no Mercado Pago obtenha um Access Token de produção e cadastre `https://faz-meu-controle.vercel.app/api/mercadopago-webhook` como notificação de pagamentos.
-6. Na Vercel, defina as variáveis do Firebase listadas em [`.env.example`](./.env.example). Para cobranças, inclua também `MERCADO_PAGO_ACCESS_TOKEN` e `APP_URL`; a URL não deve ter barra no final.
+## Identidade Android
 
-Para tornar uma conta administradora de códigos, crie no Firestore o documento `administrators/UID_DO_USUARIO` com o campo booleano `active: true`. O UID aparece no Firebase Authentication após o primeiro login.
+- Nome exibido: `RumoFi`.
+- Identificador atual: `app.fazmeucontrole.mobile`.
 
-## Acesso e dados
+O identificador está registrado no Firebase e deve ser confirmado antes da primeira publicação na Play Store. Depois da publicação, ele não poderá ser trocado.
 
-O usuário cria uma conta ou entra com Google, mas só acessa o painel após assinatura aprovada, resgate de código ou e-mail cadastrado em `FREE_ACCESS_EMAILS`. Os lançamentos são mantidos no `localStorage` como cópia local e sincronizados em `financialData/{uid}` após a liberação.
+O arquivo `android/app/google-services.json` é necessário para o login Google, mas permanece apenas no ambiente local e não deve ser versionado.
 
-## Desenvolvimento e deploy
+## Desenvolvimento
 
 ```powershell
 npm install
-npx vercel dev
+npm test
+npm run build
+npm run android:sync
+npm run android:open
 ```
 
-Na Vercel, use esta pasta (`controle-financeiro-vercel`) como **Root Directory**. O deploy instala `firebase-admin` para as funções em `api/` automaticamente.
+Para gerar um APK de depuração:
 
-> Nunca preencha um Access Token do Mercado Pago ou uma chave privada do Firebase no HTML, no Git ou em um arquivo versionado.
+```powershell
+npm run android:debug
+```
+
+Para publicar, ainda é necessário configurar uma chave de assinatura, publicar a política de privacidade e gerar o Android App Bundle. Consulte [PLAY_STORE.md](./PLAY_STORE.md).

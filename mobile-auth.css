@@ -7,6 +7,32 @@
   --rumofi-auth-surface: #ffffff;
   --rumofi-auth-canvas: #f3f6fb;
   --rumofi-auth-danger: #c82c3c;
+  --rumofi-auth-card: rgba(255, 255, 255, .97);
+  --rumofi-auth-card-border: rgba(213, 222, 234, .95);
+  --rumofi-auth-card-shadow: rgba(30, 55, 100, .14);
+  --rumofi-auth-label: #344054;
+  --rumofi-auth-input: #ffffff;
+  --rumofi-auth-input-text: #172033;
+  --rumofi-auth-input-border: #cfd8e6;
+  --rumofi-auth-readonly: #f4f6f9;
+  --rumofi-auth-readonly-text: #667085;
+  --rumofi-auth-subtle: #f8fafc;
+  --rumofi-auth-subtle-text: #475467;
+  --rumofi-auth-divider: #e5eaf1;
+  --rumofi-auth-danger-surface: #fff7f7;
+  --rumofi-auth-danger-text: #7f1d1d;
+  --rumofi-auth-danger-muted: #8b4350;
+  --rumofi-auth-error-surface: #fff1f2;
+  --rumofi-auth-error-text: #9f1239;
+  --rumofi-auth-error-border: #fecdd3;
+  --rumofi-auth-success-surface: #ecfdf3;
+  --rumofi-auth-success-text: #11653c;
+  --rumofi-auth-success-border: #b7e4ca;
+  --rumofi-auth-required-surface: #eef3ff;
+  --rumofi-auth-primary-start: #315deb;
+  --rumofi-auth-primary-end: #2148ce;
+  --rumofi-auth-primary-text: #ffffff;
+  --rumofi-auth-color-scheme: light;
 }
 
 [hidden] {
@@ -33,7 +59,7 @@ body.rumofi-auth-open {
     max(18px, env(safe-area-inset-bottom))
     max(14px, env(safe-area-inset-left));
   box-sizing: border-box;
-  color-scheme: light;
+  color-scheme: var(--rumofi-auth-color-scheme);
 }
 
 .rumofi-auth-root *,
@@ -52,10 +78,10 @@ body.rumofi-auth-open {
 .rumofi-auth-card {
   width: min(100%, 470px);
   padding: clamp(24px, 6vw, 38px);
-  border: 1px solid rgba(213, 222, 234, .95);
+  border: 1px solid var(--rumofi-auth-card-border);
   border-radius: 28px;
-  background: rgba(255, 255, 255, .97);
-  box-shadow: 0 26px 70px rgba(30, 55, 100, .14);
+  background: var(--rumofi-auth-card);
+  box-shadow: 0 26px 70px var(--rumofi-auth-card-shadow);
 }
 
 .rumofi-auth-loading-card {
@@ -145,7 +171,7 @@ body.rumofi-auth-open {
 .rumofi-danger-zone > label {
   display: grid;
   gap: 7px;
-  color: #344054;
+  color: var(--rumofi-auth-label);
   font-size: 13px;
   font-weight: 750;
 }
@@ -156,21 +182,34 @@ body.rumofi-auth-open {
   min-width: 0;
   height: 52px;
   padding: 0 15px;
-  border: 1px solid #cfd8e6;
+  border: 1px solid var(--rumofi-auth-input-border);
   border-radius: 14px;
   outline: none;
-  background: #fff;
-  color: #172033;
+  background: var(--rumofi-auth-input);
+  color: var(--rumofi-auth-input-text);
   caret-color: var(--rumofi-auth-blue);
   font: 500 16px/1 system-ui, sans-serif;
-  -webkit-text-fill-color: #172033;
+  -webkit-text-fill-color: var(--rumofi-auth-input-text);
   opacity: 1;
 }
 
 .rumofi-auth-form input[readonly] {
-  background: #f4f6f9;
-  color: #667085;
-  -webkit-text-fill-color: #667085;
+  background: var(--rumofi-auth-readonly);
+  color: var(--rumofi-auth-readonly-text);
+  -webkit-text-fill-color: var(--rumofi-auth-readonly-text);
+}
+
+.rumofi-auth-form input::placeholder,
+.rumofi-danger-zone input::placeholder {
+  color: var(--rumofi-auth-muted);
+  opacity: 1;
+}
+
+.rumofi-auth-form input:-webkit-autofill,
+.rumofi-danger-zone input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--rumofi-auth-input) inset;
+  -webkit-text-fill-color: var(--rumofi-auth-input-text);
+  caret-color: var(--rumofi-auth-blue);
 }
 
 .rumofi-auth-form input:not([type="checkbox"]):focus,
@@ -187,12 +226,13 @@ body.rumofi-auth-open {
 
 .rumofi-auth-device-note {
   margin: -3px 0 0;
-  color: #667085;
+  color: var(--rumofi-auth-muted);
   font-size: 12px;
 }
 
 .rumofi-auth-primary,
 .rumofi-auth-secondary,
+.rumofi-auth-google,
 .rumofi-auth-link,
 .rumofi-account-actions button,
 .rumofi-danger-zone button,
@@ -203,7 +243,8 @@ body.rumofi-auth-open {
 }
 
 .rumofi-auth-primary,
-.rumofi-auth-secondary {
+.rumofi-auth-secondary,
+.rumofi-auth-google {
   width: 100%;
   min-height: 52px;
   border-radius: 14px;
@@ -212,15 +253,32 @@ body.rumofi-auth-open {
 }
 
 .rumofi-auth-primary {
-  color: #fff;
-  background: linear-gradient(135deg, var(--rumofi-auth-blue), #4f7cff);
+  color: var(--rumofi-auth-primary-text);
+  background: linear-gradient(135deg, var(--rumofi-auth-primary-start), var(--rumofi-auth-primary-end));
   box-shadow: 0 12px 25px rgba(49, 93, 235, .22);
 }
 
 .rumofi-auth-secondary {
-  border: 1px solid #cfd8e6;
-  color: #25324a;
-  background: #fff;
+  border: 1px solid var(--rumofi-auth-input-border);
+  color: var(--rumofi-auth-label);
+  background: var(--rumofi-auth-input);
+}
+
+.rumofi-auth-google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  border: 1px solid #c9cdd4;
+  color: #1f1f1f;
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(31, 35, 41, .12);
+}
+
+.rumofi-auth-google svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
 }
 
 .rumofi-auth-link {
@@ -234,6 +292,7 @@ body.rumofi-auth-open {
 
 .rumofi-auth-primary:disabled,
 .rumofi-auth-secondary:disabled,
+.rumofi-auth-google:disabled,
 .rumofi-auth-link:disabled,
 .rumofi-account-actions button:disabled {
   cursor: wait;
@@ -245,7 +304,7 @@ body.rumofi-auth-open {
   align-items: center;
   gap: 12px;
   margin: 23px 0 15px;
-  color: #8993a4;
+  color: var(--rumofi-auth-muted);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -256,39 +315,43 @@ body.rumofi-auth-open {
   content: "";
   height: 1px;
   flex: 1;
-  background: #e5eaf1;
+  background: var(--rumofi-auth-divider);
+}
+
+.rumofi-auth-divider-inline {
+  margin: 1px 0;
 }
 
 .rumofi-auth-feedback {
   margin: 0;
   padding: 11px 13px;
-  border: 1px solid #fecdd3;
+  border: 1px solid var(--rumofi-auth-error-border);
   border-radius: 12px;
-  color: #9f1239;
-  background: #fff1f2;
+  color: var(--rumofi-auth-error-text);
+  background: var(--rumofi-auth-error-surface);
   font-size: 12px;
   font-weight: 650;
   line-height: 1.45;
 }
 
 .rumofi-auth-feedback[data-type="success"] {
-  border-color: #b7e4ca;
-  color: #11653c;
-  background: #ecfdf3;
+  border-color: var(--rumofi-auth-success-border);
+  color: var(--rumofi-auth-success-text);
+  background: var(--rumofi-auth-success-surface);
 }
 
 .rumofi-auth-consents {
   min-width: 0;
   margin: 0;
   padding: 14px;
-  border: 1px solid #dce3ed;
+  border: 1px solid var(--rumofi-auth-border);
   border-radius: 14px;
-  background: #f8fafc;
+  background: var(--rumofi-auth-subtle);
 }
 
 .rumofi-auth-consents legend {
   padding: 0 5px;
-  color: #475467;
+  color: var(--rumofi-auth-subtle-text);
   font-size: 12px;
   font-weight: 800;
 }
@@ -298,7 +361,7 @@ body.rumofi-auth-open {
   grid-template-columns: 20px minmax(0, 1fr);
   align-items: start;
   gap: 10px !important;
-  color: #475467 !important;
+  color: var(--rumofi-auth-subtle-text) !important;
   font-size: 12px !important;
   font-weight: 550 !important;
   line-height: 1.45;
@@ -311,7 +374,7 @@ body.rumofi-auth-open {
 .rumofi-auth-check.required {
   padding: 12px;
   border-radius: 12px;
-  background: #eef3ff;
+  background: var(--rumofi-auth-required-surface);
 }
 
 .rumofi-auth-check input {
@@ -322,16 +385,16 @@ body.rumofi-auth-open {
 }
 
 .rumofi-privacy-notice {
-  border: 1px solid #dce3ed;
+  border: 1px solid var(--rumofi-auth-border);
   border-radius: 14px;
-  background: #fff;
-  color: #475467;
+  background: var(--rumofi-auth-input);
+  color: var(--rumofi-auth-subtle-text);
   font-size: 12px;
 }
 
 .rumofi-privacy-notice summary {
   padding: 13px 14px;
-  color: #25324a;
+  color: var(--rumofi-auth-label);
   font-weight: 800;
   cursor: pointer;
 }
@@ -416,10 +479,10 @@ body.rumofi-auth-open {
   max-height: calc(100dvh - max(36px, env(safe-area-inset-top) + env(safe-area-inset-bottom)));
   overflow: auto;
   padding: clamp(22px, 5vw, 34px);
-  border: 1px solid #dce3ed;
+  border: 1px solid var(--rumofi-auth-border);
   border-radius: 26px;
-  background: #fff;
-  box-shadow: 0 28px 70px rgba(30, 55, 100, .18);
+  background: var(--rumofi-auth-surface);
+  box-shadow: 0 28px 70px var(--rumofi-auth-card-shadow);
 }
 
 .rumofi-account-sheet > header {
@@ -434,10 +497,10 @@ body.rumofi-auth-open {
   width: 42px;
   height: 42px;
   flex: 0 0 42px;
-  border: 1px solid #dce3ed;
+  border: 1px solid var(--rumofi-auth-border);
   border-radius: 14px;
-  color: #344054;
-  background: #f8fafc;
+  color: var(--rumofi-auth-label);
+  background: var(--rumofi-auth-subtle);
   font-size: 24px;
 }
 
@@ -447,37 +510,44 @@ body.rumofi-auth-open {
   gap: 9px;
   margin-top: 22px;
   padding-top: 18px;
-  border-top: 1px solid #e7ebf1;
+  border-top: 1px solid var(--rumofi-auth-divider);
 }
 
 .rumofi-account-actions button,
-.rumofi-account-verified {
+.rumofi-account-verified,
+.rumofi-account-provider {
   min-height: 43px;
   display: grid;
   place-items: center;
   padding: 9px 11px;
-  border: 1px solid #dce3ed;
+  border: 1px solid var(--rumofi-auth-border);
   border-radius: 12px;
-  color: #344054;
-  background: #f8fafc;
+  color: var(--rumofi-auth-label);
+  background: var(--rumofi-auth-subtle);
   font-size: 11px;
   font-weight: 750;
   text-align: center;
 }
 
 .rumofi-account-verified {
-  color: #11653c;
-  background: #ecfdf3;
-  border-color: #b7e4ca;
+  color: var(--rumofi-auth-success-text);
+  background: var(--rumofi-auth-success-surface);
+  border-color: var(--rumofi-auth-success-border);
+}
+
+.rumofi-account-provider {
+  color: #1f1f1f;
+  background: #ffffff;
+  border-color: #c9cdd4;
 }
 
 .rumofi-danger-zone {
   margin-top: 18px;
   padding: 14px;
-  border: 1px solid #fecdd3;
+  border: 1px solid var(--rumofi-auth-error-border);
   border-radius: 14px;
-  color: #7f1d1d;
-  background: #fff7f7;
+  color: var(--rumofi-auth-danger-text);
+  background: var(--rumofi-auth-danger-surface);
 }
 
 .rumofi-danger-zone summary {
@@ -487,7 +557,7 @@ body.rumofi-auth-open {
 }
 
 .rumofi-danger-zone p {
-  color: #8b4350;
+  color: var(--rumofi-auth-danger-muted);
   font-size: 11px;
   line-height: 1.45;
 }
@@ -501,6 +571,118 @@ body.rumofi-auth-open {
   background: var(--rumofi-auth-danger);
   font-size: 12px;
   font-weight: 800;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rumofi-auth-root {
+    --rumofi-auth-blue: #86a4ff;
+    --rumofi-auth-blue-strong: #adc0ff;
+    --rumofi-auth-text: #f7f9fc;
+    --rumofi-auth-muted: #b4bdcc;
+    --rumofi-auth-border: #364152;
+    --rumofi-auth-surface: #151a24;
+    --rumofi-auth-canvas: #080b12;
+    --rumofi-auth-card: rgba(20, 25, 35, .98);
+    --rumofi-auth-card-border: rgba(65, 76, 94, .95);
+    --rumofi-auth-card-shadow: rgba(0, 0, 0, .48);
+    --rumofi-auth-label: #e6ebf3;
+    --rumofi-auth-input: #0d1119;
+    --rumofi-auth-input-text: #f8fafc;
+    --rumofi-auth-input-border: #465166;
+    --rumofi-auth-readonly: #252c39;
+    --rumofi-auth-readonly-text: #c1c9d6;
+    --rumofi-auth-subtle: #202632;
+    --rumofi-auth-subtle-text: #d0d7e3;
+    --rumofi-auth-divider: #343d4d;
+    --rumofi-auth-danger-surface: #2b171c;
+    --rumofi-auth-danger-text: #ffb7c0;
+    --rumofi-auth-danger-muted: #e8a4ae;
+    --rumofi-auth-error-surface: #32171e;
+    --rumofi-auth-error-text: #ffbdc6;
+    --rumofi-auth-error-border: #763241;
+    --rumofi-auth-success-surface: #112a21;
+    --rumofi-auth-success-text: #85e0ad;
+    --rumofi-auth-success-border: #286344;
+    --rumofi-auth-required-surface: #1d2947;
+    --rumofi-auth-primary-start: #315deb;
+    --rumofi-auth-primary-end: #2148ce;
+    --rumofi-auth-primary-text: #ffffff;
+    --rumofi-auth-color-scheme: dark;
+  }
+}
+
+html[data-finance-theme="light"] .rumofi-auth-root,
+body[data-finance-theme="light"] .rumofi-auth-root {
+  --rumofi-auth-blue: #315deb;
+  --rumofi-auth-blue-strong: #2148ce;
+  --rumofi-auth-text: #172033;
+  --rumofi-auth-muted: #667085;
+  --rumofi-auth-border: #dce3ed;
+  --rumofi-auth-surface: #ffffff;
+  --rumofi-auth-canvas: #f3f6fb;
+  --rumofi-auth-card: rgba(255, 255, 255, .97);
+  --rumofi-auth-card-border: rgba(213, 222, 234, .95);
+  --rumofi-auth-card-shadow: rgba(30, 55, 100, .14);
+  --rumofi-auth-label: #344054;
+  --rumofi-auth-input: #ffffff;
+  --rumofi-auth-input-text: #172033;
+  --rumofi-auth-input-border: #cfd8e6;
+  --rumofi-auth-readonly: #f4f6f9;
+  --rumofi-auth-readonly-text: #667085;
+  --rumofi-auth-subtle: #f8fafc;
+  --rumofi-auth-subtle-text: #475467;
+  --rumofi-auth-divider: #e5eaf1;
+  --rumofi-auth-danger-surface: #fff7f7;
+  --rumofi-auth-danger-text: #7f1d1d;
+  --rumofi-auth-danger-muted: #8b4350;
+  --rumofi-auth-error-surface: #fff1f2;
+  --rumofi-auth-error-text: #9f1239;
+  --rumofi-auth-error-border: #fecdd3;
+  --rumofi-auth-success-surface: #ecfdf3;
+  --rumofi-auth-success-text: #11653c;
+  --rumofi-auth-success-border: #b7e4ca;
+  --rumofi-auth-required-surface: #eef3ff;
+  --rumofi-auth-primary-start: #315deb;
+  --rumofi-auth-primary-end: #2148ce;
+  --rumofi-auth-primary-text: #ffffff;
+  --rumofi-auth-color-scheme: light;
+}
+
+html[data-finance-theme="dark"] .rumofi-auth-root,
+body[data-finance-theme="dark"] .rumofi-auth-root {
+  --rumofi-auth-blue: #86a4ff;
+  --rumofi-auth-blue-strong: #adc0ff;
+  --rumofi-auth-text: #f7f9fc;
+  --rumofi-auth-muted: #b4bdcc;
+  --rumofi-auth-border: #364152;
+  --rumofi-auth-surface: #151a24;
+  --rumofi-auth-canvas: #080b12;
+  --rumofi-auth-card: rgba(20, 25, 35, .98);
+  --rumofi-auth-card-border: rgba(65, 76, 94, .95);
+  --rumofi-auth-card-shadow: rgba(0, 0, 0, .48);
+  --rumofi-auth-label: #e6ebf3;
+  --rumofi-auth-input: #0d1119;
+  --rumofi-auth-input-text: #f8fafc;
+  --rumofi-auth-input-border: #465166;
+  --rumofi-auth-readonly: #252c39;
+  --rumofi-auth-readonly-text: #c1c9d6;
+  --rumofi-auth-subtle: #202632;
+  --rumofi-auth-subtle-text: #d0d7e3;
+  --rumofi-auth-divider: #343d4d;
+  --rumofi-auth-danger-surface: #2b171c;
+  --rumofi-auth-danger-text: #ffb7c0;
+  --rumofi-auth-danger-muted: #e8a4ae;
+  --rumofi-auth-error-surface: #32171e;
+  --rumofi-auth-error-text: #ffbdc6;
+  --rumofi-auth-error-border: #763241;
+  --rumofi-auth-success-surface: #112a21;
+  --rumofi-auth-success-text: #85e0ad;
+  --rumofi-auth-success-border: #286344;
+  --rumofi-auth-required-surface: #1d2947;
+  --rumofi-auth-primary-start: #315deb;
+  --rumofi-auth-primary-end: #2148ce;
+  --rumofi-auth-primary-text: #ffffff;
+  --rumofi-auth-color-scheme: dark;
 }
 
 @media (max-width: 620px) {

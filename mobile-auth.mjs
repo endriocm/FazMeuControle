@@ -1,16 +1,24 @@
 import { initializeApp } from "firebase/app";
+import { Capacitor } from "@capacitor/core";
+import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
 import {
   EmailAuthProvider,
+  GoogleAuthProvider,
   browserLocalPersistence,
   createUserWithEmailAndPassword,
   deleteUser,
   getAuth,
+  indexedDBLocalPersistence,
+  initializeAuth,
   onAuthStateChanged,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
   sendEmailVerification,
   sendPasswordResetEmail,
   setPersistence,
+  signInWithCredential,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   updateProfile,
 } from "firebase/auth";
@@ -79,8 +87,12 @@ function withTimeout(promise, timeoutMs = LOGIN_TIMEOUT_MS) {
 function authErrorMessage(error) {
   const code = String(error?.code || error?.message || "");
   if(code.includes("operation-not-allowed") || code.includes("configuration-not-found") || code.includes("CONFIGURATION_NOT_FOUND")) {
-    return "O acesso por e-mail ainda não foi ativado no Firebase do RumoFi.";
+    return "Este tipo de acesso ainda não foi ativado no Firebase do RumoFi.";
   }
+  if(code.includes("account-exists-with-different-credential")) return "Este e-mail já usa outra forma de acesso. Entre com sua senha e tente novamente.";
+  if(code.includes("credential-already-in-use")) return "Esta conta Google já está vinculada a outro acesso.";
+  if(code.includes("google-id-token-missing")) return "O Google não devolveu uma credencial válida. Tente novamente.";
+  if(code.includes("canceled") || code.includes("cancelled") || code.includes("popup-closed")) return "O acesso com Google foi cancelado.";
   if(code.includes("email-already-in-use")) return "Este e-mail já possui uma conta. Entre com sua senha.";
   if(code.includes("weak-password")) return "Crie uma senha com pelo menos 6 caracteres.";
   if(code.includes("invalid-email")) return "Informe um e-mail válido.";
@@ -113,6 +125,19 @@ function accountInitial(name = "") {
   return first ? first.toUpperCase() : "R";
 }
 
+function hasAuthProvider(user, providerId) {
+  return Boolean(user?.providerData?.some((provider) => provider?.providerId === providerId));
+}
+
+function googleIconMarkup() {
+  return `<svg viewBox="0 0 18 18" aria-hidden="true" focusable="false">
+    <path fill="#4285F4" d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.482h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.702-1.567 2.684-3.875 2.684-6.614Z"/>
+    <path fill="#34A853" d="M9 18c2.43 0 4.468-.806 5.956-2.181l-2.909-2.258c-.806.54-1.835.859-3.047.859-2.344 0-4.328-1.585-5.037-3.714H.956v2.332A9 9 0 0 0 9 18Z"/>
+    <path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.167.281-1.706V4.962H.956A9 9 0 0 0 0 9c0 1.452.347 2.827.956 4.038l3.007-2.332Z"/>
+    <path fill="#EA4335" d="M9 3.58c1.321 0 2.507.454 3.441 1.346l2.581-2.581C13.464.892 11.427 0 9 0A9 9 0 0 0 .956 4.962l3.007 2.332C4.672 5.165 6.656 3.58 9 3.58Z"/>
+  </svg>`;
+}
+
 export async function initializeRumoFiAuth({
   root,
   appShell,
@@ -125,7 +150,18 @@ export async function initializeRumoFiAuth({
   if(!root || !appShell) throw new Error("Estrutura de autenticação ausente.");
 
   const firebaseApp = initializeApp(RUMOFI_FIREBASE_CONFIG);
-  const auth = getAuth(firebaseApp);
+  const isNative = Capacitor.isNativePlatform();
+  let auth;
+  if(isNative) {
+    try {
+      auth = initializeAuth(firebaseApp, { persistence:indexedDBLocalPersistence });
+    } catch(error) {
+      if(!String(error?.code || error?.message || "").includes("already-initialized")) throw error;
+      auth = getAuth(firebaseApp);
+    }
+  } else {
+    auth = getAuth(firebaseApp);
+  }
   const db = getFirestore(firebaseApp);
   auth.languageCode = "pt-BR";
 
@@ -197,6 +233,8 @@ export async function initializeRumoFiAuth({
             <p>Seus dados ficam separados dos demais usuários e sincronizados após cada salvamento.</p>
           </div>
           <form class="rumofi-auth-form" data-auth-form="login" novalidate>
+            <button class="rumofi-auth-google" type="button" data-auth-action="google-signin">${googleIconMarkup()}<span>Entrar com Google</span></button>
+            <div class="rumofi-auth-divider rumofi-auth-divider-inline"><span>ou use seu e-mail</span></div>
             <label>E-mail<input name="email" type="email" inputmode="email" autocomplete="email" value="${escapeHtml(prefillEmail)}" required></label>
             <label>Senha<input name="password" type="password" autocomplete="current-password" minlength="6" required></label>
             <p class="rumofi-auth-device-note">Você continuará conectado neste dispositivo.</p>
@@ -229,6 +267,8 @@ export async function initializeRumoFiAuth({
             <p>Nome, e-mail e telefone serão usados para identificar seu acesso e oferecer suporte.</p>
           </div>
           <form class="rumofi-auth-form" data-auth-form="signup" novalidate>
+            <button class="rumofi-auth-google" type="button" data-auth-action="google-signin">${googleIconMarkup()}<span>Criar conta com Google</span></button>
+            <div class="rumofi-auth-divider rumofi-auth-divider-inline"><span>ou cadastre com e-mail</span></div>
             <label>Nome completo<input name="name" type="text" autocomplete="name" minlength="2" maxlength="100" required></label>
             <label>E-mail<input name="email" type="email" inputmode="email" autocomplete="email" value="${escapeHtml(prefillEmail)}" required></label>
             <label>Telefone com DDD<input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" maxlength="16" required></label>
@@ -249,6 +289,45 @@ export async function initializeRumoFiAuth({
     requestAnimationFrame(() => root.querySelector('input[name="name"]')?.focus());
   }
 
+  function showGoogleProfileCompletion() {
+    if(!currentUser) return;
+    currentView = "google-profile";
+    appShell.hidden = true;
+    root.hidden = false;
+    setBodyLocked(true);
+    const name = currentProfile?.displayName || currentUser.displayName || "";
+    root.innerHTML = `
+      <main class="rumofi-auth-screen">
+        <section class="rumofi-auth-card">
+          <header class="rumofi-auth-brand">
+            <div class="rumofi-auth-logo" aria-hidden="true">R</div>
+            <div><p>RumoFi</p><span>Sua conta Google foi conectada com segurança.</span></div>
+          </header>
+          <div class="rumofi-auth-heading">
+            <p class="rumofi-auth-kicker">Último passo</p>
+            <h1>Complete seu perfil</h1>
+            <p>Confirme seu nome e informe o telefone para identificar sua conta e permitir suporte.</p>
+          </div>
+          <form class="rumofi-auth-form" data-auth-form="google-profile" novalidate>
+            <label>Nome completo<input name="name" type="text" autocomplete="name" value="${escapeHtml(name)}" minlength="2" maxlength="100" required></label>
+            <label>E-mail Google<input type="email" value="${escapeHtml(currentUser.email || "")}" readonly></label>
+            <label>Telefone com DDD<input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" maxlength="16" required></label>
+            ${privacyNoticeMarkup()}
+            <label class="rumofi-auth-check required"><input name="privacyAcknowledged" type="checkbox" required><span>Li o aviso acima e estou ciente dos tratamentos necessários para criar e operar minha conta.</span></label>
+            <fieldset class="rumofi-auth-consents">
+              <legend>Comunicações opcionais</legend>
+              <label class="rumofi-auth-check"><input name="marketingEmail" type="checkbox"><span>Quero receber novidades e ofertas por e-mail.</span></label>
+              <label class="rumofi-auth-check"><input name="marketingWhatsapp" type="checkbox"><span>Quero receber novidades e ofertas por WhatsApp/SMS.</span></label>
+            </fieldset>
+            <p class="rumofi-auth-feedback" data-auth-feedback role="alert" hidden></p>
+            <button class="rumofi-auth-primary" type="submit">Salvar e entrar</button>
+            <button class="rumofi-auth-link" type="button" data-auth-action="cancel-google-profile">Usar outra conta</button>
+          </form>
+        </section>
+      </main>`;
+    requestAnimationFrame(() => root.querySelector('input[name="phone"]')?.focus());
+  }
+
   function showProfile() {
     if(!currentUser) return;
     currentView = "profile";
@@ -256,6 +335,8 @@ export async function initializeRumoFiAuth({
     const phone = formatBrazilianPhone(currentProfile?.phoneNumber || "");
     const marketingEmail = Boolean(currentProfile?.marketingEmail ?? currentProfile?.consents?.marketingEmail);
     const marketingWhatsapp = Boolean(currentProfile?.marketingWhatsapp ?? currentProfile?.consents?.marketingWhatsapp);
+    const hasPassword = hasAuthProvider(currentUser, "password");
+    const hasGoogle = hasAuthProvider(currentUser, "google.com");
     root.hidden = false;
     setBodyLocked(true);
     root.innerHTML = `
@@ -279,14 +360,17 @@ export async function initializeRumoFiAuth({
             <button class="rumofi-auth-primary" type="submit">Salvar meus dados</button>
           </form>
           <div class="rumofi-account-actions">
-            <button type="button" data-auth-action="send-reset">Alterar minha senha</button>
+            ${hasPassword ? '<button type="button" data-auth-action="send-reset">Alterar minha senha</button>' : ""}
+            ${hasGoogle ? '<span class="rumofi-account-provider">Google conectado</span>' : ""}
             ${currentUser.emailVerified ? '<span class="rumofi-account-verified">E-mail verificado</span>' : '<button type="button" data-auth-action="verify-email">Verificar meu e-mail</button>'}
             <button type="button" data-auth-action="logout">Sair da conta</button>
           </div>
           <details class="rumofi-danger-zone">
             <summary>Excluir minha conta</summary>
             <p>Esta ação apaga definitivamente seu perfil e todos os dados financeiros sincronizados.</p>
-            <label>Confirme sua senha<input name="deletePassword" type="password" autocomplete="current-password" minlength="6"></label>
+            ${hasPassword
+              ? '<label>Confirme sua senha<input name="deletePassword" type="password" autocomplete="current-password" minlength="6"></label>'
+              : '<p class="rumofi-danger-confirmation">Você confirmará a exclusão escolhendo novamente sua conta Google.</p>'}
             <button type="button" data-auth-action="delete-account">Excluir conta e dados</button>
           </details>
         </section>
@@ -412,6 +496,10 @@ export async function initializeRumoFiAuth({
       email:user.email || "",
       phoneNumber:"",
     };
+    if(!remoteError && hasAuthProvider(user, "google.com") && !normalizeBrazilianPhone(currentProfile.phoneNumber || "")) {
+      showGoogleProfileCompletion();
+      return;
+    }
     // O conteúdo já pode ser calculado enquanto a tela de sincronização o cobre.
     // Assim, gráficos recebem dimensões reais antes de a tela principal aparecer.
     appShell.hidden = false;
@@ -444,6 +532,29 @@ export async function initializeRumoFiAuth({
       const credential = await withTimeout(signInWithEmailAndPassword(auth, email, password));
       await activateUser(credential.user);
     } catch(error) {
+      setBusy(false);
+      setFeedback(authErrorMessage(error));
+    }
+  }
+
+  async function signInWithGoogleAccount() {
+    if(isNative) {
+      const nativeResult = await FirebaseAuthentication.signInWithGoogle();
+      const idToken = nativeResult?.credential?.idToken;
+      if(!idToken) throw new Error("google-id-token-missing");
+      return signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
+    }
+    return signInWithPopup(auth, new GoogleAuthProvider());
+  }
+
+  async function handleGoogleSignIn() {
+    setBusy(true);
+    setFeedback("");
+    try {
+      const credential = await signInWithGoogleAccount();
+      await activateUser(credential.user);
+    } catch(error) {
+      if(isNative) FirebaseAuthentication.signOut().catch(() => {});
       setBusy(false);
       setFeedback(authErrorMessage(error));
     }
@@ -504,6 +615,33 @@ export async function initializeRumoFiAuth({
     }
   }
 
+  async function handleGoogleProfileSave(form) {
+    const fields = new FormData(form);
+    if(!fields.get("privacyAcknowledged")) {
+      setFeedback("Leia o aviso e confirme para concluir seu cadastro.");
+      return;
+    }
+    setBusy(true);
+    setFeedback("");
+    try {
+      await persistProfile(currentUser, {
+        name:fields.get("name"),
+        phone:fields.get("phone"),
+        marketingEmail:fields.get("marketingEmail") === "on",
+        marketingWhatsapp:fields.get("marketingWhatsapp") === "on",
+      }, { isSignup:true });
+      await activateUser(currentUser);
+    } catch(error) {
+      setBusy(false);
+      const message = String(error?.message).includes("invalid-phone")
+        ? "Informe um telefone válido com DDD."
+        : String(error?.message).includes("invalid-name")
+          ? "Informe seu nome completo."
+          : authErrorMessage(error);
+      setFeedback(message);
+    }
+  }
+
   async function requestPasswordReset(email) {
     if(!email) { setFeedback("Informe seu e-mail primeiro."); return; }
     setBusy(true);
@@ -521,7 +659,8 @@ export async function initializeRumoFiAuth({
     setBusy(true);
     clearTimeout(saveTimer);
     await Promise.race([flushFinancialSave(), new Promise(resolve => setTimeout(resolve, 3500))]).catch(() => {});
-    await signOut(auth);
+    if(isNative) await FirebaseAuthentication.signOut().catch(() => {});
+    await signOut(auth).catch(() => {});
     currentUser = null;
     currentProfile = null;
     pendingPayload = null;
@@ -532,8 +671,10 @@ export async function initializeRumoFiAuth({
 
   async function handleDeleteAccount() {
     if(!currentUser?.email) return;
+    const hasPassword = hasAuthProvider(currentUser, "password");
+    const hasGoogle = hasAuthProvider(currentUser, "google.com");
     const password = String(root.querySelector('input[name="deletePassword"]')?.value || "");
-    if(password.length < 6) {
+    if(hasPassword && password.length < 6) {
       setFeedback("Digite sua senha atual para confirmar a exclusão.");
       root.querySelector('input[name="deletePassword"]')?.focus();
       return;
@@ -543,7 +684,18 @@ export async function initializeRumoFiAuth({
     setBusy(true);
     const deletedUser = currentUser;
     try {
-      await reauthenticateWithCredential(currentUser, EmailAuthProvider.credential(currentUser.email, password));
+      if(hasPassword) {
+        await reauthenticateWithCredential(currentUser, EmailAuthProvider.credential(currentUser.email, password));
+      } else if(hasGoogle) {
+        if(isNative) {
+          const nativeResult = await FirebaseAuthentication.signInWithGoogle();
+          const idToken = nativeResult?.credential?.idToken;
+          if(!idToken) throw new Error("google-id-token-missing");
+          await reauthenticateWithCredential(currentUser, GoogleAuthProvider.credential(idToken));
+        } else {
+          await reauthenticateWithPopup(currentUser, new GoogleAuthProvider());
+        }
+      }
       clearTimeout(saveTimer);
       pendingPayload = null;
       await Promise.all([
@@ -551,6 +703,7 @@ export async function initializeRumoFiAuth({
         deleteDoc(profileRef(currentUser.uid)),
       ]);
       await deleteUser(currentUser);
+      if(isNative) await FirebaseAuthentication.signOut().catch(() => {});
       currentUser = null;
       currentProfile = null;
       onAccountDeleted?.(deletedUser);
@@ -568,6 +721,7 @@ export async function initializeRumoFiAuth({
     if(form.dataset.authForm === "login") void handleLogin(form);
     if(form.dataset.authForm === "signup") void handleSignup(form);
     if(form.dataset.authForm === "profile") void handleProfileSave(form);
+    if(form.dataset.authForm === "google-profile") void handleGoogleProfileSave(form);
   });
 
   root.addEventListener("input", (event) => {
@@ -581,6 +735,8 @@ export async function initializeRumoFiAuth({
     if(action === "show-signup") showSignup(root.querySelector('input[name="email"]')?.value || "");
     if(action === "show-login") showLogin(root.querySelector('input[name="email"]')?.value || "");
     if(action === "forgot-password") void requestPasswordReset(root.querySelector('input[name="email"]')?.value || "");
+    if(action === "google-signin") void handleGoogleSignIn();
+    if(action === "cancel-google-profile") void handleLogout();
     if(action === "close-profile") { root.hidden = true; setBodyLocked(false); }
     if(action === "logout") void handleLogout();
     if(action === "send-reset") void requestPasswordReset(currentUser?.email || "");
@@ -599,10 +755,12 @@ export async function initializeRumoFiAuth({
   });
 
   showLoading();
-  try {
-    await setPersistence(auth, browserLocalPersistence);
-  } catch(error) {
-    console.warn("Persistência de login indisponível:", error);
+  if(!isNative) {
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+    } catch(error) {
+      console.warn("Persistência de login indisponível:", error);
+    }
   }
 
   const initialUser = await new Promise((resolve) => {

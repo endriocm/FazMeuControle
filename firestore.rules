@@ -11,11 +11,5 @@ service cloud.firestore {
     match /financialData/{userId} {
       allow read, write: if owns(userId);
     }
-
-    // Apenas as APIs com Firebase Admin podem liberar acesso ou gerar códigos.
-    match /entitlements/{userId} { allow read: if owns(userId); allow write: if false; }
-    match /accessCodes/{codeId} { allow read, write: if false; }
-    match /administrators/{userId} { allow read, write: if false; }
-    match /checkoutAttempts/{attemptId} { allow read, write: if false; }
   }
 }
