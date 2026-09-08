@@ -71,6 +71,8 @@ test("oferece assinatura Google Play e contato comercial pelo WhatsApp", () => {
   assert.match(index, /Assinar RumoFi/);
   assert.match(index, /href="https:\/\/wa\.me\/5551994353001\?text=/);
   assert.match(index, /Fale com um assessor/);
+  assert.match(index, /Encontrei dados salvos neste aparelho antes do login/);
+  assert.match(index, /começar com uma conta vazia/);
   assert.match(subscription, /@capgo\/native-purchases/);
   assert.match(subscription, /productType: plugin\.PURCHASE_TYPE\.SUBS/);
   assert.match(subscription, /purchaseToken/);

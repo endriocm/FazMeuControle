@@ -7717,6 +7717,7 @@
     const STORAGE_KEY_BASE = "faz_meu_controle_v1";
     const LEGACY_STORAGE_KEY_BASES = [];
     const LEGACY_OWNER_KEY = `${STORAGE_KEY_BASE}:legacy_owner`;
+    const LEGACY_IMPORT_DECISION_KEY = `${STORAGE_KEY_BASE}:legacy_import_decision`;
     let STORAGE_KEY = STORAGE_KEY_BASE;
     let rumofiAuthController = null;
     let rumofiSubscriptionController = null;
@@ -8382,14 +8383,26 @@
       const canClaimLegacy = !claimedOwner || claimedOwner === user.uid;
       const legacyData = canClaimLegacy ? readFinancialDataAtKey(STORAGE_KEY_BASE) : null;
       const legacyHasData = hasMeaningfulFinancialCandidate(legacyData);
-
-      if(legacyHasData && !claimedOwner) localStorage.setItem(LEGACY_OWNER_KEY, user.uid);
-
-      const localData = scopedData || (legacyHasData ? legacyData : null);
       const remoteIsValid = isRecognizedFinancialData(remoteData);
       const remoteCandidate = remoteIsValid ? mergeDefaultCategories(remoteData) : null;
-      const localHasData = hasMeaningfulFinancialCandidate(localData);
       const remoteHasData = hasMeaningfulFinancialCandidate(remoteCandidate);
+      const legacyDecisionKey = `${LEGACY_IMPORT_DECISION_KEY}:${user.uid}`;
+      let importLegacyData = localStorage.getItem(legacyDecisionKey) === "import";
+      const shouldAskAboutLegacyData = !scopedData
+        && !remoteHasData
+        && legacyHasData
+        && canClaimLegacy
+        && !["import", "fresh"].includes(localStorage.getItem(legacyDecisionKey));
+      if(shouldAskAboutLegacyData){
+        importLegacyData = window.confirm(
+          "Encontrei dados salvos neste aparelho antes do login. Deseja importar esses dados para a nova conta?\n\nOK: importar os dados\nCancelar: começar com uma conta vazia. Os dados antigos permanecem neste aparelho."
+        );
+        localStorage.setItem(legacyDecisionKey, importLegacyData ? "import" : "fresh");
+      }
+      if(importLegacyData && legacyHasData && !claimedOwner) localStorage.setItem(LEGACY_OWNER_KEY, user.uid);
+
+      const localData = scopedData || (importLegacyData && legacyHasData ? legacyData : null);
+      const localHasData = hasMeaningfulFinancialCandidate(localData);
       const localTime = financialDataTimestamp(localData);
       const remoteTime = financialDataTimestamp(remoteCandidate, remoteClientUpdatedAt);
 
@@ -8424,6 +8437,7 @@
     function handleFinancialAccountDeleted(user){
       const scopedKey = `${STORAGE_KEY_BASE}:${user.uid}`;
       localStorage.removeItem(scopedKey);
+      localStorage.removeItem(`${LEGACY_IMPORT_DECISION_KEY}:${user.uid}`);
       if(localStorage.getItem(LEGACY_OWNER_KEY) === user.uid){
         localStorage.removeItem(LEGACY_OWNER_KEY);
         localStorage.removeItem(STORAGE_KEY_BASE);
