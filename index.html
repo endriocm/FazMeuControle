@@ -7580,6 +7580,8 @@
             </div>
           </details>
           <button class="btn finance-header-action finance-planning-launch" type="button" data-action="open-financial-planning"><span aria-hidden="true">◫</span> Planejamento</button>
+          <a class="btn finance-header-action finance-advisor-action" href="https://wa.me/5551994353001?text=Ol%C3%A1%21%20Quero%20falar%20com%20um%20assessor%20do%20RumoFi." target="_blank" rel="noopener noreferrer" aria-label="Falar com um assessor pelo WhatsApp"><span aria-hidden="true">↗</span> Fale com um assessor</a>
+          <button class="btn finance-header-action finance-subscription-action" type="button" data-action="open-subscription"><span aria-hidden="true">★</span> Assinar RumoFi</button>
           <details class="finance-utility-menu">
             <summary class="btn finance-header-action"><span aria-hidden="true">↓</span> Exportar</summary>
             <div class="finance-utility-popover">
@@ -7640,6 +7642,23 @@
 
   <div id="financialPlanningModal" hidden></div>
 
+  <div id="subscriptionModal" class="rumofi-subscription-modal" hidden>
+    <section class="rumofi-subscription-card" role="dialog" aria-modal="true" aria-labelledby="subscriptionTitle" tabindex="-1">
+      <button class="rumofi-subscription-close" type="button" data-subscription-close aria-label="Fechar assinatura">×</button>
+      <p class="rumofi-subscription-kicker">RumoFi Premium</p>
+      <h2 id="subscriptionTitle">Tenha seu controle financeiro sempre com você</h2>
+      <p class="rumofi-subscription-copy">Assine pela Google Play para manter seus dados sincronizados e acessar todos os recursos do RumoFi.</p>
+      <p class="rumofi-subscription-product" data-subscription-product>Plano mensal RumoFi</p>
+      <p class="rumofi-subscription-status" data-subscription-status role="status" aria-live="polite">Consultando a assinatura…</p>
+      <div class="rumofi-subscription-actions">
+        <button class="btn primary" type="button" data-subscription-buy>Assinar agora</button>
+        <button class="btn soft" type="button" data-subscription-restore>Restaurar compra</button>
+        <button class="btn ghost" type="button" data-subscription-manage>Gerenciar assinatura</button>
+      </div>
+      <button class="rumofi-subscription-link" type="button" data-subscription-close>Agora não</button>
+    </section>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script type="module">
@@ -7655,6 +7674,7 @@
     import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
     import { Share } from "@capacitor/share";
     import { initializeRumoFiAuth } from "./mobile-auth.mjs";
+    import { createRumoFiSubscriptionController } from "./subscription.mjs";
     import {
       createEmptyFinancialDataV2,
       dateInFinancialTimeZone,
@@ -7699,6 +7719,8 @@
     const LEGACY_OWNER_KEY = `${STORAGE_KEY_BASE}:legacy_owner`;
     let STORAGE_KEY = STORAGE_KEY_BASE;
     let rumofiAuthController = null;
+    let rumofiSubscriptionController = null;
+    let rumofiSubscriptionUser = null;
     const CALENDAR_MODE = "calendar-year";
     const LEGACY_MONTH_NUMBERS = [7,8,9,10,11,12,1,2,3,4,5,6];
     const MONTHS = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
@@ -15885,6 +15907,14 @@
       const id = btn.dataset.id || "";
 
       btn.closest("details")?.removeAttribute("open");
+      if(action === "open-subscription"){
+        rumofiSubscriptionController?.open();
+        return;
+      }
+      if(action === "close-subscription"){
+        rumofiSubscriptionController?.close();
+        return;
+      }
       if(action === "open-financial-planning"){
         financialPlanning.open(btn);
         return;
@@ -16265,6 +16295,12 @@
       toast("Filtros limpos");
     });
 
+    rumofiSubscriptionController = createRumoFiSubscriptionController({
+      modal:document.getElementById("subscriptionModal"),
+      getUser:() => rumofiSubscriptionUser,
+      notify:(message) => toast(message),
+    });
+
     async function bootRumoFi(){
       const authRoot = document.getElementById("rumofiAuthRoot");
       try{
@@ -16272,9 +16308,22 @@
           root:authRoot,
           appShell:document.getElementById("rumofiAppShell"),
           accountButton:document.getElementById("rumofiAccountButton"),
-          onUserReady:activateFinancialUser,
-          onSignedOut:handleFinancialSignOut,
-          onAccountDeleted:handleFinancialAccountDeleted,
+          onUserReady:async (context) => {
+            const result = await activateFinancialUser(context);
+            rumofiSubscriptionUser = context.user;
+            rumofiSubscriptionController?.setUser(context.user);
+            return result;
+          },
+          onSignedOut:() => {
+            rumofiSubscriptionUser = null;
+            rumofiSubscriptionController?.setUser(null);
+            handleFinancialSignOut();
+          },
+          onAccountDeleted:(user) => {
+            rumofiSubscriptionUser = null;
+            rumofiSubscriptionController?.setUser(null);
+            handleFinancialAccountDeleted(user);
+          },
           onCloudStatus:updateFinancialCloudStatus,
         });
         observeFinanceFrameHeight();

@@ -32,6 +32,43 @@ summary {
   color: #8fabff !important;
 }
 
+.finance-advisor-action {
+  border-color: #128c7e !important;
+  background: #128c7e !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(18, 140, 126, 0.22) !important;
+  text-decoration: none;
+}
+
+.finance-advisor-action:hover {
+  border-color: #0b6f63 !important;
+  background: #0b6f63 !important;
+}
+
+.finance-subscription-action {
+  border-color: #d59b2f !important;
+  background: linear-gradient(135deg, #d59b2f, #f0bd54) !important;
+  color: #151b28 !important;
+  box-shadow: 0 8px 18px rgba(213, 155, 47, 0.22) !important;
+}
+
+.finance-subscription-action:hover {
+  border-color: #b97c1d !important;
+  background: linear-gradient(135deg, #b97c1d, #d59b2f) !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-advisor-action {
+  border-color: #128c7e !important;
+  background: #128c7e !important;
+  color: #ffffff !important;
+}
+
+body.mesa-finance-body[data-finance-theme="light"]:not([data-embed="investments"]) .finance-subscription-action {
+  border-color: #d59b2f !important;
+  background: linear-gradient(135deg, #d59b2f, #f0bd54) !important;
+  color: #151b28 !important;
+}
+
 @media (max-width: 620px) {
   .topbar-inner,
   .finance-os-main > #app {
@@ -279,4 +316,148 @@ body.mesa-finance-body[data-finance-theme="light"] .finance-block-choice input:c
   border-color: #315deb;
   background: #eef3ff;
   box-shadow: 0 0 0 3px rgba(49, 93, 235, 0.12);
+}
+
+.rumofi-subscription-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(3, 7, 15, 0.78);
+}
+
+.rumofi-subscription-modal[hidden] {
+  display: none;
+}
+
+.rumofi-subscription-card {
+  position: relative;
+  width: min(100%, 520px);
+  padding: 30px;
+  border: 1px solid rgba(143, 171, 255, 0.30);
+  border-radius: 24px;
+  background: #111827;
+  color: #f8fafc;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.36);
+}
+
+.rumofi-subscription-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #334155;
+  border-radius: 50%;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.rumofi-subscription-kicker {
+  margin: 0 0 10px;
+  color: #8fabff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rumofi-subscription-card h2 {
+  margin: 0;
+  max-width: 390px;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  line-height: 1.12;
+}
+
+.rumofi-subscription-copy {
+  margin: 14px 0 20px;
+  color: #b8c5d8;
+  line-height: 1.55;
+}
+
+.rumofi-subscription-product {
+  margin: 0;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.rumofi-subscription-status {
+  min-height: 42px;
+  margin: 10px 0 18px;
+  padding: 11px 13px;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  background: #0b1220;
+  color: #b8c5d8;
+  font-size: 0.9rem;
+}
+
+.rumofi-subscription-status[data-type="success"] {
+  border-color: rgba(34, 197, 94, 0.55);
+  color: #bbf7d0;
+}
+
+.rumofi-subscription-status[data-type="error"] {
+  border-color: rgba(248, 113, 113, 0.55);
+  color: #fecaca;
+}
+
+.rumofi-subscription-status[data-type="pending"] {
+  border-color: rgba(251, 191, 36, 0.55);
+  color: #fde68a;
+}
+
+.rumofi-subscription-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.rumofi-subscription-actions .btn:first-child {
+  grid-column: 1 / -1;
+}
+
+.rumofi-subscription-link {
+  display: block;
+  margin: 18px auto 0;
+  border: 0;
+  background: transparent;
+  color: #9fb2ed;
+  cursor: pointer;
+  font: inherit;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .rumofi-subscription-card {
+  border-color: #d5deea;
+  background: #ffffff;
+  color: #172033;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .rumofi-subscription-copy,
+body.mesa-finance-body[data-finance-theme="light"] .rumofi-subscription-status {
+  color: #627087;
+}
+
+body.mesa-finance-body[data-finance-theme="light"] .rumofi-subscription-status {
+  border-color: #dce3ed;
+  background: #f7f9fc;
+}
+
+@media (max-width: 620px) {
+  .rumofi-subscription-card {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
+  .rumofi-subscription-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .rumofi-subscription-actions .btn:first-child {
+    grid-column: auto;
+  }
 }

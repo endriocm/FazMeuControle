@@ -12,6 +12,8 @@ O RumoFi tem identidade, autenticação, armazenamento e projeto Firebase própr
 - Perfil com nome, e-mail, telefone e consentimentos opcionais separados.
 - Sincronização dos dados financeiros por usuário.
 - Recuperação de senha, encerramento da sessão e exclusão da conta.
+- Assinatura mensal pela Google Play com restauração e gerenciamento da compra.
+- Botão de contato com assessor pelo WhatsApp.
 - Backup e restauração por arquivo TXT.
 - Gráficos e exportação para Excel empacotados no aplicativo, sem CDN.
 

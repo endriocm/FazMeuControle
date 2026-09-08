@@ -11,5 +11,12 @@ service cloud.firestore {
     match /financialData/{userId} {
       allow read, write: if owns(userId);
     }
+
+    // A assinatura só pode ser lida pelo titular. A gravação é feita pelo
+    // backend depois da validação do token da Google Play.
+    match /entitlements/{userId} {
+      allow read: if owns(userId);
+      allow write: if false;
+    }
   }
 }

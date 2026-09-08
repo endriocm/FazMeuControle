@@ -17,6 +17,7 @@ const productFiles = [
   "mobile-auth.mjs",
   "mobile-auth.css",
   "mobile-shell.css",
+  "subscription.mjs",
   "manifest.webmanifest",
   "capacitor.config.ts",
   "package.json",
@@ -60,6 +61,24 @@ test("mantém os módulos centrais do controle financeiro", () => {
   assert.match(index, /open-financial-planning/);
   assert.match(index, /add-card-purchase/);
   assert.match(domain, /MAX_RECURRING_PROJECTION_MONTHS = 24/);
+});
+
+test("oferece assinatura Google Play e contato comercial pelo WhatsApp", () => {
+  const index = read("index.html");
+  const subscription = read("subscription.mjs");
+
+  assert.match(index, /data-action="open-subscription"/);
+  assert.match(index, /Assinar RumoFi/);
+  assert.match(index, /href="https:\/\/wa\.me\/5551994353001\?text=/);
+  assert.match(index, /Fale com um assessor/);
+  assert.match(subscription, /@capgo\/native-purchases/);
+  assert.match(subscription, /productType: plugin\.PURCHASE_TYPE\.SUBS/);
+  assert.match(subscription, /purchaseToken/);
+  assert.match(subscription, /Authorization: `Bearer \$\{idToken\}`/);
+  assert.match(subscription, /autoAcknowledgePurchases: false/);
+  assert.match(read("firebase.json"), /"source": "functions"/);
+  assert.match(read("functions/index.mjs"), /purchases\.subscriptionsv2\.get/);
+  assert.match(read("functions/index.mjs"), /purchaseTokenHash/);
 });
 
 test("empacota gráficos e Excel sem depender de CDN", () => {

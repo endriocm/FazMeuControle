@@ -23,4 +23,17 @@
 
 ## Produto
 
-A base atual exige uma conta RumoFi e sincroniza os dados financeiros entre dispositivos pelo Firebase. O usuário também consegue excluir conta e dados dentro do aplicativo. Assinatura e restauração de compra ainda precisam ser implementadas antes de vender acesso recorrente pela Play Store.
+A base atual exige uma conta RumoFi e sincroniza os dados financeiros entre dispositivos pelo Firebase. O usuário também consegue excluir conta e dados dentro do aplicativo.
+
+## Assinatura Google Play
+
+O aplicativo já possui a tela de assinatura, restauração, gerenciamento da compra e o plugin nativo de Billing. O backend em `functions/` valida o token com a Google Play Developer API antes de gravar o entitlement em `entitlements/{uid}`.
+
+1. No Play Console, criar uma assinatura com o ID `rumofi_premium` e o plano base `monthly` (ou trocar os dois valores no `.env.local` e em `functions/.env`).
+2. Vincular no Play Console a conta de serviço usada pelo Firebase com permissão para consultar e reconhecer compras.
+3. Criar o tópico Pub/Sub `rumofi-google-play-rtdn` e apontá-lo nas Real-time developer notifications da assinatura.
+4. Instalar as dependências e publicar as funções: `npm install --prefix functions` e `firebase deploy --only functions`.
+5. Copiar `.env.example` para `.env.local`, preencher o endpoint da função e gerar o build Android novamente.
+6. Publicar primeiro em teste interno. A compra só pode ser testada instalando o app pela Play Store com uma conta de licença/teste; um APK instalado diretamente não testa a cobrança.
+
+O preço não é codificado no app: ele é exibido pela Google Play. O valor, país, período de cobrança, política de privacidade e conta de teste ainda precisam ser definidos no Play Console.
