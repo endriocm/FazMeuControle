@@ -6934,6 +6934,7 @@
       scroll-margin-top:18px;
     }
     .mesa-finance-body .finance-data-block {
+      container:finance-block / inline-size;
       min-width:0;
       overflow:hidden;
       border:1px solid rgba(255,255,255,.16);
@@ -7068,10 +7069,10 @@
       font-weight:900;
       cursor:pointer;
     }
-    .mesa-finance-body .finance-data-block-table-wrap { max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
+    .mesa-finance-body .finance-data-block-table-wrap { width:100%; max-width:100%; }
     .mesa-finance-body .finance-data-block table {
       width:100%;
-      min-width:780px;
+      min-width:0;
       border-collapse:collapse;
       table-layout:fixed;
       background:#fff;
@@ -7079,7 +7080,7 @@
     }
     .mesa-finance-body .finance-data-block th {
       height:44px;
-      padding:0 12px;
+      padding:8px 6px;
       border-right:1px solid rgba(24,24,24,.08);
       border-bottom:1px solid rgba(24,24,24,.1);
       background:rgba(166,166,166,.11);
@@ -7090,15 +7091,15 @@
       text-align:center;
       text-transform:uppercase;
     }
-    .mesa-finance-body .finance-block-col-date { width:118px; }
+    .mesa-finance-body .finance-block-col-date { width:14%; }
     .mesa-finance-body .finance-block-col-description { width:28%; }
     .mesa-finance-body .finance-block-col-tag { width:12%; }
-    .mesa-finance-body .finance-block-col-value { width:138px; }
-    .mesa-finance-body .finance-block-col-type { width:92px; }
-    .mesa-finance-body .finance-block-col-status { width:70px; }
+    .mesa-finance-body .finance-block-col-value { width:20%; }
+    .mesa-finance-body .finance-block-col-type { width:16%; }
+    .mesa-finance-body .finance-block-col-status { width:10%; }
     .mesa-finance-body .finance-data-block td {
       height:52px;
-      padding:8px 12px;
+      padding:8px 6px;
       border-right:1px solid rgba(24,24,24,.08);
       border-bottom:1px solid rgba(24,24,24,.08);
       color:#181818;
@@ -7107,27 +7108,25 @@
       vertical-align:middle;
     }
     .mesa-finance-body .finance-data-block tbody tr:nth-child(even) td { background:rgba(166,166,166,.05); }
-    .mesa-finance-body .finance-data-block td:nth-child(2),
-    .mesa-finance-body .finance-data-block td:nth-child(3) { text-align:left; }
     .mesa-finance-body .finance-data-block-value {
       display:flex;
       align-items:center;
-      justify-content:flex-end;
+      justify-content:center;
       gap:7px;
       font-weight:900;
       font-variant-numeric:tabular-nums;
     }
     .mesa-finance-body .finance-block-edit {
       width:100%;
-      overflow:hidden;
+      min-width:0;
       padding:0;
       border:0;
       background:transparent;
       color:#181818;
       font:inherit;
-      text-align:left;
-      text-overflow:ellipsis;
-      white-space:nowrap;
+      text-align:center;
+      overflow-wrap:anywhere;
+      white-space:normal;
       cursor:pointer;
     }
     .mesa-finance-body .finance-block-delete {
@@ -7147,9 +7146,9 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-width:66px;
+      min-width:0;
       min-height:28px;
-      padding:0 9px;
+      padding:5px 6px;
       border:1px solid color-mix(in srgb,currentColor 24%,transparent);
       border-radius:999px;
       background:color-mix(in srgb,currentColor 9%,#fff);
@@ -7162,9 +7161,10 @@
     .mesa-finance-body .finance-block-tags {
       display:flex;
       align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
       gap:5px;
       min-width:0;
-      overflow:hidden;
     }
     .mesa-finance-body .finance-block-tag {
       display:inline-flex;
@@ -7172,16 +7172,15 @@
       min-width:0;
       max-width:100%;
       min-height:25px;
-      overflow:hidden;
-      padding:0 8px;
+      padding:4px 6px;
       border:1px solid rgba(24,24,24,.11);
       border-radius:999px;
       background:rgba(79,124,255,.12);
       color:#59470f;
       font-size:8px;
       font-weight:900;
-      text-overflow:ellipsis;
-      white-space:nowrap;
+      overflow-wrap:anywhere;
+      white-space:normal;
     }
     .mesa-finance-body .finance-block-tag.secondary {
       background:rgba(24,24,24,.06);
@@ -7334,9 +7333,11 @@
     .mesa-finance-body .finance-block-description {
       display:flex;
       align-items:center;
-      gap:8px;
+      justify-content:center;
+      gap:4px;
       min-width:0;
     }
+    .mesa-finance-body .finance-block-description::before { content:""; flex:0 0 22px; }
     .mesa-finance-body .finance-card-limit-panel {
       position:relative;
       z-index:1;
@@ -7549,11 +7550,30 @@
       .mesa-finance-body .finance-data-block-footer { flex-direction:column; align-items:stretch; gap:12px; height:auto; padding:16px; }
       .mesa-finance-body .finance-data-block-footer > span { font-size:10px; line-height:1.4; text-align:center; }
       .mesa-finance-body .finance-data-block-footer-actions { width:100%; justify-content:center; flex-wrap:wrap; }
-      .mesa-finance-body .finance-data-block table { min-width:580px; }
-      .mesa-finance-body .finance-block-col-date { width:86px; }
-      .mesa-finance-body .finance-block-col-status { width:60px; }
       .mesa-finance-body .finance-data-block th { font-size:8px; padding:0 8px; }
       .mesa-finance-body .finance-data-block td { font-size:10px; padding:6px 8px; height:46px; }
+    }
+    .mesa-finance-body .finance-data-block td { overflow-wrap:anywhere; white-space:normal; }
+    .mesa-finance-body .finance-data-block-value { justify-content:center; flex-wrap:wrap; }
+    @container finance-block (max-width:520px) {
+      .mesa-finance-body .finance-data-block colgroup { display:none; }
+      .mesa-finance-body .finance-data-block thead {
+        position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%);
+      }
+      .mesa-finance-body .finance-data-block tbody { display:block; }
+      .mesa-finance-body .finance-data-block tbody tr {
+        display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+        border-bottom:2px solid rgba(24,24,24,.16);
+      }
+      .mesa-finance-body .finance-data-block td {
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:7px; min-width:0; height:auto; min-height:66px; padding:10px 6px;
+      }
+      .mesa-finance-body .finance-data-block td::before {
+        content:attr(data-label); color:#666; font-size:8px; font-weight:900;
+        letter-spacing:.04em; text-transform:uppercase;
+      }
+      .mesa-finance-body .finance-block-description { width:100%; }
     }
   </style>
   <link rel="stylesheet" href="./mobile-shell.css">
@@ -7673,6 +7693,7 @@
     import { Capacitor } from "@capacitor/core";
     import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
     import { Share } from "@capacitor/share";
+    import { readPendingFinancialData, preservePendingFinancialData, acknowledgeFinancialData, resolveFinancialHydration } from "./finance-persistence.mjs";
     import { initializeRumoFiAuth } from "./mobile-auth.mjs";
     import { createRumoFiSubscriptionController } from "./subscription.mjs";
     import {
@@ -7693,6 +7714,7 @@
       detectRecurringPattern,
       getProjectionEndMonthKey,
       getMonthSummary,
+      getYearSummary,
       getMonthChanges,
       getUpcomingCommitments,
       MAX_RECURRING_PROJECTION_MONTHS,
@@ -7879,6 +7901,7 @@
     const UNDO_TIMEOUT_MS = 8000;
     let state = {
       tab:initialFinanceTab,
+      financeEvolutionOpen:true,
       month: Number(data.settings.currentMonth ?? 0),
       year: Number(data.settings.year ?? 2026),
       filters:{ search:"", category:"all", subcategory:"all", status:"all", date:"", method:"all", card:"all", sort:"date", kind:"all" },
@@ -8361,11 +8384,6 @@
       );
     }
 
-    function financialDataTimestamp(candidate, fallback = ""){
-      const timestamp = Date.parse(candidate?.updatedAt || fallback || "");
-      return Number.isFinite(timestamp) ? timestamp : 0;
-    }
-
     function resetFinanceStateForUser(){
       state.month = Number(data.settings.currentMonth ?? data.settings.startMonth ?? 0);
       state.year = Number(data.settings.year ?? new Date().getFullYear());
@@ -8379,6 +8397,7 @@
     async function activateFinancialUser({user, remoteData, remoteClientUpdatedAt}){
       const scopedKey = `${STORAGE_KEY_BASE}:${user.uid}`;
       const scopedData = readFinancialDataAtKey(scopedKey);
+      const pendingData = readPendingFinancialData(localStorage, scopedKey);
       const claimedOwner = localStorage.getItem(LEGACY_OWNER_KEY) || "";
       const canClaimLegacy = !claimedOwner || claimedOwner === user.uid;
       const legacyData = canClaimLegacy ? readFinancialDataAtKey(STORAGE_KEY_BASE) : null;
@@ -8388,7 +8407,7 @@
       const remoteHasData = hasMeaningfulFinancialCandidate(remoteCandidate);
       const legacyDecisionKey = `${LEGACY_IMPORT_DECISION_KEY}:${user.uid}`;
       let importLegacyData = localStorage.getItem(legacyDecisionKey) === "import";
-      const shouldAskAboutLegacyData = !scopedData
+      const shouldAskAboutLegacyData = !scopedData && !pendingData
         && !remoteHasData
         && legacyHasData
         && canClaimLegacy
@@ -8402,29 +8421,20 @@
       if(importLegacyData && legacyHasData && !claimedOwner) localStorage.setItem(LEGACY_OWNER_KEY, user.uid);
 
       const localData = scopedData || (importLegacyData && legacyHasData ? legacyData : null);
-      const localHasData = hasMeaningfulFinancialCandidate(localData);
-      const localTime = financialDataTimestamp(localData);
-      const remoteTime = financialDataTimestamp(remoteCandidate, remoteClientUpdatedAt);
-
-      let selected = localData || remoteCandidate || createEmptyData();
-      let selectedFromRemote = false;
-      if(remoteHasData && (!localHasData || remoteTime >= localTime)){
-        selected = remoteCandidate;
-        selectedFromRemote = true;
-      }else if(!localHasData && remoteCandidate){
-        selected = remoteCandidate;
-        selectedFromRemote = true;
-      }
+      const resolved = resolveFinancialHydration(remoteCandidate, localData, {
+        pendingData, remoteClientUpdatedAt,
+      });
 
       STORAGE_KEY = scopedKey;
-      data = mergeDefaultCategories(selected);
+      data = mergeDefaultCategories(resolved.payload || createEmptyData());
+      if(resolved.needsSync) preservePendingFinancialData(localStorage, scopedKey, data);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       resetFinanceStateForUser();
       render();
 
       return {
         financialData:data,
-        shouldUpload:!selectedFromRemote,
+        shouldUpload:resolved.needsSync,
       };
     }
 
@@ -8437,6 +8447,7 @@
     function handleFinancialAccountDeleted(user){
       const scopedKey = `${STORAGE_KEY_BASE}:${user.uid}`;
       localStorage.removeItem(scopedKey);
+      localStorage.removeItem(`${scopedKey}__pending_sync_v1`);
       localStorage.removeItem(`${LEGACY_IMPORT_DECISION_KEY}:${user.uid}`);
       if(localStorage.getItem(LEGACY_OWNER_KEY) === user.uid){
         localStorage.removeItem(LEGACY_OWNER_KEY);
@@ -8482,6 +8493,7 @@
       data.settings.calendarMode = CALENDAR_MODE;
       data.updatedAt = new Date().toISOString();
       data = migrateFinancialData(data, {now:data.updatedAt});
+      preservePendingFinancialData(localStorage, STORAGE_KEY, data);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       const text = document.getElementById("savedText");
       if(text) text.textContent = "salvo automaticamente";
@@ -9588,6 +9600,8 @@
       normalizeFinanceVisibleMonth();
       document.body.dataset.financeTab = state.tab;
       const app = document.getElementById("app");
+      const evolutionDetails = app.querySelector(".finance-evolution");
+      if(evolutionDetails) state.financeEvolutionOpen = evolutionDetails.open;
       if(state.tab === "investments") app.innerHTML = renderInvestmentsPage();
       else {
         state.tab = "dashboard";
@@ -10850,7 +10864,7 @@
       const totalDue = round(forwardMonthWindow(MAX_RECURRING_PROJECTION_MONTHS)
         .reduce((total, position) => total + (getMonthSummary(data, position.key).billsMinor / 100), 0));
       return `
-        <details class="finance-evolution">
+        <details class="finance-evolution"${state.financeEvolutionOpen !== false ? " open" : ""}>
           <summary>
             <span class="finance-evolution-copy"><strong>Evolução mensal das contas</strong><small>Gráfico de barras</small></span>
             <span class="finance-evolution-chevron" aria-hidden="true">⌄</span>
@@ -10965,17 +10979,17 @@
         : (completed ? "Desmarcar pagamento" : "Marcar como pago");
       return `
         <tr>
-          <td>${formatDate(date)}</td>
-          <td>
+          <td data-label="Data">${formatDate(date)}</td>
+          <td data-label="Descrição">
             <div class="finance-block-description">
               <button type="button" class="finance-block-edit" data-action="${editAction}" data-id="${id}"${extraAttributes}>${escapeHtml(description || "Sem descrição")}</button>
               <button type="button" class="finance-block-delete" data-action="${deleteAction}" data-id="${id}"${extraAttributes} data-skip-confirm="true" aria-label="Excluir ${escapeHtml(description || "lançamento")}">×</button>
             </div>
           </td>
-          <td><div class="finance-block-tags"><span class="finance-block-tag" title="${escapeHtml(category)}">${escapeHtml(category)}</span>${subcategory ? `<span class="finance-block-tag secondary" title="${escapeHtml(subcategory)}">${escapeHtml(subcategory)}</span>` : ""}</div></td>
-          <td><span class="finance-data-block-value ${valueClass}">${toBRL(value)}</span></td>
-          <td><span class="finance-block-kind ${typeClass}">${escapeHtml(typeLabel)}</span></td>
-          <td>
+          <td data-label="Tag"><div class="finance-block-tags"><span class="finance-block-tag" title="${escapeHtml(category)}">${escapeHtml(category)}</span>${subcategory ? `<span class="finance-block-tag secondary" title="${escapeHtml(subcategory)}">${escapeHtml(subcategory)}</span>` : ""}</div></td>
+          <td data-label="Valor"><span class="finance-data-block-value ${valueClass}">${toBRL(value)}</span></td>
+          <td data-label="Tipo"><span class="finance-block-kind ${typeClass}">${escapeHtml(typeLabel)}</span></td>
+          <td data-label="Pago">
             <button type="button" class="finance-block-check ${completed ? "is-complete" : ""}" ${checkAction ? `data-action="${checkAction}" data-id="${id}"${checkStatus ? ` data-status="${checkStatus}"` : ""}${extraAttributes}` : "disabled"} aria-label="${checkLabel}" title="${checkLabel}">${completed ? "✓" : ""}</button>
           </td>
         </tr>
@@ -11097,7 +11111,7 @@
     }
 
     function renderDashboard(){
-      const summary = getMonthSummary(data, getMonthKey());
+      const summary = getYearSummary(data, state.year);
       const model = buildFinanceUnifiedModel();
       const projectionEndKey = financeProjectionEndMonthKey();
       const projectionEndYear = Number(projectionEndKey.slice(0,4));
@@ -11116,7 +11130,7 @@
           </nav>
 
           <section class="finance-block-summary" aria-label="Resumo de ${financeOsMonthName()} de ${state.year}">
-            <article><small>Saldo projetado</small><strong class="${summary.projectedFreeMinor < 0 ? "negative" : "positive"}">${toBRL(summary.projectedFreeMinor / 100)}</strong><p>Entradas menos todas as saídas do mês</p></article>
+            <article><small>Saldo realizado em ${state.year}</small><strong class="${summary.realizedBalanceMinor < 0 ? "negative" : "positive"}">${toBRL(summary.realizedBalanceMinor / 100)}</strong><p>Recebidos menos pagos no ano, incluindo faturas</p></article>
             <article><small>Blocos no mês</small><strong>${model.activeBlocks}</strong><p>Blocos com movimentação no período</p></article>
             <article><small>Lançamentos no mês</small><strong>${model.totalRows}</strong><p>Itens pertencentes ao período</p></article>
           </section>
@@ -16339,6 +16353,9 @@
             handleFinancialAccountDeleted(user);
           },
           onCloudStatus:updateFinancialCloudStatus,
+          onFinancialDataSaved:({uid, payload}) => {
+            acknowledgeFinancialData(localStorage, `${STORAGE_KEY_BASE}:${uid}`, payload);
+          },
         });
         observeFinanceFrameHeight();
       }catch(error){

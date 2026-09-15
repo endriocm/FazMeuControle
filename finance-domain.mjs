@@ -464,18 +464,40 @@ export function getSpendingByCategory(data, targetMonthKey) {
     .sort((left, right) => right.amountMinor - left.amountMinor);
 }
 
+function getRealizedCashFlow(data, matchesPeriod) {
+  let receivedMinor = 0;
+  let refundsMinor = 0;
+  let cashPaidMinor = 0;
+  let cardBillPaidMinor = 0;
+  for (const movement of list(data.movements)) {
+    if (!isConfirmedMovement(movement) || !matchesPeriod(monthOf(movement.occurredAt))) continue;
+    const amount = minor(movement.amountMinor);
+    if (movement.type === "income") receivedMinor += amount;
+    // Estorno no cartão já reduz a fatura; não é um recebimento na conta.
+    if (movement.type === "refund" && !movement.cardId) refundsMinor += amount;
+    if (movement.type === "cash_expense") cashPaidMinor += amount;
+    if (movement.type === "card_bill_payment") cardBillPaidMinor += amount;
+  }
+  const paidMinor = cashPaidMinor + cardBillPaidMinor;
+  return {
+    receivedMinor, refundsMinor, cashPaidMinor, cardBillPaidMinor, paidMinor,
+    realizedBalanceMinor: receivedMinor + refundsMinor - paidMinor,
+  };
+}
+
+export function getYearSummary(data, targetYear) {
+  const year = text(targetYear);
+  return {
+    year: Number(year),
+    ...getRealizedCashFlow(data, (key) => /^\d{4}$/u.test(year)
+      && Boolean(monthKeyParts(key)) && key.startsWith(`${year}-`)),
+  };
+}
+
 export function getMonthSummary(data, targetMonthKey) {
   try {
-    const movements = list(data.movements).filter(isConfirmedMovement);
-    const receivedMinor = movements
-      .filter((movement) => movement.type === "income" && monthOf(movement.occurredAt) === targetMonthKey)
-      .reduce((total, movement) => total + minor(movement.amountMinor), 0);
-    const refundsMinor = movements
-      .filter((movement) => movement.type === "refund" && monthOf(movement.occurredAt) === targetMonthKey)
-      .reduce((total, movement) => total + minor(movement.amountMinor), 0);
-    const paidMinor = movements
-      .filter((movement) => movement.type === "cash_expense" && monthOf(movement.occurredAt) === targetMonthKey)
-      .reduce((total, movement) => total + minor(movement.amountMinor), 0);
+    const cashFlow = getRealizedCashFlow(data, (key) => key === targetMonthKey);
+    const { receivedMinor, refundsMinor, paidMinor } = cashFlow;
     const explicitExpectedIncomeMinor = list(data.expectedItems)
       .filter((item) => isOpenExpected(item)
         && item.direction === "income"
@@ -502,9 +524,7 @@ export function getMonthSummary(data, targetMonthKey) {
       - committedMinor;
     return {
       monthKey: targetMonthKey,
-      receivedMinor,
-      refundsMinor,
-      paidMinor,
+      ...cashFlow,
       expectedIncomeMinor,
       expectedExpenseMinor,
       recurringIncomeMinor,
@@ -522,6 +542,9 @@ export function getMonthSummary(data, targetMonthKey) {
       receivedMinor: 0,
       refundsMinor: 0,
       paidMinor: 0,
+      cashPaidMinor: 0,
+      cardBillPaidMinor: 0,
+      realizedBalanceMinor: 0,
       expectedIncomeMinor: 0,
       expectedExpenseMinor: 0,
       billsMinor: 0,

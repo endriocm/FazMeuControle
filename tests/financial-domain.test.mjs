@@ -156,8 +156,8 @@ function financialFixture() {
       cardId: "card-xp",
       monthKey: "2026-08",
       dueDate: "2026-08-20",
-      totalMinor: 10_000,
-      paidMinor: 0,
+      totalMinor: 20_000,
+      paidMinor: 10_000,
       remainingMinor: 10_000,
       status: "payable",
     }],
@@ -217,12 +217,12 @@ test("resumo calcula livre projetado sem duplicar fatura, transferência ou inve
   const summary = getMonthSummary(data, "2026-08");
 
   assert.equal(summary.receivedMinor, 850_000);
-  assert.equal(summary.paidMinor, 28_640);
+  assert.equal(summary.paidMinor, 38_640);
   assert.equal(summary.expectedExpenseMinor, 300_000);
   assert.equal(summary.billsMinor, 10_000);
   assert.equal(summary.committedMinor, 310_000);
-  assert.equal(summary.projectedFreeMinor, 616_360);
-  assert.equal(getProjectedFree(data, "2026-08"), 616_360);
+  assert.equal(summary.projectedFreeMinor, 606_360);
+  assert.equal(getProjectedFree(data, "2026-08"), 606_360);
   assert.equal(summary.complete, true);
 });
 

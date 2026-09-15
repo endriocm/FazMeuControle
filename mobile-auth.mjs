@@ -146,6 +146,7 @@ export async function initializeRumoFiAuth({
   onSignedOut,
   onAccountDeleted,
   onCloudStatus,
+  onFinancialDataSaved,
 }) {
   if(!root || !appShell) throw new Error("Estrutura de autenticação ausente.");
 
@@ -170,6 +171,7 @@ export async function initializeRumoFiAuth({
   let saveTimer = null;
   let pendingPayload = null;
   let cloudWrite = null;
+  let saveRetryDelay = 1500;
   let currentView = "loading";
 
   const profileRef = (uid) => doc(db, "profiles", uid);
@@ -451,6 +453,7 @@ export async function initializeRumoFiAuth({
   async function flushFinancialSave() {
     if(cloudWrite) return cloudWrite;
     if(!pendingPayload || !currentUser) return;
+    clearTimeout(saveTimer);
     const uid = currentUser.uid;
     cloudWrite = (async () => {
       while(pendingPayload && currentUser?.uid === uid) {
@@ -459,15 +462,28 @@ export async function initializeRumoFiAuth({
         setCloudStatus("syncing", "Sincronizando com sua conta…");
         try {
           await writeFinancialData(snapshot, uid);
-          setCloudStatus("synced", "Dados sincronizados");
+          onFinancialDataSaved?.({ uid, payload:snapshot });
+          if(currentUser?.uid === uid) {
+            saveRetryDelay = 1500;
+            if(!pendingPayload) setCloudStatus("synced", "Dados sincronizados");
+          }
         } catch(error) {
           console.warn("Falha ao sincronizar dados do RumoFi:", error);
-          if(currentUser?.uid === uid && !pendingPayload) pendingPayload = snapshot;
-          setCloudStatus("pending", "Salvo no aparelho; sincronização pendente");
+          if(currentUser?.uid === uid) {
+            if(!pendingPayload) pendingPayload = snapshot;
+            setCloudStatus("pending", "Salvo no aparelho; sincronização pendente");
+          }
           break;
         }
       }
-    })().finally(() => { cloudWrite = null; });
+    })().finally(() => {
+      cloudWrite = null;
+      if(pendingPayload && currentUser) {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => void flushFinancialSave(), saveRetryDelay);
+        saveRetryDelay = Math.min(saveRetryDelay * 2, 30000);
+      }
+    });
     return cloudWrite;
   }
 
@@ -753,6 +769,8 @@ export async function initializeRumoFiAuth({
   window.addEventListener("online", () => {
     if(pendingPayload) void flushFinancialSave();
   });
+  window.addEventListener("pagehide", () => { void flushFinancialSave(); });
+  document.addEventListener("visibilitychange", () => { void flushFinancialSave(); });
 
   showLoading();
   if(!isNative) {
