@@ -1,0 +1,29 @@
+RumoFi
+
+Descrição breve:
+Organize receitas, despesas, cartões e metas financeiras em um só lugar.
+
+Descrição completa:
+O RumoFi ajuda você a acompanhar seu dinheiro e organizar suas finanças pessoais.
+
+Registre receitas e despesas, acompanhe faturas de cartões e consulte os valores recebidos e pagos ao longo do ano. Os gráficos mostram suas movimentações mês a mês.
+
+PLANO GRATUITO
+Organize seus lançamentos em um bloco. Você pode registrar movimentações, acompanhar pagamentos, salvar os dados na sua conta e exportar backups. O plano gratuito contém anúncios no Android.
+
+RUMOFI PREMIUM
+Com a assinatura mensal, crie vários blocos, acesse o planejamento financeiro e use o aplicativo sem anúncios. A assinatura é contratada pela Google Play, com preço e condições apresentados antes da compra, e possui renovação automática. Você pode cancelar futuras cobranças nas configurações de assinaturas da Google Play.
+
+RECURSOS
+• Entradas e saídas organizadas por categoria.
+• Contas recorrentes e pagamentos pendentes.
+• Cartões, compras parceladas e faturas.
+• Gráficos e saldo anual dos valores recebidos e pagos.
+• Planejamento de metas no Premium.
+• Registros salvos na conta RumoFi e sincronização entre dispositivos.
+• Exportação para Excel e backup em arquivo TXT.
+
+Os dados financeiros são informados por você. O RumoFi é uma ferramenta de organização pessoal e não movimenta dinheiro nem executa operações bancárias.
+
+Suporte: endriocardoso964@gmail.com
+Privacidade: https://rumofi-69b1e.web.app/privacy

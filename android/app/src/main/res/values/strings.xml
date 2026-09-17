@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">RumoFi</string>
+    <string name="admob_app_id">ca-app-pub-5960094893354416~4672932627</string>
     <string name="title_activity_main">RumoFi</string>
     <string name="package_name">app.fazmeucontrole.mobile</string>
     <string name="custom_url_scheme">app.fazmeucontrole.mobile</string>

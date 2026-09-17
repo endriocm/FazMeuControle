@@ -1,4 +1,14 @@
 {
+  "hosting": {
+    "site": "rumofi-69b1e",
+    "public": "public-legal",
+    "cleanUrls": true,
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [{ "source": "**", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+    ] }]
+  },
   "functions": {
     "source": "functions",
     "runtime": "nodejs22"

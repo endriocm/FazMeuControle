@@ -7631,6 +7631,11 @@
       <section id="summaryCards" class="summary-grid" hidden></section>
 
       <div id="app"></div>
+      <footer class="rumofi-legal-footer">
+        <a href="https://rumofi-69b1e.web.app/privacy" target="_blank" rel="noopener">Privacidade</a>
+        <a href="mailto:endriocardoso964@gmail.com">Suporte</a>
+        <button id="rumofiAdsPrivacy" type="button" hidden>Privacidade dos anúncios</button>
+      </footer>
     </main>
   </div>
 
@@ -7667,8 +7672,9 @@
       <button class="rumofi-subscription-close" type="button" data-subscription-close aria-label="Fechar assinatura">×</button>
       <p class="rumofi-subscription-kicker">RumoFi Premium</p>
       <h2 id="subscriptionTitle">Tenha seu controle financeiro sempre com você</h2>
-      <p class="rumofi-subscription-copy">Assine pela Google Play para manter seus dados sincronizados e acessar todos os recursos do RumoFi.</p>
-      <p class="rumofi-subscription-product" data-subscription-product>Plano mensal RumoFi</p>
+      <p class="rumofi-subscription-copy">No gratuito, organize suas finanças em um bloco. Com o Premium, crie vários blocos, acesse o planejamento financeiro e use o app sem anúncios.</p>
+      <p class="rumofi-subscription-product" data-subscription-product>RumoFi Premium · R$ 20,00 por mês</p>
+      <p class="rumofi-subscription-copy">Assinatura com renovação automática mensal. Você pode cancelar futuras cobranças nas assinaturas da Google Play.</p>
       <p class="rumofi-subscription-status" data-subscription-status role="status" aria-live="polite">Consultando a assinatura…</p>
       <div class="rumofi-subscription-actions">
         <button class="btn primary" type="button" data-subscription-buy>Assinar agora</button>
@@ -7695,6 +7701,8 @@
     import { Share } from "@capacitor/share";
     import { readPendingFinancialData, preservePendingFinancialData, acknowledgeFinancialData, resolveFinancialHydration } from "./finance-persistence.mjs";
     import { initializeRumoFiAuth } from "./mobile-auth.mjs";
+    import { initializeRumoFiAds } from "./mobile-ads.mjs";
+    import { canCreateFinancialBlock, canChangeFinancialData } from "./plan-access.mjs";
     import { createRumoFiSubscriptionController } from "./subscription.mjs";
     import {
       createEmptyFinancialDataV2,
@@ -7744,6 +7752,8 @@
     let rumofiAuthController = null;
     let rumofiSubscriptionController = null;
     let rumofiSubscriptionUser = null;
+    let rumofiAccess = { uid:null, status:'loading' };
+    const rumofiAds = initializeRumoFiAds();
     const CALENDAR_MODE = "calendar-year";
     const LEGACY_MONTH_NUMBERS = [7,8,9,10,11,12,1,2,3,4,5,6];
     const MONTHS = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
@@ -8523,12 +8533,36 @@
       root:document.getElementById("financialPlanningModal"),
       readPlan:()=>data.financialPlan || null,
       savePlan:(nextPlan)=>{
+        if(!requirePremium()) return;
         data.financialPlan = nextPlan;
         recordFinanceAudit("financial_planning_saved", {status:nextPlan.status, currentStep:nextPlan.currentStep});
         autosave(true);
       },
       notify:(feedback)=>toast(feedback)
     });
+
+    function showPlanLimit(message = 'O plano gratuito permite um bloco. Assine para criar vários blocos.'){
+      if(rumofiAccess.status === 'loading') {
+        toast('Conecte-se para confirmar seu plano e liberar novos recursos.');
+        return false;
+      }
+      rumofiSubscriptionController?.open();
+      toast(message);
+      return false;
+    }
+    function requirePremium(){
+      return rumofiAccess.status === 'premium' || showPlanLimit('O planejamento financeiro faz parte do RumoFi Premium.');
+    }
+    function allowNewBlock(){
+      return canCreateFinancialBlock(data, rumofiAccess.status) || showPlanLimit();
+    }
+    function allowFinancialChange(next){
+      return canChangeFinancialData(data, next, rumofiAccess.status) || showPlanLimit();
+    }
+    function freeBlockCategory(direction, fallback){
+      if(rumofiAccess.status !== 'free') return fallback;
+      return data.categories.find(category => category.financeBlock && financeBlockSupports(category, direction))?.name || fallback;
+    }
 
     function toast(message, options = {}){
       const el = document.getElementById("toast");
@@ -13175,7 +13209,7 @@
       openModal(item ? "Editar entrada" : "Nova entrada", entryForm(item || (categoryName ? {category:categoryName} : {}), {quick:isQuick}), (fd) => {
         const undoSnapshot = createUndoSnapshot();
         const explicitCategory = isQuick ? "Outros" : String(fd.get("category") || "");
-        const category = resolveSuggestedCategory(fd.get("description"), "entrada", explicitCategory);
+        const category = resolveSuggestedCategory(fd.get("description"), "entrada", isQuick ? freeBlockCategory('entrada', explicitCategory) : explicitCategory);
         const payload = {
           description: String(fd.get("description") || "").trim(),
           category: category.name,
@@ -13189,6 +13223,7 @@
         };
         if(payload.status === "received" && !payload.receivedDate) payload.receivedDate = defaultDate;
         if(payload.status === "pending") payload.receivedDate = "";
+        if(!allowFinancialChange({...data, entries:item ? data.entries.map(row => row.id === item.id ? {...item, ...payload} : row) : [...data.entries, payload]})) return;
         const candidate = payload.status === "received" ? canonicalMovement({
           legacyId:item?.id || "",
           type:"income",
@@ -13244,7 +13279,7 @@
       openModal(item ? "Editar saída" : "Nova saída", expenseForm(item || (categoryName ? {category:categoryName} : {}), {quick:isQuick}), (fd) => {
         const undoSnapshot = createUndoSnapshot();
         const explicitCategory = isQuick ? "Outros" : String(fd.get("category") || "");
-        const category = resolveSuggestedCategory(fd.get("description"), "saida", explicitCategory);
+        const category = resolveSuggestedCategory(fd.get("description"), "saida", isQuick ? freeBlockCategory('saida', explicitCategory) : explicitCategory);
         const purchaseDate = fd.get("purchaseDate") || defaultDate;
         const paymentMethod = String(fd.get("paymentMethod") || "pix");
         const cardId = isCreditCardPaymentMethod(paymentMethod) ? String(fd.get("cardId") || "") : "";
@@ -13281,6 +13316,7 @@
         };
         if(payload.status === "paid" && !payload.paymentDate) payload.paymentDate = isQuick ? purchaseDate : isoToday();
         if(payload.status === "pending") payload.paymentDate = "";
+        if(!allowFinancialChange({...data, expenses:item ? data.expenses.map(row => row.id === item.id ? {...item, ...payload} : row) : [...data.expenses, payload]})) return;
         const candidate = payload.status === "paid" ? canonicalMovement({
           legacyId:item?.id || "",
           type:movementType,
@@ -13370,7 +13406,9 @@
 
     function openCardModal(id = ""){
       const card = id ? data.cards.find(c=>c.id===id) : null;
+      if(!card && !allowNewBlock()) return;
       openModal(card ? "Editar cartão" : "Novo cartão", cardForm(card || {}), (fd) => {
+        if(!card && !allowNewBlock()) return;
         const undoSnapshot = createUndoSnapshot();
         const template = CARD_TEMPLATES.find(t => t.id === fd.get("templateId")) || CARD_TEMPLATES.find(t => t.id === "custom");
         const name = String(fd.get("name") || "").trim() || template.name;
@@ -13521,6 +13559,7 @@
     }
 
     function openFinanceBlockChooser(){
+      if(!allowNewBlock()) return;
       openModal("Adicionar novo bloco", `
         <div class="finance-block-choice-grid">
           <label class="finance-block-choice"><input type="radio" name="newBlockKind" value="expense" checked /><span><strong>Bloco de despesas</strong><small>Crie um bloco com nome, cor e tipo de movimentação.</small></span></label>
@@ -13557,7 +13596,8 @@
 
     function openCategoryModal(id = "", blockMode = false){
       const cat = id ? data.categories.find(c=>c.id===id) : null;
-      const selectedType = cat?.type || "saida";
+      if(!cat && blockMode && !allowNewBlock()) return;
+      const selectedType = cat?.type || (blockMode ? 'ambos' : 'saida');
       const title = blockMode ? (cat ? "Editar bloco" : "Novo bloco") : (cat ? "Editar categoria" : "Nova categoria");
       openModal(title, `
         <div class="form-grid">
@@ -13572,6 +13612,12 @@
       `, (fd) => {
         const undoSnapshot = createUndoSnapshot();
         const payload = {name:String(fd.get("name") || "").trim(), type:normalizeCategoryType(fd.get("type")), color:fd.get("color")};
+        const proposedCategory = {...(cat || {id:'new-category'}), ...payload, financeBlock:blockMode || cat?.financeBlock === true};
+        const renamed = rows => cat && blockMode ? rows.map(row => normalizeText(row.category) === normalizeText(cat.name) && !row.cardId ? {...row, category:payload.name} : row) : rows;
+        if(!allowFinancialChange({...data,
+          categories:cat ? data.categories.map(row => row.id === cat.id ? proposedCategory : row) : [...data.categories, proposedCategory],
+          entries:renamed(data.entries), expenses:renamed(data.expenses)
+        })) return;
         if(cat){
           const previousName = cat.name;
           Object.assign(cat, payload);
@@ -15730,6 +15776,7 @@
           const text = String(reader.result || "");
           const memoryCode = extractMemoryBackupCode(text);
           const imported = assertBackupData(memoryCode ? await decryptMemoryBackup(memoryCode) : JSON.parse(text));
+          if(!allowFinancialChange(mergeDefaultCategories(imported))) return;
           ensureLocalMigrationBackup(localStorage, STORAGE_KEY, imported);
           data = mergeDefaultCategories(imported);
           invalidateFinanceCaches();
@@ -15799,6 +15846,7 @@
     function findOrCreateNubankCard(){
       let card = data.cards.find(card => findCardTemplate(card).id === "nubank" || normalizeText(card.name).includes("nubank"));
       if(card) return card;
+      if(!allowNewBlock()) return null;
       card = {
         id:"card_nubank",
         name:"Nubank",
@@ -15864,6 +15912,7 @@
           if(dateIndex < 0 || titleIndex < 0 || amountIndex < 0) throw new Error("Colunas esperadas: date, title, amount.");
 
           const card = findOrCreateNubankCard();
+          if(!card) return;
           const {invoiceMonth, invoiceDueDate} = getNubankInvoiceInfo(file.name);
           const importedKeys = new Set(data.cardPurchases.map(item => item.importedKey).filter(Boolean));
           let added = 0;
@@ -15944,6 +15993,7 @@
         return;
       }
       if(action === "open-financial-planning"){
+        if(!requirePremium()) return;
         financialPlanning.open(btn);
         return;
       }
@@ -16353,6 +16403,13 @@
             handleFinancialAccountDeleted(user);
           },
           onCloudStatus:updateFinancialCloudStatus,
+          onSubscriptionState:(access) => {
+            rumofiAccess = access;
+            void rumofiAds.setAccess(access);
+            const button = document.querySelector('[data-action="open-subscription"]');
+            if(button) button.textContent = access.status === 'premium' ? '★ RumoFi Premium' : '★ Assinar RumoFi';
+            if(access.status !== 'premium' && financialPlanning.isOpen()) financialPlanning.close();
+          },
           onFinancialDataSaved:({uid, payload}) => {
             acknowledgeFinancialData(localStorage, `${STORAGE_KEY_BASE}:${uid}`, payload);
           },

@@ -27,9 +27,11 @@ import {
   doc,
   getDoc,
   getFirestore,
+  onSnapshot,
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
+import { subscriptionAccess } from "./ads-access.mjs";
 
 export const RUMOFI_FIREBASE_CONFIG = Object.freeze({
   apiKey: "AIzaSyAXBNY-V0NOl0D1GqPwRdkRWMsH2x0SIzc",
@@ -40,7 +42,7 @@ export const RUMOFI_FIREBASE_CONFIG = Object.freeze({
   appId: "1:1029093351080:web:6bb6998a88aad59656ec9d",
 });
 
-export const RUMOFI_PRIVACY_NOTICE_VERSION = "2026-09-04-v1";
+export const RUMOFI_PRIVACY_NOTICE_VERSION = "2026-09-16-v2";
 
 const LOGIN_TIMEOUT_MS = 12_000;
 const CLOUD_SAVE_DELAY_MS = 550;
@@ -115,7 +117,9 @@ function privacyNoticeMarkup() {
         <p><strong>Dados da conta:</strong> nome, e-mail e telefone identificam seu acesso e permitem suporte.</p>
         <p><strong>Dados financeiros:</strong> lançamentos, cartões e planejamento ficam vinculados à sua conta para sincronizar seus dispositivos.</p>
         <p><strong>Marketing:</strong> mensagens por e-mail ou WhatsApp só serão enviadas nas opções que você autorizar. A autorização é opcional e pode ser retirada em “Minha conta”.</p>
+        <p><strong>Anúncios:</strong> o plano gratuito no Android usa Google AdMob, que trata identificadores do dispositivo, interações e diagnósticos. Assinantes Premium não recebem anúncios.</p>
         <p>Você pode corrigir seus dados, sair e excluir definitivamente sua conta pelo próprio aplicativo.</p>
+        <p><a href="https://rumofi-69b1e.web.app/privacy" target="_blank" rel="noopener">Política de privacidade completa</a> · <a href="mailto:endriocardoso964@gmail.com">Suporte</a></p>
       </div>
     </details>`;
 }
@@ -147,6 +151,7 @@ export async function initializeRumoFiAuth({
   onAccountDeleted,
   onCloudStatus,
   onFinancialDataSaved,
+  onSubscriptionState,
 }) {
   if(!root || !appShell) throw new Error("Estrutura de autenticação ausente.");
 
@@ -173,6 +178,34 @@ export async function initializeRumoFiAuth({
   let cloudWrite = null;
   let saveRetryDelay = 1500;
   let currentView = "loading";
+  let stopSubscription = null;
+  let subscriptionTimer = null;
+
+  function clearSubscription() {
+    stopSubscription?.();
+    stopSubscription = null;
+    clearTimeout(subscriptionTimer);
+    onSubscriptionState?.({ uid: null, status: 'loading' });
+  }
+
+  function watchSubscription(uid) {
+    clearSubscription();
+    onSubscriptionState?.({ uid, status: 'loading' });
+    stopSubscription = onSnapshot(doc(db, 'entitlements', uid), { includeMetadataChanges: true }, snapshot => {
+      if (currentUser?.uid !== uid) return;
+      clearTimeout(subscriptionTimer);
+      const access = subscriptionAccess(snapshot.data(), { fromCache: snapshot.metadata.fromCache });
+      onSubscriptionState?.({ uid, ...access });
+      if (access.status === 'premium') {
+        // Ao vencer, revalidamos no servidor antes de liberar publicidade.
+        subscriptionTimer = setTimeout(() => {
+          if (currentUser?.uid === uid) watchSubscription(uid);
+        }, Math.min(access.expiresAt - Date.now() + 100, 2_147_483_647));
+      }
+    }, () => {
+      if (currentUser?.uid === uid) onSubscriptionState?.({ uid, status: 'loading' });
+    });
+  }
 
   const profileRef = (uid) => doc(db, "profiles", uid);
   const financeRef = (uid) => doc(db, "financialData", uid);
@@ -497,6 +530,7 @@ export async function initializeRumoFiAuth({
   }
 
   async function activateUser(user) {
+    clearSubscription();
     currentUser = user;
     showLoading("Sincronizando seus dados…");
     let remote = { profile:null, financialData:null, remoteClientUpdatedAt:"" };
@@ -529,6 +563,7 @@ export async function initializeRumoFiAuth({
     root.hidden = true;
     setBodyLocked(false);
     updateAccountButton();
+    watchSubscription(user.uid);
     if(remoteError) setCloudStatus("pending", "Modo local; sincronização pendente");
     else setCloudStatus("synced", "Dados sincronizados");
     if(result?.shouldUpload && result?.financialData) queueFinancialSave(result.financialData, { immediate:true });
@@ -672,6 +707,7 @@ export async function initializeRumoFiAuth({
   }
 
   async function handleLogout() {
+    clearSubscription();
     setBusy(true);
     clearTimeout(saveTimer);
     await Promise.race([flushFinancialSave(), new Promise(resolve => setTimeout(resolve, 3500))]).catch(() => {});
@@ -719,6 +755,7 @@ export async function initializeRumoFiAuth({
         deleteDoc(profileRef(currentUser.uid)),
       ]);
       await deleteUser(currentUser);
+      clearSubscription();
       if(isNative) await FirebaseAuthentication.signOut().catch(() => {});
       currentUser = null;
       currentProfile = null;

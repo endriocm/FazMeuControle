@@ -51,7 +51,8 @@ export function createRumoFiSubscriptionController({ modal, getUser, notify } = 
   function setBusy(next) {
     busy = Boolean(next);
     [refs.buy, refs.restore, refs.manage].forEach(button => {
-      if(button) button.disabled = busy;
+      if(button) button.disabled = busy || !Capacitor.isNativePlatform()
+        || (button === refs.buy && (!currentProduct || !RUMOFI_SUBSCRIPTION_CONFIG.verificationEndpoint));
     });
   }
 
@@ -68,7 +69,8 @@ export function createRumoFiSubscriptionController({ modal, getUser, notify } = 
   function renderProduct(product) {
     currentProduct = product || null;
     if(!product) {
-      setText(refs.product, "Plano mensal RumoFi");
+      setText(refs.product, "RumoFi Premium · R$ 20,00 por mês");
+      setBusy(busy);
       return;
     }
     const price = product.priceString || "Preço exibido pela Google Play";
@@ -112,7 +114,7 @@ export function createRumoFiSubscriptionController({ modal, getUser, notify } = 
       return;
     }
     if(!RUMOFI_SUBSCRIPTION_CONFIG.verificationEndpoint) {
-      setStatus("Assinatura preparada. Falta configurar a validação segura no servidor antes de vender.", "pending");
+      setStatus("A assinatura ainda não está disponível para compra. Tente novamente mais tarde.", "pending");
       renderProduct(null);
       return;
     }
@@ -135,7 +137,7 @@ export function createRumoFiSubscriptionController({ modal, getUser, notify } = 
         const entitlement = await verifyTransaction(current);
         setStatus(`Assinatura ativa até ${new Date(entitlement.expiresAt).toLocaleDateString("pt-BR")}.`, "success");
       } else {
-        setStatus(product ? "Plano disponível para assinatura." : "Crie o produto da assinatura na Google Play Console.");
+        setStatus(product ? "Plano disponível para assinatura." : "A assinatura ainda não está disponível para compra.");
       }
     } catch(error) {
       console.warn("Não foi possível consultar a assinatura RumoFi:", error);
@@ -148,7 +150,7 @@ export function createRumoFiSubscriptionController({ modal, getUser, notify } = 
   async function purchase() {
     if(busy) return;
     if(!RUMOFI_SUBSCRIPTION_CONFIG.verificationEndpoint) {
-      setStatus("A validação segura ainda precisa ser configurada no servidor.", "pending");
+      setStatus("A assinatura ainda não está disponível para compra. Tente novamente mais tarde.", "pending");
       return;
     }
     const user = currentUser || getUser?.();
@@ -170,7 +172,7 @@ export function createRumoFiSubscriptionController({ modal, getUser, notify } = 
         autoAcknowledgePurchases: false,
       });
       const entitlement = await verifyTransaction(transaction);
-      if(transaction.purchaseToken) await plugin.NativePurchases.acknowledgePurchase({ purchaseToken:transaction.purchaseToken });
+      // A validação no servidor já reconhece a compra na Google Play.
       setStatus(`Assinatura ativa até ${new Date(entitlement.expiresAt).toLocaleDateString("pt-BR")}.`, "success");
       notify?.("Assinatura RumoFi ativada.");
     } catch(error) {
@@ -184,7 +186,7 @@ export function createRumoFiSubscriptionController({ modal, getUser, notify } = 
   async function restore() {
     if(busy) return;
     if(!RUMOFI_SUBSCRIPTION_CONFIG.verificationEndpoint) {
-      setStatus("A validação segura ainda precisa ser configurada no servidor.", "pending");
+      setStatus("Não foi possível consultar compras agora. Tente novamente mais tarde.", "pending");
       return;
     }
     setBusy(true);

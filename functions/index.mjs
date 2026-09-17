@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { assertPurchaseOwner } from './billing-domain.mjs';
 
 import { getApp, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
@@ -67,6 +68,7 @@ async function validateAndStoreSubscription({ uid, purchaseToken, productId = PR
     token: purchaseToken,
   });
   const purchase = result.data || {};
+  assertPurchaseOwner(purchase, uid);
   const lineItem = (purchase.lineItems || []).find(item => item.productId === productId);
   const basePlanId = String(lineItem?.offerDetails?.basePlanId || "");
   const expiresAt = String(lineItem?.expiryTime || "");

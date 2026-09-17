@@ -13,11 +13,28 @@ body.mesa-finance-body {
   --gold: #4f7cff;
   padding-top: env(safe-area-inset-top);
   padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--rumofi-ad-height, 0px));
   padding-left: env(safe-area-inset-left);
   overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+.rumofi-legal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 24px;
+  padding: 24px 16px;
+  font-size: 12px;
+}
+.rumofi-legal-footer a,
+.rumofi-legal-footer button {
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+}
+.rumofi-legal-footer button { border: 0; background: none; cursor: pointer; padding: 0; }
+body.mesa-finance-body .toast { bottom: calc(18px + var(--rumofi-ad-height, 0px)); }
 
 button,
 a,
